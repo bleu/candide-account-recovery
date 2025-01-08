@@ -6,11 +6,11 @@ export default function Home() {
   return (
     <main className="flex flex-1 items-center justify-center">
       <div className="flex mx-12">
-        <div className="flex flex-col justify-center  gap-3 flex-1">
-          <h2 className="text-3xl font-bold text-primary">
+        <div className="flex flex-col justify-center  gap-3 flex-1 ">
+          <h2 className="text-3xl font-bold text-primary font-roboto-mono">
             Welcome to Safe <br /> Account Recovery
           </h2>
-          <p className="font-light text-2xl ">
+          <p className="font-light text-2xl font-roboto-mono">
             Choose how you want to proceed.
           </p>
         </div>
@@ -31,6 +31,7 @@ export default function Home() {
             label="OWNERS AND GUARDIANS"
             title="MANAGE RECOVERY"
             description="Approve on going requests and manage guardians permissions."
+            rotateIcon
             onClick={() => console.log("Protect account")}
           />
           <HomeButton

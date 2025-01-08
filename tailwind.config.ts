@@ -28,6 +28,10 @@ export default {
           foreground: "var(--content-foreground)",
         },
       },
+      fontFamily: {
+        roboto: ["Roboto", "sans-serif"],
+        "roboto-mono": ["Roboto Mono", "monospace"],
+      },
     },
   },
   plugins: [],

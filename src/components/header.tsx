@@ -4,14 +4,17 @@ import React from "react";
 
 import { Button, Input } from "@bleu.builders/ui";
 import SearchInput from "./search-input";
+import Link from "next/link";
 
 const Header = () => {
   return (
     <header className="flex h-32 items-center justify-around gap-4 mx-8">
       <div className="flex flex-1 justify-center">
-        <h1 className="text-primary font-bold text-lg font-roboto-mono text-center">
-          Safe Account Recovery
-        </h1>
+        <Link href="/">
+          <h1 className="text-primary font-bold text-lg font-roboto-mono text-center">
+            Safe Account Recovery
+          </h1>
+        </Link>
       </div>
       <SearchInput />
       <div className="flex flex-1 justify-center">

@@ -1,5 +1,6 @@
 "use client";
 
+import EmptyActiveRecovery from "@/components/empty-active-recovery";
 import { cn } from "@/lib/utils";
 import {
   Button,
@@ -40,6 +41,8 @@ export default function Dashboard() {
       status: "Pending",
     },
   ];
+
+  const hasActiveRecovery = true;
 
   return (
     <div className="flex flex-col flex-1 mx-8">
@@ -130,73 +133,79 @@ export default function Dashboard() {
                   </span>
                 </div>
               </div>
-              <p className={labelStyle}>SAFE SIGNERS</p>
-              {guardians.map((guardian) => (
-                <div
-                  key={guardian.nickname}
-                  className={cn(
-                    textWithBorderStyle,
-                    "inline-flex items-center gap-2"
-                  )}
-                  style={{ borderColor: "rgba(255, 255, 255, 0.08)" }}
-                >
-                  <span>{guardian.address}</span>
-                  <ExternalLink size={14} />
-                </div>
-              ))}
-              <h4 className="my-6 text-primary font-roboto-mono text-sm">
-                GUARDIANS APPROVAL
-              </h4>
-              <div className="space-y-6">
-                <div
-                  className={cn(
-                    labelStyle,
-                    "grid grid-cols-[1fr,3fr,1fr] gap-4"
-                  )}
-                >
-                  <div>NICKNAME</div>
-                  <div>ADDRESS</div>
-                  <div className="text-right mr-4">APPROVAL</div>
-                </div>
-                <div className="space-y-2">
+              {hasActiveRecovery ? (
+                <>
+                  <p className={labelStyle}>SAFE SIGNERS</p>
                   {guardians.map((guardian) => (
                     <div
                       key={guardian.nickname}
-                      className="grid grid-cols-[1fr,3fr,1fr] items-center py-2 px-3 bg-background rounded-lg"
+                      className={cn(
+                        textWithBorderStyle,
+                        "inline-flex items-center gap-2"
+                      )}
+                      style={{ borderColor: "rgba(255, 255, 255, 0.08)" }}
                     >
-                      <div className="text-xs text-foreground opacity-60 font-medium font-roboto-mono">
-                        {guardian.nickname}
-                      </div>
-
-                      <div className="flex items-center gap-2">
-                        <code className="text-xs text-foreground opacity-60 font-medium font-roboto-mono">
-                          {guardian.address}
-                        </code>
-                        <button className="opacity-60 hover:opacity-100">
-                          <ExternalLink className="h-4 w-4" />
-                        </button>
-                      </div>
-
-                      <div className="flex justify-end">
-                        <span className="px-4 py-1 bg-terciary text-terciary-foreground rounded-md text-xs">
-                          {guardian.status}
-                        </span>
-                      </div>
+                      <span>{guardian.address}</span>
+                      <ExternalLink size={14} />
                     </div>
                   ))}
-                </div>
-              </div>
-              <div className="flex justify-end mt-4 mb-2 gap-2">
-                <Button className="text-xs font-roboto-mono font-bold px-3 py-2 rounded-xl hover:bg-terciary hover:text-primary">
-                  Start Delay Period
-                </Button>
-                <Button className="text-xs font-roboto-mono font-bold px-3 py-2 rounded-xl hover:bg-terciary hover:text-primary">
-                  Approve Recovery
-                </Button>
-              </div>
-              <span className="text-xs flex justify-end text-[10px] opacity-60">
-                Only Guardians can approve this recovery request.
-              </span>
+                  <h4 className="my-6 text-primary font-roboto-mono text-sm">
+                    GUARDIANS APPROVAL
+                  </h4>
+                  <div className="space-y-6">
+                    <div
+                      className={cn(
+                        labelStyle,
+                        "grid grid-cols-[1fr,3fr,1fr] gap-4"
+                      )}
+                    >
+                      <div>NICKNAME</div>
+                      <div>ADDRESS</div>
+                      <div className="text-right mr-4">APPROVAL</div>
+                    </div>
+                    <div className="space-y-2">
+                      {guardians.map((guardian) => (
+                        <div
+                          key={guardian.nickname}
+                          className="grid grid-cols-[1fr,3fr,1fr] items-center py-2 px-3 bg-background rounded-lg"
+                        >
+                          <div className="text-xs text-foreground opacity-60 font-medium font-roboto-mono">
+                            {guardian.nickname}
+                          </div>
+
+                          <div className="flex items-center gap-2">
+                            <code className="text-xs text-foreground opacity-60 font-medium font-roboto-mono">
+                              {guardian.address}
+                            </code>
+                            <button className="opacity-60 hover:opacity-100">
+                              <ExternalLink className="h-4 w-4" />
+                            </button>
+                          </div>
+
+                          <div className="flex justify-end">
+                            <span className="px-4 py-1 bg-terciary text-terciary-foreground rounded-md text-xs">
+                              {guardian.status}
+                            </span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                  <div className="flex justify-end mt-4 mb-2 gap-2">
+                    <Button className="text-xs font-roboto-mono font-bold px-3 py-2 rounded-xl hover:bg-terciary hover:text-primary">
+                      Start Delay Period
+                    </Button>
+                    <Button className="text-xs font-roboto-mono font-bold px-3 py-2 rounded-xl hover:bg-terciary hover:text-primary">
+                      Approve Recovery
+                    </Button>
+                  </div>
+                  <span className="text-xs flex justify-end text-[10px] opacity-60">
+                    Only Guardians can approve this recovery request.
+                  </span>
+                </>
+              ) : (
+                <EmptyActiveRecovery />
+              )}
             </div>
           </div>
         </div>

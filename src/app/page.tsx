@@ -31,6 +31,7 @@ export default function Home() {
             label="OWNERS AND GUARDIANS"
             title="MANAGE RECOVERY"
             description="Approve on going requests and manage guardians permissions."
+            href="/manage-recovery"
             onClick={() => console.log("Protect account")}
           />
           <HomeButton

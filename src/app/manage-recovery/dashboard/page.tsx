@@ -187,10 +187,10 @@ export default function Dashboard() {
                 </div>
               </div>
               <div className="flex justify-end mt-4 mb-2 gap-2">
-                <Button className="text-xs font-roboto-mono font-bold px-3 py-2 rounded-xl ">
+                <Button className="text-xs font-roboto-mono font-bold px-3 py-2 rounded-xl hover:bg-terciary hover:text-primary">
                   Start Delay Period
                 </Button>
-                <Button className="text-xs font-roboto-mono font-bold px-3 py-2 rounded-xl ">
+                <Button className="text-xs font-roboto-mono font-bold px-3 py-2 rounded-xl hover:bg-terciary hover:text-primary">
                   Approve Recovery
                 </Button>
               </div>

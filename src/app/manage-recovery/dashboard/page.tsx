@@ -66,14 +66,16 @@ export default function Dashboard() {
 
         <div className="grid grid-cols-3 gap-6">
           <div className="col-span-1">
-            <div className="flex items-center justify-between gap-2 flex-1 bg-terciary text-terciary-foreground text-xs font-roboto-mono rounded-lg py-2 px-4">
-              <div>
-                <p className="font-bold mb-1">Recovery Ongoing</p>
-                <p className="font-medium">Delay period not started.</p>
+            {hasActiveRecovery && (
+              <div className="flex items-center justify-between gap-2 flex-1 bg-terciary text-terciary-foreground text-xs font-roboto-mono rounded-lg py-2 px-4 mb-6">
+                <div>
+                  <p className="font-bold mb-1">Recovery Ongoing</p>
+                  <p className="font-medium">Delay period not started.</p>
+                </div>
+                <Info size={21} />
               </div>
-              <Info size={21} />
-            </div>
-            <h3 className="mt-6 mb-2 font-bold text-sm font-roboto-mono">
+            )}
+            <h3 className=" mb-2 font-bold text-sm font-roboto-mono">
               SAFE ACCOUNT
             </h3>
             <div
@@ -83,30 +85,34 @@ export default function Dashboard() {
               <p className="text-2xl font-roboto-mono">0xabc.eth</p>
               <ExternalLink />
             </div>
-            <h4 className="text-xs font-medium font-roboto-mono">
-              Recovery link
-            </h4>
-            <p className="text-xs font-medium opacity-60 my-2">
-              Copy the link to share with guardians or others involved in the
-              recovery.
-            </p>
-            <div className="flex items-center gap-3 mb-6">
-              {/* finish this style */}
-              <Input
-                style={{ borderColor: "rgba(255, 255, 255, 0.60)" }}
-                className="border rounded-sm text-xs bg-content-background"
-              />
-              <Copy size={24} />
-            </div>
-            <h4 className="text-xs font-medium font-roboto-mono">
-              Cancel Request
-            </h4>
-            <p className="text-xs font-medium opacity-60 my-2">
-              Account owners can cancel this request at any time.
-            </p>
-            <Button className="bg-primary text-primary-foreground hover:bg-terciary hover:text-primary font-bold text-xs font-roboto-mono rounded-xl">
-              Cancel
-            </Button>
+            {hasActiveRecovery && (
+              <>
+                <h4 className="text-xs font-medium font-roboto-mono">
+                  Recovery link
+                </h4>
+                <p className="text-xs font-medium opacity-60 my-2">
+                  Copy the link to share with guardians or others involved in
+                  the recovery.
+                </p>
+                <div className="flex items-center gap-3 mb-6">
+                  {/* finish this style */}
+                  <Input
+                    style={{ borderColor: "rgba(255, 255, 255, 0.60)" }}
+                    className="border rounded-sm text-xs bg-content-background"
+                  />
+                  <Copy size={24} />
+                </div>
+                <h4 className="text-xs font-medium font-roboto-mono">
+                  Cancel Request
+                </h4>
+                <p className="text-xs font-medium opacity-60 my-2">
+                  Account owners can cancel this request at any time.
+                </p>
+                <Button className="bg-primary text-primary-foreground hover:bg-terciary hover:text-primary font-bold text-xs font-roboto-mono rounded-xl">
+                  Cancel
+                </Button>
+              </>
+            )}
           </div>
           <div className="col-span-2">
             <div className="p-6 bg-content-background shadow-lg rounded-xl">

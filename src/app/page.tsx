@@ -19,6 +19,7 @@ export default function Home() {
             label="OWNERS"
             title="PROTECT MY ACCOUNT"
             description="Activate Safe Account Recovery to protect your account."
+            href="/protect-account"
             onClick={() => console.log("Protect account")}
           />
           <HomeButton

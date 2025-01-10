@@ -2,9 +2,9 @@
 
 import React from "react";
 
-import { Button, Input } from "@bleu.builders/ui";
 import SearchInput from "./search-input";
 import Link from "next/link";
+import Button from "./ui/button";
 
 const Header = () => {
   return (
@@ -18,7 +18,7 @@ const Header = () => {
       </div>
       <SearchInput />
       <div className="flex flex-1 justify-center">
-        <Button className="py-2 px-4 rounded-lg font-roboto-mono bg-primary text-primary-foreground hover:bg-terciary hover:text-primary">
+        <Button className="py-2 px-4 rounded-lg font-roboto-mono">
           Connect wallet
         </Button>
       </div>

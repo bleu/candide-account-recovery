@@ -2,15 +2,10 @@
 
 import EmptyActiveRecovery from "@/components/empty-active-recovery";
 import RecoveryStatus from "@/components/recovery-status";
+import Button from "@/components/ui/button";
 import PressableIcon from "@/components/ui/pressable-icon";
 import { cn } from "@/lib/utils";
-import {
-  Button,
-  Input,
-  TabsList,
-  TabsRoot,
-  TabsTrigger,
-} from "@bleu.builders/ui";
+import { Input, TabsList, TabsRoot, TabsTrigger } from "@bleu.builders/ui";
 import { Copy, ExternalLink, Info } from "lucide-react";
 import React from "react";
 
@@ -122,7 +117,7 @@ export default function Dashboard() {
                 <p className="text-xs font-medium opacity-60 my-2">
                   Account owners can cancel this request at any time.
                 </p>
-                <Button className="bg-primary text-primary-foreground hover:bg-terciary hover:text-primary font-bold text-xs font-roboto-mono rounded-xl">
+                <Button className="font-bold text-xs font-roboto-mono rounded-xl">
                   Cancel
                 </Button>
               </>
@@ -197,9 +192,12 @@ export default function Dashboard() {
                             <code className="text-xs text-foreground opacity-60 font-medium font-roboto-mono">
                               {guardian.address}
                             </code>
-                            <button className="opacity-60 hover:opacity-100">
-                              <ExternalLink className="h-4 w-4" />
-                            </button>
+                            <PressableIcon
+                              icon={ExternalLink}
+                              onClick={() => console.log("link")}
+                              size={14}
+                              className="opacity-60 hover:opacity-100"
+                            />
                           </div>
 
                           <div className="flex justify-end">
@@ -212,10 +210,10 @@ export default function Dashboard() {
                     </div>
                   </div>
                   <div className="flex justify-end mt-4 mb-2 gap-2">
-                    <Button className="text-xs font-roboto-mono font-bold px-3 py-2 rounded-xl hover:bg-terciary hover:text-primary">
+                    <Button className="text-xs font-roboto-mono font-bold px-3 py-2 rounded-xl">
                       Start Delay Period
                     </Button>
-                    <Button className="text-xs font-roboto-mono font-bold px-3 py-2 rounded-xl hover:bg-terciary hover:text-primary">
+                    <Button className="text-xs font-roboto-mono font-bold px-3 py-2 rounded-xl">
                       Approve Recovery
                     </Button>
                   </div>

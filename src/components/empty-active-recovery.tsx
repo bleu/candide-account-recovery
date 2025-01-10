@@ -1,4 +1,4 @@
-import { Button } from "@bleu.builders/ui";
+import Button from "./ui/button";
 
 export default function EmptyActiveRecovery() {
   return (
@@ -6,7 +6,7 @@ export default function EmptyActiveRecovery() {
       <p className="text-sm font-roboto-mono text-center opacity-60">
         There are no active recovery requests for this account.
       </p>
-      <Button className="text-xs font-roboto-mono font-bold hover:bg-terciary hover:text-primary py-1 px-2">
+      <Button className="text-xs font-roboto-mono font-bold py-1 px-2">
         Ask for Recovery
       </Button>
     </div>

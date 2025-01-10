@@ -2,6 +2,7 @@
 
 import EmptyActiveRecovery from "@/components/empty-active-recovery";
 import RecoveryStatus from "@/components/recovery-status";
+import PressableIcon from "@/components/ui/pressable-icon";
 import { cn } from "@/lib/utils";
 import {
   Button,
@@ -42,11 +43,16 @@ export default function Dashboard() {
       status: "Pending",
     },
   ];
+  const recoveryLink = "https://candide.com/recovery/0xabc.eth";
 
   const hasActiveRecovery = true;
   const thresholdAchieved = true;
   const delayPeriodStarted = true;
   const delayPeriodEnded = false;
+
+  const handleCopyLink = () => {
+    navigator.clipboard.writeText(recoveryLink);
+  };
 
   return (
     <div className="flex flex-col flex-1 mx-8">
@@ -97,13 +103,18 @@ export default function Dashboard() {
                   Copy the link to share with guardians or others involved in
                   the recovery.
                 </p>
-                <div className="flex items-center gap-3 mb-6">
-                  {/* finish this style */}
+                <div className="flex items-center gap-3 mb-6 opacity-60">
                   <Input
-                    style={{ borderColor: "rgba(255, 255, 255, 0.60)" }}
-                    className="border rounded-sm text-xs bg-content-background"
+                    className="border rounded-sm text-xs bg-content-background font-medium font-roboto-mono"
+                    value={recoveryLink}
+                    readOnly
                   />
-                  <Copy size={24} />
+                  <PressableIcon
+                    icon={Copy}
+                    onClick={handleCopyLink}
+                    size={16}
+                    ariaLabel="Copy recovery link"
+                  />
                 </div>
                 <h4 className="text-xs font-medium font-roboto-mono">
                   Cancel Request

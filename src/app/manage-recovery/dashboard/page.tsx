@@ -1,6 +1,7 @@
 "use client";
 
 import EmptyActiveRecovery from "@/components/empty-active-recovery";
+import RecoveryStatus from "@/components/recovery-status";
 import { cn } from "@/lib/utils";
 import {
   Button,
@@ -43,6 +44,9 @@ export default function Dashboard() {
   ];
 
   const hasActiveRecovery = true;
+  const thresholdAchieved = true;
+  const delayPeriodStarted = true;
+  const delayPeriodEnded = false;
 
   return (
     <div className="flex flex-col flex-1 mx-8">
@@ -67,15 +71,14 @@ export default function Dashboard() {
         <div className="grid grid-cols-3 gap-6">
           <div className="col-span-1">
             {hasActiveRecovery && (
-              <div className="flex items-center justify-between gap-2 flex-1 bg-terciary text-terciary-foreground text-xs font-roboto-mono rounded-lg py-2 px-4 mb-6">
-                <div>
-                  <p className="font-bold mb-1">Recovery Ongoing</p>
-                  <p className="font-medium">Delay period not started.</p>
-                </div>
-                <Info size={21} />
-              </div>
+              <RecoveryStatus
+                delayPeriodEnded={delayPeriodEnded}
+                thresholdAchieved={thresholdAchieved}
+                delayPeriodStarted={delayPeriodStarted}
+                remainingTime="2d 23h 59min"
+              />
             )}
-            <h3 className=" mb-2 font-bold text-sm font-roboto-mono">
+            <h3 className="mb-2 font-bold text-sm font-roboto-mono">
               SAFE ACCOUNT
             </h3>
             <div

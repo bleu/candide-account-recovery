@@ -2,7 +2,6 @@ import { cn } from "@/lib/utils";
 import { Slot } from "@radix-ui/react-slot";
 import { cva, type VariantProps } from "class-variance-authority";
 import * as React from "react";
-import { useTranslation } from "react-i18next";
 import LoadingSpinner from "./loading-spinner";
 
 const buttonVariants = cva(
@@ -57,8 +56,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     ref
   ) => {
     const Comp = asChild ? Slot : "button";
-    const { t } = useTranslation();
-    const loadingText = _loadingText ?? t("Loading");
+    const loadingText = _loadingText ?? "Loading";
 
     return (
       <Comp

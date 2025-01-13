@@ -1,6 +1,6 @@
 import { Copy } from "lucide-react";
 import PressableIcon from "./ui/pressable-icon";
-import { Input } from "@bleu.builders/ui";
+import { Input } from "./ui/input";
 
 interface RecoveryLinkProps {
   link: string;

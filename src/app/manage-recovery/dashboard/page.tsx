@@ -2,9 +2,9 @@
 
 import RecoveryContent from "@/components/recovery-content";
 import RecoverySidebar from "@/components/recovery-sidebar";
+import { TabsList, TabsRoot, TabsTrigger } from "@/components/ui/tabs";
 import { STYLES } from "@/constants/styles";
 import { cn } from "@/lib/utils";
-import { TabsList, TabsRoot, TabsTrigger } from "@bleu.builders/ui";
 import React from "react";
 
 export default function Dashboard() {

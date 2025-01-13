@@ -1,12 +1,120 @@
 "use client";
-import Button from "@/components/ui/button";
+import { Guardian } from "@/components/guardian-list";
+import { ProgressModal } from "@/components/progress-modal";
+import { Button } from "@/components/ui/button";
+
+import { Input } from "@/components/ui/input";
+
+import { useState } from "react";
 
 export default function ProtectAccount() {
-  const isWalletConnected = false;
+  const isWalletConnected = true;
+  const totalSteps = 4;
+
+  const handleNext = () => {
+    if (currentStep < totalSteps) {
+      setCurrentStep((prev) => prev + 1);
+    } else {
+      // Handle form submission
+      setIsOpen(false);
+    }
+  };
+
+  const handleBack = () => {
+    if (currentStep > 1) {
+      setCurrentStep((prev) => prev - 1);
+    }
+  };
+
+  const [currentStep, setCurrentStep] = useState(1);
+
+  const [isOpen, setIsOpen] = useState(true);
+
+  const getStepContent = () => {
+    switch (currentStep) {
+      case 1:
+        return (
+          <div className="space-y-4">
+            <div className="grid grid-cols-[1fr,2fr]">
+              <label className="text-sm font-bold opacity-50 font-roboto-mono">
+                NICKNAME
+              </label>
+              <label className="text-sm font-bold opacity-50 font-roboto-mono">
+                ADDRESS
+              </label>
+            </div>
+            <div className="grid grid-cols-[1fr,2fr] gap-2">
+              <Input
+                placeholder="Nickname..."
+                className="bg-background text-sm border-none focus:ring-primary "
+              />
+              <div className="flex gap-2">
+                <Input
+                  placeholder="Address..."
+                  className="bg-background text-sm border-none focus flex-1 focus:ring-primary"
+                />
+                <Button variant="ghost" className=" px-3 rounded">
+                  +
+                </Button>
+              </div>
+            </div>
+          </div>
+        );
+      case 2:
+        return <div>threshold</div>;
+      case 3:
+        return <div>delay period</div>;
+      case 4:
+        return <div>Review</div>;
+      default:
+        return null;
+    }
+  };
+
+  const getStepTitle = () => {
+    switch (currentStep) {
+      case 1:
+        return "Add Guardians";
+      case 2:
+        return "Set the Approval Threshold";
+      case 3:
+        return "Set the Recovery Delay Period";
+      case 4:
+        return "Review Account Recovery Setup";
+      default:
+        return "";
+    }
+  };
+
+  const getStepDescription = () => {
+    switch (currentStep) {
+      case 1:
+        return "Guardians are trusted contacts that will help recover your account. You can add multiple guardians.";
+      case 2:
+        return "Threshold determines the minimum number of guardian approvals required to recover your account.";
+      case 3:
+        return "Set the time period during which you can cancel a initiated recovery request. We recommend a period of at least 3 days.";
+      default:
+        return "";
+    }
+  };
 
   return (
     <div className="flex flex-1 items-center justify-center mx-8">
       {isWalletConnected ? (
+        <ProgressModal
+          isOpen={true}
+          onClose={() => setIsOpen(false)}
+          title={getStepTitle()}
+          description={getStepDescription()}
+          currentStep={currentStep}
+          totalSteps={totalSteps}
+          onNext={handleNext}
+          onBack={handleBack}
+        >
+          {getStepContent()}
+        </ProgressModal>
+      ) : (
         <div className="max-w-2xl text-center">
           <h2 className="text-2xl text-primary font-bold font-roboto-mono text-center ">
             Connect the Account you want to protect.{" "}
@@ -16,12 +124,10 @@ export default function ProtectAccount() {
             key is lost or compromised by relying on trusted guardians you add
             to your account.
           </p>
-          <Button className="text-lg font-bold font-roboto-mono px-4 py-2 rounded-xl">
+          <Button className="text-lg font-bold  px-4 py-2 rounded-xl">
             Connect wallet
           </Button>
         </div>
-      ) : (
-        <div>Wallet connected</div>
       )}
     </div>
   );

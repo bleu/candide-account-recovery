@@ -1,7 +1,7 @@
 import React from "react";
 import { STYLES } from "@/constants/styles";
 import { Guardian, GuardianList } from "./guardian-list";
-import PressableIcon from "./ui/pressable-icon";
+import PressableIcon from "./pressable-icon";
 import { ExternalLink } from "lucide-react";
 import { cn } from "@/lib/utils";
 import EmptyActiveRecovery from "./empty-active-recovery";
@@ -67,10 +67,10 @@ export default function RecoveryContent({
             </h4>
             <GuardianList guardians={guardians} />
             <div className="flex justify-end mt-4 mb-2 gap-2">
-              <Button className="text-xs font-roboto-mono font-bold px-3 py-2 rounded-xl">
+              <Button className="text-xs font-bold px-3 py-2 rounded-xl">
                 Start Delay Period
               </Button>
-              <Button className="text-xs font-roboto-mono font-bold px-3 py-2 rounded-xl">
+              <Button className="text-xs font-bold px-3 py-2 rounded-xl">
                 Approve Recovery
               </Button>
             </div>

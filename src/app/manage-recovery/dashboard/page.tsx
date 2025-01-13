@@ -7,6 +7,12 @@ import { STYLES } from "@/constants/styles";
 import { cn } from "@/lib/utils";
 import React from "react";
 
+const tabState = cn(
+  "data-[state=active]:bg-secondary",
+  "data-[state=active]:text-secondary-foreground",
+  "data-[state=active]:opacity-100"
+);
+
 export default function Dashboard() {
   const guardians = [
     {
@@ -30,13 +36,13 @@ export default function Dashboard() {
           <TabsList className="bg-content-background p-1 shadow-md rounded-xl mt-12 mb-3">
             <TabsTrigger
               value="management"
-              className={cn(STYLES.baseTab, STYLES.tabState)}
+              className={cn(STYLES.baseTab, tabState)}
             >
               Recovery Management
             </TabsTrigger>
             <TabsTrigger
               value="guardians"
-              className={cn(STYLES.baseTab, STYLES.tabState)}
+              className={cn(STYLES.baseTab, tabState)}
             >
               Account Guardians
             </TabsTrigger>

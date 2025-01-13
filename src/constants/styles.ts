@@ -9,9 +9,4 @@ export const STYLES = {
     "py-2 px-4 rounded-xl",
     "text-xs font-bold text-foreground opacity-30"
   ),
-  tabState: cn(
-    "data-[state=active]:bg-secondary",
-    "data-[state=active]:text-secondary-foreground",
-    "data-[state=active]:opacity-100"
-  ),
 } as const;

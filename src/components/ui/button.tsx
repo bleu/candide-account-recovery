@@ -1,9 +1,8 @@
 import * as React from "react";
-import { Button as BleuButton } from "@bleu.builders/ui";
-import { ButtonProps as BleuButtonProps } from "@bleu.builders/ui";
+import { Button as BleuButton } from "./bleu-button";
+import { ButtonProps as BleuButtonProps } from "./bleu-button";
 
 interface ButtonProps extends BleuButtonProps {
-  // Add any additional props you want here
   fullWidth?: boolean;
 }
 

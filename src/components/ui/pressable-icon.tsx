@@ -1,5 +1,5 @@
-import { Button } from "@bleu.builders/ui";
 import { LucideIcon } from "lucide-react";
+import Button from "./button";
 
 interface PressableIconProps {
   icon: LucideIcon;

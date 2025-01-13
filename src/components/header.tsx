@@ -4,7 +4,7 @@ import React from "react";
 
 import SearchInput from "./search-input";
 import Link from "next/link";
-import Button from "./ui/button";
+import { Button } from "./ui/button";
 
 const Header = () => {
   return (

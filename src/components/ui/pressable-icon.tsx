@@ -1,5 +1,6 @@
 import { LucideIcon } from "lucide-react";
-import Button from "./button";
+import { cn } from "@/lib/utils";
+import { Button } from "./button";
 
 interface PressableIconProps {
   icon: LucideIcon;
@@ -20,11 +21,7 @@ export default function PressableIcon({
     <Button
       variant="ghost"
       onClick={onClick}
-      className={`
-        p-2 
-        hover:bg-gray-100/10
-        ${className}
-      `}
+      className={cn("p-2 hover:bg-gray-100/10", className)}
       aria-label={ariaLabel}
     >
       <Icon size={size} />

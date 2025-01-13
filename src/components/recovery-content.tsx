@@ -4,8 +4,8 @@ import { Guardian, GuardianList } from "./guardian-list";
 import PressableIcon from "./ui/pressable-icon";
 import { ExternalLink } from "lucide-react";
 import { cn } from "@/lib/utils";
-import Button from "./ui/button";
 import EmptyActiveRecovery from "./empty-active-recovery";
+import { Button } from "./ui/button";
 
 interface RecoveryContentProps {
   hasActiveRecovery: boolean;

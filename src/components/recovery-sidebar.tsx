@@ -2,8 +2,8 @@ import { STYLES } from "@/constants/styles";
 import RecoveryStatus from "./recovery-status";
 import { ExternalLink } from "lucide-react";
 import { RecoveryLinkSection } from "./recovery-link-section";
-import Button from "./ui/button";
 import PressableIcon from "./ui/pressable-icon";
+import { Button } from "./ui/button";
 
 interface RecoverySideBarProps {
   hasActiveRecovery: boolean;

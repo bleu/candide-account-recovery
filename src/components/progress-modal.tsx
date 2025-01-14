@@ -42,7 +42,7 @@ export function ProgressModal({
 }: ProgressModalProps) {
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="flex flex-col gap-4 flex-1 max-w-2xl bg-content-background rounded-3xl border-none">
+      <DialogContent className="flex flex-col gap-4 flex-1 max-w-2xl bg-content-background border-none rounded-3xl">
         <div className="flex flex-col gap-8">
           <div>
             {totalSteps && (

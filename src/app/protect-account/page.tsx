@@ -1,15 +1,24 @@
 "use client";
-import { Guardian } from "@/components/guardian-list";
 import { ProgressModal } from "@/components/progress-modal";
 import { Button } from "@/components/ui/button";
 
 import { Input } from "@/components/ui/input";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { Info } from "lucide-react";
 
 import { useState } from "react";
 
+const isWalletConnected = true;
+const totalSteps = 4;
+
 export default function ProtectAccount() {
-  const isWalletConnected = true;
-  const totalSteps = 4;
+  const [currentStep, setCurrentStep] = useState(1);
+  const [isOpen, setIsOpen] = useState(true);
 
   const handleNext = () => {
     if (currentStep < totalSteps) {
@@ -26,35 +35,49 @@ export default function ProtectAccount() {
     }
   };
 
-  const [currentStep, setCurrentStep] = useState(1);
-
-  const [isOpen, setIsOpen] = useState(true);
-
   const getStepContent = () => {
     switch (currentStep) {
       case 1:
         return (
           <div className="space-y-4">
             <div className="grid grid-cols-[1fr,2fr]">
-              <label className="text-sm font-bold opacity-50 font-roboto-mono">
-                NICKNAME
-              </label>
+              <div className="flex items-center">
+                <label className="text-sm font-bold font-roboto-mono opacity-50">
+                  NICKNAME
+                </label>
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger className="p-2">
+                      <Info size={14} className="opacity-50" />
+                    </TooltipTrigger>
+                    <TooltipContent className="px-4 py-2 max-w-56 bg-background text-xs">
+                      Nicknames are saved locally in your browser. This
+                      information is private and not shared with any server.
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              </div>
               <label className="text-sm font-bold opacity-50 font-roboto-mono">
                 ADDRESS
               </label>
             </div>
             <div className="grid grid-cols-[1fr,2fr] gap-2">
               <Input
+                autoFocus
                 placeholder="Nickname..."
-                className="bg-background text-sm border-none focus:ring-primary "
+                className="bg-background text-sm border-none focus:ring-primary"
               />
               <div className="flex gap-2">
                 <Input
                   placeholder="Address..."
                   className="bg-background text-sm border-none focus flex-1 focus:ring-primary"
                 />
-                <Button variant="ghost" className=" px-3 rounded">
-                  +
+                <Button
+                  disabled
+                  variant="ghost"
+                  className="hover:bg-background text-sm"
+                >
+                  Add +
                 </Button>
               </div>
             </div>
@@ -63,7 +86,6 @@ export default function ProtectAccount() {
       case 2:
         return <div>threshold</div>;
       case 3:
-        return <div>delay period</div>;
       case 4:
         return <div>Review</div>;
       default:

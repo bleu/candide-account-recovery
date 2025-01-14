@@ -44,24 +44,26 @@ export default function RecoveryContent({
         </div>
         {hasActiveRecovery ? (
           <>
-            <p className={STYLES.label}>SAFE SIGNERS</p>
-            {guardians.map((guardian) => (
-              <div
-                key={guardian.nickname}
-                className={cn(
-                  STYLES.textWithBorder,
-                  "inline-flex items-center gap-2"
-                )}
-                style={STYLES.textWithBorderOpacity}
-              >
-                <span>{guardian.address}</span>
-                <PressableIcon
-                  icon={ExternalLink}
-                  onClick={() => {}}
-                  size={12}
-                />
-              </div>
-            ))}
+            <div className="flex-col gap-1 inline-flex">
+              <p className={STYLES.label}>SAFE SIGNERS</p>
+              {guardians.map((guardian) => (
+                <div
+                  key={guardian.nickname}
+                  className={cn(
+                    STYLES.textWithBorder,
+                    "inline-flex items-center gap-2"
+                  )}
+                  style={STYLES.textWithBorderOpacity}
+                >
+                  <span>{guardian.address}</span>
+                  <PressableIcon
+                    icon={ExternalLink}
+                    onClick={() => {}}
+                    size={12}
+                  />
+                </div>
+              ))}
+            </div>
             <h4 className="my-6 text-primary font-roboto-mono text-sm">
               GUARDIANS APPROVAL
             </h4>

@@ -4,6 +4,14 @@ import { Button } from "@/components/ui/button";
 
 import { Input } from "@/components/ui/input";
 import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
@@ -127,10 +135,33 @@ export default function ProtectAccount() {
           </>
         );
       case 3:
+        return (
+          <Select>
+            <SelectTrigger className="w-40 border-none focus:ring-primary text-foreground">
+              <SelectValue
+                className="bg-red-500"
+                placeholder="3 days"
+                defaultValue="3"
+              />
+            </SelectTrigger>
+            <SelectContent className="bg-background border-none">
+              <SelectGroup>
+                <SelectItem className="hover:bg-content-background" value="3">
+                  3 days
+                </SelectItem>
+                <SelectItem className="hover:bg-content-background" value="7">
+                  7 days
+                </SelectItem>
+                <SelectItem className="hover:bg-content-background" value="14">
+                  14 days
+                </SelectItem>
+              </SelectGroup>
+            </SelectContent>
+          </Select>
+        );
       case 4:
         return <div>Review</div>;
       default:
-        return null;
     }
   };
 

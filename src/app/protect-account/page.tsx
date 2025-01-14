@@ -19,6 +19,23 @@ const totalSteps = 4;
 export default function ProtectAccount() {
   const [currentStep, setCurrentStep] = useState(1);
   const [isOpen, setIsOpen] = useState(true);
+  const [guardians, setGuardians] = useState([
+    {
+      nickname: "Friend1",
+      address: "0x123456789abcdef123456789abcdef12345678",
+      status: "Pending",
+    },
+    {
+      nickname: "Friend2",
+      address: "0x123456789abcdef123456789abcdef12345678",
+      status: "Pending",
+    },
+    {
+      nickname: "Friend3",
+      address: "0x123456789abcdef123456789abcdef12345678",
+      status: "Pending",
+    },
+  ]);
 
   const handleNext = () => {
     if (currentStep < totalSteps) {
@@ -32,6 +49,15 @@ export default function ProtectAccount() {
   const handleBack = () => {
     if (currentStep > 1) {
       setCurrentStep((prev) => prev - 1);
+    }
+  };
+
+  const handleThresholdChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = parseInt(e.target.value);
+    if (value < 1) {
+      e.target.value = "1";
+    } else if (value > guardians.length) {
+      e.target.value = guardians.length.toString();
     }
   };
 
@@ -84,7 +110,22 @@ export default function ProtectAccount() {
           </div>
         );
       case 2:
-        return <div>threshold</div>;
+        return (
+          <>
+            <Input
+              type="number"
+              min={1}
+              max={guardians.length}
+              defaultValue={1}
+              className="w-40 border-none text-base focus:ring-primary"
+              onChange={handleThresholdChange}
+            />
+            <p className="text-xs font-roboto-mono font-medium opacity-60 mt-2">
+              {guardians.length} guardians added. Choose a threshold between 1
+              and {guardians.length}.
+            </p>
+          </>
+        );
       case 3:
       case 4:
         return <div>Review</div>;

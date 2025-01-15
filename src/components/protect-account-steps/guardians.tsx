@@ -18,6 +18,18 @@ interface NewGuardian {
   address: string;
 }
 
+interface GuardiansStepProps {
+  guardians: Guardian[];
+  onAddGuardian: () => void;
+  onRemoveGuardian: (index: number) => void;
+  onExternalLink: (address: string) => void;
+  newGuardian: NewGuardian;
+  onUpdateNewGuardian: (field: keyof NewGuardian, value: string) => void;
+  isAddButtonEnabled: boolean;
+  isReview?: boolean;
+  errorMessage?: string;
+}
+
 export default function GuardiansStep({
   guardians,
   onAddGuardian,
@@ -27,16 +39,8 @@ export default function GuardiansStep({
   onUpdateNewGuardian,
   isAddButtonEnabled,
   isReview = false,
-}: {
-  guardians: Guardian[];
-  onAddGuardian: () => void;
-  onRemoveGuardian: (index: number) => void;
-  onExternalLink: (address: string) => void;
-  newGuardian: NewGuardian;
-  onUpdateNewGuardian: (field: keyof NewGuardian, value: string) => void;
-  isAddButtonEnabled: boolean;
-  isReview?: boolean;
-}) {
+  errorMessage,
+}: GuardiansStepProps) {
   return (
     <div className="space-y-4">
       <div className="grid grid-cols-[1fr,2fr]">
@@ -98,31 +102,38 @@ export default function GuardiansStep({
         </div>
       ))}
       {!isReview && (
-        <div className="grid grid-cols-[1fr,2fr] gap-2">
-          <Input
-            placeholder="Nickname..."
-            value={newGuardian.nickname}
-            onChange={(e) => onUpdateNewGuardian("nickname", e.target.value)}
-            className={STYLES.input}
-          />
-          <div className="flex gap-2">
+        <>
+          <div className="grid grid-cols-[1fr,2fr] gap-2">
             <Input
-              placeholder="Address..."
-              value={newGuardian.address}
-              onChange={(e) => onUpdateNewGuardian("address", e.target.value)}
-              className={cn(STYLES.input, "flex-1")}
+              placeholder="Nickname..."
+              value={newGuardian.nickname}
+              onChange={(e) => onUpdateNewGuardian("nickname", e.target.value)}
+              className={STYLES.input}
             />
-            <Button
-              variant="ghost"
-              className="hover:bg-background text-sm"
-              disabled={!isAddButtonEnabled}
-              onClick={onAddGuardian}
-              type="button"
-            >
-              Add +
-            </Button>
+            <div className="flex gap-2">
+              <Input
+                placeholder="Address..."
+                value={newGuardian.address}
+                onChange={(e) => onUpdateNewGuardian("address", e.target.value)}
+                className={cn(STYLES.input, "flex-1")}
+              />
+              <Button
+                variant="ghost"
+                className="hover:bg-background text-sm"
+                disabled={!isAddButtonEnabled}
+                onClick={onAddGuardian}
+                type="button"
+              >
+                Add +
+              </Button>
+            </div>
           </div>
-        </div>
+          {errorMessage && (
+            <p className="text-alert font-roboto-mono font-medium text-sm mt-2">
+              {errorMessage}
+            </p>
+          )}
+        </>
       )}
     </div>
   );

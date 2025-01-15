@@ -22,6 +22,7 @@ export default function ProtectAccount() {
   const [isOpen, setIsOpen] = useState(true);
   const [threshold, setThreshold] = useState(1);
   const [delayPeriod, setDelayPeriod] = useState(3);
+  const [addressError, setAddressError] = useState<string>("");
 
   const [guardians, setGuardians] = useState<Guardian[]>([]);
   const [newGuardian, setNewGuardian] = useState<NewGuardian>({
@@ -29,10 +30,20 @@ export default function ProtectAccount() {
     address: "",
   });
 
+  const isValidAddress = (address: string): boolean => {
+    return /^0x[a-fA-F0-9]{40}$/.test(address);
+  };
+
   const handleAddGuardian = (): void => {
     if (newGuardian.nickname && newGuardian.address) {
+      if (!isValidAddress(newGuardian.address)) {
+        setAddressError("Invalid address. Please check and try again");
+        return;
+      }
+
       setGuardians([...guardians, { ...newGuardian, status: "added" }]);
       setNewGuardian({ nickname: "", address: "" });
+      setAddressError("");
     }
   };
 
@@ -49,8 +60,11 @@ export default function ProtectAccount() {
     value: string
   ): void => {
     setNewGuardian((prev) => ({ ...prev, [field]: value }));
-  };
 
+    if (field === "address") {
+      setAddressError("");
+    }
+  };
   const isAddButtonEnabled: boolean = Boolean(
     newGuardian.nickname && newGuardian.address
   );
@@ -90,6 +104,7 @@ export default function ProtectAccount() {
               onExternalLink={handleExternalLink}
               onRemoveGuardian={handleRemoveGuardian}
               onUpdateNewGuardian={handleUpdateNewGuardian}
+              errorMessage={addressError}
             />
           </div>
         );

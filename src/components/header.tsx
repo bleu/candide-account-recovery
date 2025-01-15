@@ -18,9 +18,7 @@ const Header = () => {
       </div>
       <SearchInput />
       <div className="flex flex-1 justify-center">
-        <Button className="py-2 px-4 rounded-lg font-roboto-mono">
-          Connect wallet
-        </Button>
+        <Button className="py-2 px-4 rounded-lg">Connect wallet</Button>
       </div>
     </header>
   );

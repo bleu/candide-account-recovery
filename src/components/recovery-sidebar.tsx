@@ -2,7 +2,7 @@ import { STYLES } from "@/constants/styles";
 import RecoveryStatus from "./recovery-status";
 import { ExternalLink } from "lucide-react";
 import { RecoveryLinkSection } from "./recovery-link-section";
-import PressableIcon from "./ui/pressable-icon";
+import PressableIcon from "./pressable-icon";
 import { Button } from "./ui/button";
 
 interface RecoverySideBarProps {
@@ -45,9 +45,7 @@ export default function RecoverySidebar({
           <p className="text-xs font-medium opacity-60 my-2">
             Account owners can cancel this request at any time.
           </p>
-          <Button className="font-bold text-xs font-roboto-mono rounded-xl">
-            Cancel
-          </Button>
+          <Button className="font-bold text-xs rounded-xl">Cancel</Button>
         </>
       )}
     </div>

@@ -6,9 +6,7 @@ export default function EmptyActiveRecovery() {
       <p className="text-sm font-roboto-mono text-center opacity-60">
         There are no active recovery requests for this account.
       </p>
-      <Button className="text-xs font-roboto-mono font-bold py-1 px-2">
-        Ask for Recovery
-      </Button>
+      <Button className="text-xs font-bold py-1 px-2">Ask for Recovery</Button>
     </div>
   );
 }

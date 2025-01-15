@@ -9,4 +9,5 @@ export const STYLES = {
     "py-2 px-4 rounded-xl",
     "text-xs font-bold text-foreground opacity-30"
   ),
+  input: "bg-background text-sm border-none focus:ring-primary",
 } as const;

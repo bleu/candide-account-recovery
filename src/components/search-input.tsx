@@ -2,7 +2,7 @@ import React from "react";
 import { cn } from "@/lib/utils";
 import { useRef, useState } from "react";
 import { Search } from "lucide-react";
-import { Input } from "@bleu.builders/ui";
+import { Input } from "./ui/input";
 
 const SearchInput = () => {
   const inputRef = useRef<HTMLInputElement>(null);

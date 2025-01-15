@@ -19,6 +19,7 @@ export default function Home() {
             label="OWNERS"
             title="PROTECT MY ACCOUNT"
             description="Activate Safe Account Recovery to protect your account."
+            href="/protect-account"
             onClick={() => console.log("Protect account")}
           />
           <HomeButton
@@ -31,7 +32,7 @@ export default function Home() {
             label="OWNERS AND GUARDIANS"
             title="MANAGE RECOVERY"
             description="Approve on going requests and manage guardians permissions."
-            rotateIcon
+            href="/manage-recovery"
             onClick={() => console.log("Protect account")}
           />
           <HomeButton

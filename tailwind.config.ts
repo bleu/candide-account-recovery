@@ -27,6 +27,7 @@ export default {
           background: "var(--content-background)",
           foreground: "var(--content-foreground)",
         },
+        alert: "var(--alert)",
       },
       fontFamily: {
         roboto: ["Roboto", "sans-serif"],

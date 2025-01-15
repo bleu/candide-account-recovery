@@ -70,7 +70,7 @@ export function ProgressModal({
           <DialogFooter>
             {(onBack || onNext) && (
               <div className="flex justify-end gap-3">
-                {onBack && (
+                {onBack && currentStep !== 1 && (
                   <Button
                     variant="outline"
                     onClick={onBack}

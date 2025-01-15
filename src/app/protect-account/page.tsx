@@ -1,28 +1,13 @@
 "use client";
+import { useState } from "react";
+
 import { Guardian } from "@/components/guardian-list";
 import { ProgressModal } from "@/components/progress-modal";
+import GuardiansStep from "@/components/protect-account-steps/guardians";
+import ReviewStepSection from "@/components/protect-account-steps/review";
 import { Button } from "@/components/ui/button";
-
-import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
-import { STYLES } from "@/constants/styles";
-import { cn } from "@/lib/utils";
-import { ExternalLink, Info, X } from "lucide-react";
-
-import { useState } from "react";
+import DelayPeriodStep from "@/components/protect-account-steps/delay-period";
+import ThresholdStep from "@/components/protect-account-steps/threshold";
 
 interface NewGuardian {
   nickname: string;
@@ -31,11 +16,12 @@ interface NewGuardian {
 
 const isWalletConnected = true;
 const totalSteps = 4;
-const inputClassName = "bg-background text-sm border-none focus:ring-primary";
 
 export default function ProtectAccount() {
   const [currentStep, setCurrentStep] = useState(1);
   const [isOpen, setIsOpen] = useState(true);
+  const [threshold, setThreshold] = useState(1);
+  const [delayPeriod, setDelayPeriod] = useState(3);
 
   const [guardians, setGuardians] = useState<Guardian[]>([]);
   const [newGuardian, setNewGuardian] = useState<NewGuardian>({
@@ -46,7 +32,6 @@ export default function ProtectAccount() {
   const handleAddGuardian = (): void => {
     if (newGuardian.nickname && newGuardian.address) {
       setGuardians([...guardians, { ...newGuardian, status: "added" }]);
-      // Clear the input fields and create a new empty line
       setNewGuardian({ nickname: "", address: "" });
     }
   };
@@ -74,7 +59,6 @@ export default function ProtectAccount() {
     if (currentStep < totalSteps) {
       setCurrentStep((prev) => prev + 1);
     } else {
-      // Handle form submission
       setIsOpen(false);
     }
   };
@@ -85,13 +69,12 @@ export default function ProtectAccount() {
     }
   };
 
-  const handleThresholdChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = parseInt(e.target.value);
-    if (value < 1) {
-      e.target.value = "1";
-    } else if (value > guardians.length) {
-      e.target.value = guardians.length.toString();
-    }
+  const handleThresholdChange = (value: number) => {
+    setThreshold(value);
+  };
+
+  const handleDelayPeriodChange = (value: number) => {
+    setDelayPeriod(value);
   };
 
   const getStepContent = () => {
@@ -112,27 +95,42 @@ export default function ProtectAccount() {
         );
       case 2:
         return (
-          <>
-            <Input
-              type="number"
-              min={1}
-              max={guardians.length}
-              defaultValue={1}
-              className="w-40 border-none text-base focus:ring-primary"
-              onChange={handleThresholdChange}
-            />
-            <p className="text-xs font-roboto-mono font-medium opacity-60 mt-2">
-              {guardians.length} guardians added. Choose a threshold between 1
-              and {guardians.length}.
-            </p>
-          </>
+          <ThresholdStep
+            guardians={guardians}
+            onThresholdChange={handleThresholdChange}
+          />
         );
       case 3:
-        return <ThresholdStep />;
+        return (
+          <DelayPeriodStep
+            delayPeriod={delayPeriod}
+            onDelayPeriodChange={handleDelayPeriodChange}
+          />
+        );
       case 4:
         return (
           <div className="space-y-5">
-            <ReviewStep />
+            <>
+              <span className="text-lg font-bold font-roboto-mono opacity-60">
+                Guardians
+              </span>
+              <div className="mt-3">
+                <GuardiansStep
+                  guardians={guardians}
+                  onAddGuardian={handleAddGuardian}
+                  onRemoveGuardian={handleRemoveGuardian}
+                  onExternalLink={handleExternalLink}
+                  newGuardian={newGuardian}
+                  onUpdateNewGuardian={handleUpdateNewGuardian}
+                  isAddButtonEnabled={isAddButtonEnabled}
+                  isReview={true}
+                />
+              </div>
+              <ReviewStepSection
+                threshold={threshold}
+                delayPeriod={delayPeriod}
+              />
+            </>
           </div>
         );
       default:
@@ -167,51 +165,11 @@ export default function ProtectAccount() {
     }
   };
 
-  function ReviewStep() {
-    return (
-      <>
-        <div>
-          <span className="text-lg font-bold font-roboto-mono opacity-60">
-            Guardians
-          </span>
-          <div className="mt-3">
-            <GuardiansStep
-              guardians={guardians}
-              onAddGuardian={handleAddGuardian}
-              onRemoveGuardian={handleRemoveGuardian}
-              onExternalLink={handleExternalLink}
-              newGuardian={newGuardian}
-              onUpdateNewGuardian={handleUpdateNewGuardian}
-              isAddButtonEnabled={isAddButtonEnabled}
-              isReview={true}
-            />
-          </div>
-        </div>
-        <div className="border-t pt-5" style={STYLES.textWithBorderOpacity}>
-          <span className="text-lg font-bold font-roboto-mono opacity-60 ">
-            Threshold
-          </span>
-          <p className="text-base font-roboto-mono text-content-foreground mt-3">
-            Minimum 2 Guardians approval to recovery.
-          </p>
-        </div>
-        <div className="border-t pt-5" style={STYLES.textWithBorderOpacity}>
-          <span className="text-lg font-bold font-roboto-mono opacity-60 ">
-            Delay Period
-          </span>
-          <p className="text-base font-roboto-mono text-content-foreground mt-3">
-            3-day period to cancel a recovery request.
-          </p>
-        </div>
-      </>
-    );
-  }
-
   return (
     <div className="flex flex-1 items-center justify-center mx-8">
       {isWalletConnected ? (
         <ProgressModal
-          isOpen={true}
+          isOpen={isOpen}
           onClose={() => setIsOpen(false)}
           title={getStepTitle()}
           description={getStepDescription()}
@@ -219,6 +177,14 @@ export default function ProtectAccount() {
           totalSteps={totalSteps}
           onNext={handleNext}
           onBack={handleBack}
+          isNextDisabled={currentStep === 1 && guardians.length === 0}
+          nextLabel={
+            currentStep === 3
+              ? "Finish and Review"
+              : currentStep === 4
+              ? "Setup Recovery"
+              : "Next"
+          }
         >
           {getStepContent()}
         </ProgressModal>
@@ -244,143 +210,5 @@ function WalletNotConnected() {
         Connect wallet
       </Button>
     </div>
-  );
-}
-
-function GuardiansStep({
-  guardians,
-  onAddGuardian,
-  onRemoveGuardian,
-  onExternalLink,
-  newGuardian,
-  onUpdateNewGuardian,
-  isAddButtonEnabled,
-  isReview = false,
-}: {
-  guardians: Guardian[];
-  onAddGuardian: () => void;
-  onRemoveGuardian: (index: number) => void;
-  onExternalLink: (address: string) => void;
-  newGuardian: NewGuardian;
-  onUpdateNewGuardian: (field: keyof NewGuardian, value: string) => void;
-  isAddButtonEnabled: boolean;
-  isReview?: boolean;
-}) {
-  return (
-    <div className="space-y-4">
-      <div className="grid grid-cols-[1fr,2fr]">
-        <div className="flex items-center">
-          <label className="text-sm font-bold font-roboto-mono opacity-50">
-            NICKNAME
-          </label>
-          {!isReview && (
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger tabIndex={-1} className="p-2">
-                  <Info size={14} className="opacity-50" />
-                </TooltipTrigger>
-                <TooltipContent className="px-4 py-2 max-w-56 bg-background text-xs">
-                  Nicknames are saved locally in your browser. This information
-                  is private and not shared with any server.
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-          )}
-        </div>
-        <label className="text-sm font-bold opacity-50 font-roboto-mono ml-2">
-          ADDRESS
-        </label>
-      </div>
-      {guardians.map((guardian, index) => (
-        <div key={index} className="grid grid-cols-[1fr,2fr] gap-2">
-          <Input
-            readOnly
-            value={guardian.nickname}
-            className={inputClassName}
-          />
-          <div className="flex gap-2">
-            <Input
-              readOnly
-              value={guardian.address}
-              className={cn(inputClassName, "flex-1")}
-            />
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-8 w-8"
-              onClick={() => onExternalLink(guardian.address)}
-              type="button"
-            >
-              <ExternalLink size={16} className="opacity-50" />
-            </Button>
-            {!isReview && (
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-8 w-8"
-                onClick={() => onRemoveGuardian(index)}
-                type="button"
-              >
-                <X size={16} className="opacity-50" />
-              </Button>
-            )}
-          </div>
-        </div>
-      ))}
-      {!isReview && (
-        <div className="grid grid-cols-[1fr,2fr] gap-2">
-          <Input
-            placeholder="Nickname..."
-            value={newGuardian.nickname}
-            onChange={(e) => onUpdateNewGuardian("nickname", e.target.value)}
-            className={inputClassName}
-          />
-          <div className="flex gap-2">
-            <Input
-              placeholder="Address..."
-              value={newGuardian.address}
-              onChange={(e) => onUpdateNewGuardian("address", e.target.value)}
-              className={cn(inputClassName, "flex-1")}
-            />
-            <Button
-              variant="ghost"
-              className="hover:bg-background text-sm"
-              disabled={!isAddButtonEnabled}
-              onClick={onAddGuardian}
-              type="button"
-            >
-              Add +
-            </Button>
-          </div>
-        </div>
-      )}
-    </div>
-  );
-}
-
-function ThresholdStep() {
-  return (
-    <Select>
-      <SelectTrigger className="w-40 border-none focus:ring-primary text-foreground">
-        <SelectValue
-          className="bg-red-500"
-          placeholder="3 days"
-          defaultValue="3"
-        />
-      </SelectTrigger>
-      <SelectContent className="bg-background border-none">
-        <SelectGroup>
-          <SelectItem className="hover:bg-content-background" value="3">
-            3 days
-          </SelectItem>
-          <SelectItem className="hover:bg-content-background" value="7">
-            7 days
-          </SelectItem>
-          <SelectItem className="hover:bg-content-background" value="14">
-            14 days
-          </SelectItem>
-        </SelectGroup>
-      </SelectContent>
-    </Select>
   );
 }

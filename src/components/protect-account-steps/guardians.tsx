@@ -74,21 +74,24 @@ export default function GuardiansStep({
             <Button
               variant="ghost"
               size="icon"
-              className="h-8 w-8"
+              className="h-8 w-8 hover:bg-background group"
               onClick={() => onExternalLink(guardian.address)}
               type="button"
             >
-              <ExternalLink size={16} className="opacity-50" />
+              <ExternalLink
+                size={16}
+                className="opacity-50 group-hover:opacity-100"
+              />
             </Button>
             {!isReview && (
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-8 w-8"
+                className="h-8 w-8 hover:bg-background"
                 onClick={() => onRemoveGuardian(index)}
                 type="button"
               >
-                <X size={16} className="opacity-50" />
+                <X size={16} className="opacity-50 hover:opacity-100" />
               </Button>
             )}
           </div>

@@ -1,9 +1,9 @@
 "use client";
 
-import { useAccountGuardians } from "@/hooks/useAccountGuardians";
+import { useListGuardians } from "@/hooks/useListGuardians";
 
 export default function Page() {
-  const { data: guardians, error, isLoading } = useAccountGuardians();
+  const { data: guardians, error, isLoading } = useListGuardians();
 
   if (error) return <div className="w-full h-full">{error.message}</div>;
 

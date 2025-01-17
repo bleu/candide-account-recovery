@@ -5,7 +5,7 @@ import { useCallback } from "react";
 import { useAccount, useClient } from "wagmi";
 import useSWR from "swr";
 
-export function useAccountGuardians() {
+export function useListGuardians() {
   const client = useClient();
   const account = useAccount();
 

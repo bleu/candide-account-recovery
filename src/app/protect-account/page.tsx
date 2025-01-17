@@ -5,16 +5,16 @@ import { Guardian } from "@/components/guardian-list";
 import { ProgressModal } from "@/components/progress-modal";
 import GuardiansStep from "@/components/protect-account-steps/guardians";
 import ReviewStepSection from "@/components/protect-account-steps/review";
-import { Button } from "@/components/ui/button";
 import DelayPeriodStep from "@/components/protect-account-steps/delay-period";
 import ThresholdStep from "@/components/protect-account-steps/threshold";
+import { useAccount } from "wagmi";
+import { ConnectWalletButton } from "@/components/connect-wallet-button";
 
 interface NewGuardian {
   nickname: string;
   address: string;
 }
 
-const isWalletConnected = true;
 const totalSteps = 4;
 
 export default function ProtectAccount() {
@@ -29,6 +29,9 @@ export default function ProtectAccount() {
     nickname: "",
     address: "",
   });
+
+  const { isConnected: isWalletConnected, isConnecting: isWalletConnecting } =
+    useAccount();
 
   const isValidAddress = (address: string): boolean => {
     return /^0x[a-fA-F0-9]{40}$/.test(address);
@@ -180,6 +183,8 @@ export default function ProtectAccount() {
     }
   };
 
+  if (isWalletConnecting) return <LoadingScreen />;
+
   return (
     <div className="flex flex-1 items-center justify-center mx-8">
       {isWalletConnected ? (
@@ -221,9 +226,11 @@ function WalletNotConnected() {
         is lost or compromised by relying on trusted guardians you add to your
         account.
       </p>
-      <Button className="text-lg font-bold  px-4 py-2 rounded-xl">
-        Connect wallet
-      </Button>
+      <ConnectWalletButton />
     </div>
   );
+}
+
+function LoadingScreen() {
+  return <div className="w-full h-full text-center"></div>;
 }

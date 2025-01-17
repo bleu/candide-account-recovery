@@ -7,8 +7,8 @@ import GuardiansStep from "@/components/protect-account-steps/guardians";
 import ReviewStepSection from "@/components/protect-account-steps/review";
 import DelayPeriodStep from "@/components/protect-account-steps/delay-period";
 import ThresholdStep from "@/components/protect-account-steps/threshold";
-import { useAccount } from "wagmi";
 import { ConnectWalletButton } from "@/components/connect-wallet-button";
+import { useAccount } from "wagmi";
 
 interface NewGuardian {
   nickname: string;

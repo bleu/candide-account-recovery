@@ -1,7 +1,14 @@
 "use client";
 
 import { WagmiProvider, createConfig, http } from "wagmi";
-import { arbitrum, optimism, sepolia } from "wagmi/chains";
+import {
+  arbitrum,
+  base,
+  mainnet,
+  optimism,
+  polygon,
+  sepolia,
+} from "wagmi/chains";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ConnectKitProvider, getDefaultConfig } from "connectkit";
 import type { ReactNode } from "react";
@@ -9,11 +16,14 @@ import type { ReactNode } from "react";
 const config = createConfig(
   getDefaultConfig({
     // Your dApps chains
-    chains: [optimism, arbitrum, sepolia],
+    chains: [mainnet, optimism, arbitrum, base, polygon, sepolia],
     transports: {
-      [sepolia.id]: http(process.env.NEXT_PUBLIC_SEPOLIA_RPC_URL ?? ""),
-      [arbitrum.id]: http(process.env.NEXT_PUBLIC_ARBITRUM_RPC_URL ?? ""),
+      [mainnet.id]: http(process.env.NEXT_PUBLIC_MAINNET_RPC_URL ?? ""),
       [optimism.id]: http(process.env.NEXT_PUBLIC_OPTIMISM_RPC_URL ?? ""),
+      [arbitrum.id]: http(process.env.NEXT_PUBLIC_ARBITRUM_RPC_URL ?? ""),
+      [base.id]: http(process.env.NEXT_PUBLIC_BASE_RPC_URL ?? ""),
+      [polygon.id]: http(process.env.NEXT_PUBLIC_POLYGON_RPC_URL ?? ""),
+      [sepolia.id]: http(process.env.NEXT_PUBLIC_SEPOLIA_RPC_URL ?? ""),
     },
 
     // Required API Keys

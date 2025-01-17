@@ -1,6 +1,6 @@
 import { ExternalLink } from "lucide-react";
 import { Guardian } from "./guardian-list";
-import PressableIcon from "./ui/pressable-icon";
+import PressableIcon from "./pressable-icon";
 
 interface GuardianRowProps {
   guardian: Guardian;

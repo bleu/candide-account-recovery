@@ -1,33 +1,62 @@
 "use client";
 
-import { SocialRecoveryModule } from "abstractionkit";
-import { useCallback } from "react";
+import { SocialRecoveryModule, SafeAccountV0_3_0 } from "abstractionkit";
+import { useCallback, useEffect, useState } from "react";
 import { useAccount, useClient } from "wagmi";
-import useSWR from "swr";
+import { Address } from "viem";
 
-export function useListGuardians() {
+export function useSafeAddressInfo() {
   const client = useClient();
   const account = useAccount();
 
+  const [owners, setOwners] = useState<Address[] | undefined>(undefined);
+  const [guardians, setGuardians] = useState<Address[] | undefined>(undefined);
+  const [errors, setErrors] = useState<Error[]>([]);
+
   const listGuardians = useCallback(async () => {
     if (!account?.address || !client?.transport?.url) return [];
+    try {
+      const srm = new SocialRecoveryModule();
+      const guardians = (await srm.getGuardians(
+        client.transport.url,
+        account.address
+      )) as Address[];
 
-    const srm = new SocialRecoveryModule();
-    const guardians = await srm.getGuardians(
-      client.transport.url,
-      account.address
-    );
-
-    return guardians;
+      return guardians;
+    } catch (e) {
+      setErrors((errors) => [
+        ...errors,
+        new Error(`Error listing guardians: ${(e as Error).message}`),
+      ]);
+      return undefined;
+    }
   }, [account?.address, client?.transport?.url]);
 
-  return useSWR(
-    account?.address && client?.transport?.url ? "guardians" : null,
-    listGuardians,
-    {
-      revalidateOnFocus: false,
-      refreshInterval: 0,
-      shouldRetryOnError: false,
+  const listOwners = useCallback(async () => {
+    if (!account?.address || !client?.transport?.url) return undefined;
+
+    try {
+      const safeAccount = new SafeAccountV0_3_0(account.address);
+      const owners = (await safeAccount.getOwners(
+        client.transport.url
+      )) as Address[];
+      return owners;
+    } catch (e) {
+      setErrors((errors) => [
+        ...errors,
+        new Error(`Error listing guardians: ${(e as Error).message}`),
+      ]);
+      return undefined;
     }
-  );
+  }, [account?.address, client?.transport?.url]);
+
+  useEffect(() => {
+    listOwners().then((newOwners) => setOwners(newOwners));
+  }, [listOwners]);
+
+  useEffect(() => {
+    listGuardians().then((newGuardians) => setGuardians(newGuardians));
+  }, [listGuardians]);
+
+  return { guardians, owners, errors };
 }

@@ -9,7 +9,7 @@ import DelayPeriodStep from "@/components/protect-account-steps/delay-period";
 import ThresholdStep from "@/components/protect-account-steps/threshold";
 import { ConnectWalletButton } from "@/components/connect-wallet-button";
 import { useAccount } from "wagmi";
-import { isAddress } from "viem";
+import { useValidateNewGuardian } from "@/hooks/useValidateNewGuardian";
 
 interface NewGuardian {
   nickname: string;
@@ -30,14 +30,22 @@ export default function ProtectAccount() {
     nickname: "",
     address: "",
   });
+  const validateNewGuardian = useValidateNewGuardian();
 
   const { isConnected: isWalletConnected, isConnecting: isWalletConnecting } =
     useAccount();
 
   const handleAddGuardian = (): void => {
     if (newGuardian.nickname && newGuardian.address) {
-      if (!isAddress(newGuardian.address)) {
-        setAddressError("Invalid address. Please check and try again");
+      if (
+        !validateNewGuardian(
+          newGuardian.address,
+          guardians.map((guardian) => guardian.address)
+        )
+      ) {
+        setAddressError(
+          "Invalid address. Make sure it isn't owner or guardian already "
+        );
         return;
       }
 

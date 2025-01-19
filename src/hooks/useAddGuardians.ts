@@ -1,10 +1,10 @@
 "use client";
 
 import { SocialRecoveryModule } from "abstractionkit";
-import { useCallback, useState } from "react";
+import { useState } from "react";
 import { useAccount, useWalletClient, usePublicClient } from "wagmi";
 import { Address, PublicClient } from "viem";
-import useSWRMutation from "swr/mutation";
+import { useMutation } from "@tanstack/react-query";
 import { getIsModuleEnabled } from "@/utils/getIsModuleEnabled";
 
 async function buildAddGuardiansTxs(
@@ -35,13 +35,11 @@ async function buildAddGuardiansTxs(
     txs.push(addGuardianTx);
   }
 
-  return txs.map((tx) => {
-    return {
-      to: tx.to as Address,
-      data: tx.data as `0x${string}`,
-      value: tx.value,
-    };
-  });
+  return txs.map((tx) => ({
+    to: tx.to as Address,
+    data: tx.data as `0x${string}`,
+    value: tx.value,
+  }));
 }
 
 export function useAddGuardians(guardians: Address[], threshold: number = 1) {
@@ -50,55 +48,49 @@ export function useAddGuardians(guardians: Address[], threshold: number = 1) {
   const publicClient = usePublicClient();
   const [txHashes, setTxHashes] = useState<string[]>([]);
 
-  const addGuardians = useCallback(async () => {
-    if (!signer || !walletClient || !publicClient)
-      throw new Error("Missing signer or client");
+  const mutation = useMutation({
+    mutationFn: async () => {
+      if (!signer || !walletClient || !publicClient) {
+        throw new Error("Missing signer or client");
+      }
 
-    const srm = new SocialRecoveryModule();
-    const txs = await buildAddGuardiansTxs(
-      srm,
-      publicClient,
-      signer,
-      guardians,
-      threshold
-    );
+      const srm = new SocialRecoveryModule();
+      const txs = await buildAddGuardiansTxs(
+        srm,
+        publicClient,
+        signer,
+        guardians,
+        threshold
+      );
 
-    console.log({ txs });
-    if (txs.length < 1) throw new Error("No transaction to call");
+      console.log({ txs });
+      if (txs.length < 1) throw new Error("No transaction to call");
 
-    const newTxHashes = [];
-    for (const tx of txs) {
-      const txHash = await walletClient.sendTransaction(tx);
-      newTxHashes.push(txHash);
+      const newTxHashes = [];
+      for (const tx of txs) {
+        const txHash = await walletClient.sendTransaction(tx);
+        newTxHashes.push(txHash);
+      }
+      setTxHashes(newTxHashes);
+    },
+  });
+
+  const addGuardians = () => {
+    if (guardians.length > 0 && signer && walletClient && publicClient) {
+      mutation.mutate();
     }
-    setTxHashes(newTxHashes);
-  }, [signer, walletClient, publicClient, guardians, threshold]);
-
-  const {
-    isMutating: isLoading,
-    trigger,
-    error,
-    reset,
-  } = useSWRMutation<void>(
-    signer && walletClient && publicClient && guardians.length > 0
-      ? "guardians"
-      : null,
-    addGuardians
-  );
-
-  const triggerAddGuardians = () => {
-    reset();
-    trigger();
   };
 
-  console.log({ txHashes, error, isLoading });
+  console.log({
+    txHashes,
+    error: mutation.error,
+    isLoading: mutation.isPending,
+  });
 
   return {
     txHashes,
-    addGuardians: triggerAddGuardians,
-    error: error?.shortMessage
-      ? `Error: ${error.shortMessage}`
-      : error?.message,
-    isLoading,
+    addGuardians,
+    error: mutation?.error ? mutation.error.message ?? "Unknown error" : "",
+    isLoading: mutation.isPending,
   };
 }

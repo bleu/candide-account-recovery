@@ -1,6 +1,5 @@
 import { Address } from "viem";
-
-type Guardians = { nickname: string; address: Address }[];
+import { Guardian } from "@/components/guardian-list";
 
 // Constants
 const STORAGE_KEY = "candide-address-recovery:v1" as const;
@@ -13,7 +12,7 @@ const buildKey = (chainId: number, address: Address) => {
 const isBrowser = typeof window !== "undefined";
 
 export const storeGuardians = (
-  guardians: Guardians,
+  guardians: Guardian[],
   chainId: number,
   address: Address
 ) => {
@@ -29,14 +28,14 @@ export const storeGuardians = (
 export const getStoredGuardians = (
   chainId: number,
   address: Address
-): Guardians => {
+): Guardian[] => {
   if (!isBrowser) return [];
 
   try {
     const item = localStorage.getItem(buildKey(chainId, address));
     if (!item) return [];
 
-    const guardians = JSON.parse(item) as Guardians;
+    const guardians = JSON.parse(item) as Guardian[];
 
     return guardians;
   } catch (e) {

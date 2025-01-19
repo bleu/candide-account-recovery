@@ -90,7 +90,16 @@ export function useAddGuardians(guardians: Address[], threshold: number = 1) {
   return {
     txHashes,
     addGuardians,
-    error: mutation?.error ? mutation.error.message ?? "Unknown error" : "",
+    error: mutation?.error && getReadableError(mutation.error),
     isLoading: mutation.isPending,
   };
 }
+
+const getReadableError = (error: Error) => {
+  if (error.message.includes("User rejected transaction")) {
+    return "User rejected transaction.";
+  }
+
+  console.error(error.message);
+  return "Transaction error.";
+};

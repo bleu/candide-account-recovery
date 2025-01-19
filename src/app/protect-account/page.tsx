@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { Guardian } from "@/components/guardian-list";
 import { ProgressModal } from "@/components/progress-modal";
@@ -10,6 +10,9 @@ import ThresholdStep from "@/components/protect-account-steps/threshold";
 import { ConnectWalletButton } from "@/components/connect-wallet-button";
 import { useAccount } from "wagmi";
 import { useValidateNewGuardian } from "@/hooks/useValidateNewGuardian";
+import { useAddGuardians } from "@/hooks/useAddGuardians";
+import { Address } from "viem";
+import { storeGuardians } from "@/utils/storage";
 
 interface NewGuardian {
   nickname: string;
@@ -32,8 +35,35 @@ export default function ProtectAccount() {
   });
   const validateNewGuardian = useValidateNewGuardian();
 
-  const { isConnected: isWalletConnected, isConnecting: isWalletConnecting } =
-    useAccount();
+  const {
+    address,
+    chainId,
+    isConnected: isWalletConnected,
+    isConnecting: isWalletConnecting,
+  } = useAccount();
+
+  const {
+    txHashes,
+    addGuardians: postGuardians,
+    error: errorPostGuradians,
+    isLoading: isLoadingPostGuardians,
+  } = useAddGuardians(
+    guardians.map((guardian) => guardian.address) as Address[],
+    threshold
+  );
+
+  // closes modal when transaction is accepted
+  useEffect(() => {
+    if (txHashes.length > 0) {
+      if (chainId && address)
+        storeGuardians(
+          guardians.filter((guardian) => guardian.status === "added"),
+          chainId,
+          address
+        );
+      setIsOpen(false);
+    }
+  }, [txHashes, chainId, address, guardians]);
 
   const handleAddGuardian = (): void => {
     if (newGuardian.nickname && newGuardian.address) {
@@ -81,7 +111,7 @@ export default function ProtectAccount() {
     if (currentStep < totalSteps) {
       setCurrentStep((prev) => prev + 1);
     } else {
-      setIsOpen(false);
+      postGuardians();
     }
   };
 
@@ -153,6 +183,18 @@ export default function ProtectAccount() {
                 threshold={threshold}
                 delayPeriod={delayPeriod}
               />
+              <br />
+              {isLoadingPostGuardians && (
+                <p className="font-roboto-mono font-medium text-sm mt-2">
+                  Please, handle the signature process on your smart wallet
+                  manager...
+                </p>
+              )}
+              {errorPostGuradians && (
+                <p className="text-alert font-roboto-mono font-medium text-sm mt-2">
+                  {errorPostGuradians}
+                </p>
+              )}
             </>
           </div>
         );
@@ -189,6 +231,7 @@ export default function ProtectAccount() {
   };
 
   if (isWalletConnecting) return <LoadingScreen />;
+  console.log({ currentStep });
 
   return (
     <div className="flex flex-1 items-center justify-center mx-8">
@@ -202,12 +245,17 @@ export default function ProtectAccount() {
           totalSteps={totalSteps}
           onNext={handleNext}
           onBack={handleBack}
-          isNextDisabled={currentStep === 1 && guardians.length === 0}
+          isNextDisabled={
+            (currentStep === 1 && guardians.length === 0) ||
+            (currentStep === 4 && isLoadingPostGuardians)
+          }
           nextLabel={
             currentStep === 3
               ? "Finish and Review"
               : currentStep === 4
-              ? "Setup Recovery"
+              ? isLoadingPostGuardians
+                ? "Loading..."
+                : "Setup Recovery"
               : "Next"
           }
         >

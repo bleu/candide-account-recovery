@@ -10,9 +10,9 @@ export function useOwners() {
   const account = useAccount();
 
   return useQuery({
-    queryKey: ["owners", account?.address, client?.transport?.url],
+    queryKey: ["owners", account?.address, client?.transport.url],
     queryFn: async () => {
-      if (!account?.address || !client?.transport?.url) {
+      if (!account?.address || !client?.transport.url) {
         throw new Error("Account or client transport URL not available");
       }
 
@@ -22,6 +22,6 @@ export function useOwners() {
       )) as Address[];
       return owners;
     },
-    enabled: Boolean(account?.address) && Boolean(client?.transport?.url),
+    enabled: Boolean(account?.address) && Boolean(client?.transport.url),
   });
 }

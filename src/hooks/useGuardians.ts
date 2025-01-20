@@ -10,9 +10,9 @@ export function useGuardians() {
   const account = useAccount();
 
   return useQuery({
-    queryKey: ["guardians", account?.address, client?.transport?.url],
+    queryKey: ["guardians", account?.address, client?.transport.url],
     queryFn: async () => {
-      if (!account?.address || !client?.transport?.url) {
+      if (!account?.address || !client?.transport.url) {
         throw new Error("Account or client transport URL not available");
       }
 
@@ -24,6 +24,6 @@ export function useGuardians() {
 
       return guardians;
     },
-    enabled: Boolean(account?.address) && Boolean(client?.transport?.url),
+    enabled: Boolean(account?.address) && Boolean(client?.transport.url),
   });
 }

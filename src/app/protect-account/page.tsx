@@ -67,15 +67,12 @@ export default function ProtectAccount() {
 
   const handleAddGuardian = (): void => {
     if (newGuardian.nickname && newGuardian.address) {
-      if (
-        !validateNewGuardian(
-          newGuardian.address,
-          guardians.map((guardian) => guardian.address)
-        )
-      ) {
-        setAddressError(
-          "Invalid address. Make sure it isn't owner or guardian already "
-        );
+      const { isValid, reason } = validateNewGuardian(
+        newGuardian.address,
+        guardians.map((guardian) => guardian.address)
+      );
+      if (!isValid) {
+        setAddressError(reason);
         return;
       }
 

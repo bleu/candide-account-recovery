@@ -19,22 +19,32 @@ export function useValidateNewGuardian() {
       });
 
       // 1. Must be a valid address
-      if (!isAddress(newGuardian)) return false;
+      if (!isAddress(newGuardian))
+        return { isValid: false, reason: "Invalid address." };
 
       // 2. Can't be already included
-      if (currentGuardians.includes(newGuardian)) return false;
+      if (currentGuardians.includes(newGuardian))
+        return {
+          isValid: false,
+          reason: "Repeated guardians are not allowed.",
+        };
 
       // 3. Can't be an owner
       if (owners === undefined)
         throw new Error("[validateNewGuardian] missing owners");
-      if (owners.includes(newGuardian)) return false;
+      if (owners.includes(newGuardian))
+        return { isValid: false, reason: "Owners can't be guardians." };
 
       // 4. Can't be a guardian
       if (guardians === undefined)
         throw new Error("[validateNewGuardian] missing guardians");
-      if (guardians.includes(newGuardian)) return false;
+      if (guardians.includes(newGuardian))
+        return {
+          isValid: false,
+          reason: "This address is already a guardian.",
+        };
 
-      return true;
+      return { isValid: true, reason: "" };
     },
     [owners, guardians]
   );

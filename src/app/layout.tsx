@@ -4,6 +4,7 @@ import "./globals.css";
 import { cn } from "@/lib/utils";
 import Header from "@/components/header";
 import { Web3Provider } from "@/providers/Web3Provider";
+import { Toaster } from "@/components/ui/toaster";
 
 const roboto = Roboto({
   weight: ["300", "400", "500", "700"],
@@ -40,6 +41,9 @@ export default function RootLayout({
           <Header />
           {children}
         </Web3Provider>
+        <Header />
+        {children}
+        <Toaster />
       </body>
     </html>
   );

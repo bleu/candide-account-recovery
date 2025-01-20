@@ -1,14 +1,10 @@
 "use client";
 
 import { Guardian } from "@/components/guardian-list";
+import Recovery from "@/components/ask-recovery-steps/recovery";
+import ShareLink from "@/components/ask-recovery-steps/share-link";
 import { Modal } from "@/components/modal";
-import NewGuardianList from "@/components/new-guardians-list";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { STYLES } from "@/constants/styles";
-import { toast } from "@/hooks/use-toast";
-import { cn } from "@/lib/utils";
-import { ExternalLink } from "lucide-react";
+import { redirect } from "next/navigation";
 import React, { useState } from "react";
 
 const totalSteps = 2;
@@ -24,16 +20,7 @@ export default function AskRecovery() {
       setCurrentStep((prev) => prev + 1);
     } else {
       setIsOpen(false);
-      toast({
-        title: "Account Recovery is setup!",
-        description: "Your account is now protected.",
-      });
-    }
-  };
-
-  const handleBack = () => {
-    if (currentStep > 1) {
-      setCurrentStep((prev) => prev - 1);
+      redirect("/manage-recovery/dashboard");
     }
   };
 
@@ -56,55 +43,60 @@ export default function AskRecovery() {
     window.open(`https://etherscan.io/address/${address}`);
   };
 
+  const getStepContent = () => {
+    switch (currentStep) {
+      case 1:
+        return (
+          <Recovery
+            guardians={guardians}
+            onAdd={handleAdd}
+            onExternalLink={handleExternalLink}
+            onRemove={handleRemove}
+            onValidateAddress={validateAddress}
+          />
+        );
+      case 2:
+        return <ShareLink />;
+      default:
+        return "";
+    }
+  };
+
+  const getStepTitle = () => {
+    switch (currentStep) {
+      case 1:
+        return "Ask for Recovery";
+      case 2:
+        return "Set the Approval Threshold";
+      default:
+        return "";
+    }
+  };
+
+  const getStepDescription = () => {
+    switch (currentStep) {
+      case 1:
+        return "Your Recorevy Link was created!";
+      case 2:
+        return "Guardians will need to approve before the recovery can proceed. Track the progress by searching your address or cancel the request recovery if you don't need it anymore.";
+      default:
+        return "";
+    }
+  };
+
   return (
     <div className="flex flex-1 items-center justify-center mx-8">
       <Modal
-        title="Ask for recovery"
-        description="We'll generate a link for you to share with guardians or others involved in the recovery."
-        currentStep={1}
+        title={getStepTitle()}
+        description={getStepDescription()}
+        currentStep={currentStep}
         isOpen={isOpen}
-        totalSteps={2}
+        totalSteps={totalSteps}
         onClose={() => setIsOpen(false)}
         onNext={handleNext}
-        onBack={handleBack}
+        nextLabel={currentStep === 1 ? "Generate Link" : "See Details"}
       >
-        <p className="font-roboto-mono font-bold text-base text-content-foreground">
-          Safe Address
-        </p>
-        <p className="mt-3 mb-5 font-roboto-mono text-sm text-content-foreground opacity-60">
-          The address of the account that need to be recovered.
-        </p>
-        <div className="flex items-center gap-2">
-          <Input
-            placeholder="Address..."
-            className={cn(STYLES.input, "flex-1")}
-            onChange={(e) => console.log(e.target.value)}
-          />
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-8 w-8 hover:bg-background group"
-            onClick={() => console.log("test")}
-            type="button"
-          >
-            <ExternalLink
-              size={16}
-              className="opacity-50 group-hover:opacity-100"
-            />
-          </Button>
-        </div>
-        <p className="font-roboto-mono font-bold text-base text-content-foreground mt-7">
-          Safe Signer
-        </p>
-        <p className="mt-3 mb-5 font-roboto-mono text-sm text-content-foreground opacity-60">
-          The public address of the new Safe signer.
-        </p>
-        <NewGuardianList
-          guardians={guardians}
-          onAdd={handleAdd}
-          onRemove={handleRemove}
-          onExternalLink={handleExternalLink}
-        />
+        {getStepContent()}
       </Modal>
     </div>
   );

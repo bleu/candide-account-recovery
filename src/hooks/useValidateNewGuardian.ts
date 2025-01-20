@@ -11,13 +11,6 @@ export function useValidateNewGuardian() {
 
   const validateNewGuardian = useCallback(
     (newGuardian: string, currentGuardians: string[]) => {
-      console.log({
-        newGuardian,
-        isAddress: isAddress(newGuardian),
-        owners,
-        guardians,
-      });
-
       // 1. Must be a valid address
       if (!isAddress(newGuardian))
         return { isValid: false, reason: "Invalid address." };

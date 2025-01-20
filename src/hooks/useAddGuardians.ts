@@ -63,7 +63,6 @@ export function useAddGuardians(guardians: Address[], threshold: number = 1) {
         threshold
       );
 
-      console.log({ txs });
       if (txs.length < 1) throw new Error("No transaction to call");
 
       const newTxHashes = [];
@@ -80,12 +79,6 @@ export function useAddGuardians(guardians: Address[], threshold: number = 1) {
       mutation.mutate();
     }
   };
-
-  console.log({
-    txHashes,
-    error: mutation.error,
-    isLoading: mutation.isPending,
-  });
 
   return {
     txHashes,

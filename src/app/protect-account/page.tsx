@@ -228,7 +228,6 @@ export default function ProtectAccount() {
   };
 
   if (isWalletConnecting) return <LoadingScreen />;
-  console.log({ currentStep });
 
   return (
     <div className="flex flex-1 items-center justify-center mx-8">

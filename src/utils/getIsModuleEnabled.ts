@@ -1,4 +1,3 @@
-// import { PublicClientType } from "@/types";
 import { Address, PublicClient } from "viem";
 
 const isModuleEnabledAbi = [

@@ -40,10 +40,8 @@ export default function RootLayout({
         <Web3Provider>
           <Header />
           {children}
+          <Toaster />
         </Web3Provider>
-        <Header />
-        {children}
-        <Toaster />
       </body>
     </html>
   );

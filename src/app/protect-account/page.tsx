@@ -13,6 +13,8 @@ import { useValidateNewGuardian } from "@/hooks/useValidateNewGuardian";
 import { useAddGuardians } from "@/hooks/useAddGuardians";
 import { Address } from "viem";
 import { storeGuardians } from "@/utils/storage";
+import { redirect } from "next/navigation";
+import { useToast } from "@/hooks/use-toast";
 
 interface NewGuardian {
   nickname: string;
@@ -61,9 +63,16 @@ export default function ProtectAccount() {
           chainId,
           address
         );
+      toast({
+        title: "Account Recovery is setup!",
+        description: "Your account is now protected.",
+      });
       setIsOpen(false);
+      redirect("/manage-recovery/dashboard");
     }
   }, [txHashes, chainId, address, guardians]);
+
+  const { toast } = useToast();
 
   const handleAddGuardian = (): void => {
     if (newGuardian.nickname && newGuardian.address) {

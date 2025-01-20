@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 
 import { Guardian } from "@/components/guardian-list";
-import { ProgressModal } from "@/components/progress-modal";
+import { Modal } from "@/components/modal";
 import GuardiansStep from "@/components/protect-account-steps/guardians";
 import ReviewStepSection from "@/components/protect-account-steps/review";
 import DelayPeriodStep from "@/components/protect-account-steps/delay-period";
@@ -241,7 +241,7 @@ export default function ProtectAccount() {
   return (
     <div className="flex flex-1 items-center justify-center mx-8">
       {isWalletConnected ? (
-        <ProgressModal
+        <Modal
           isOpen={isOpen}
           onClose={() => setIsOpen(false)}
           title={getStepTitle()}
@@ -263,9 +263,10 @@ export default function ProtectAccount() {
                 : "Setup Recovery"
               : "Next"
           }
+          isProgress
         >
           {getStepContent()}
-        </ProgressModal>
+        </Modal>
       ) : (
         <WalletNotConnected />
       )}

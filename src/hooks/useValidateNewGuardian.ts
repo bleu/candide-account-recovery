@@ -6,8 +6,8 @@ import { useGuardians } from "./useGuardians";
 import { useOwners } from "./useOwners";
 
 export function useValidateNewGuardian() {
-  const { guardians } = useGuardians();
-  const { owners } = useOwners();
+  const { data: guardians } = useGuardians();
+  const { data: owners } = useOwners();
 
   const validateNewGuardian = useCallback(
     (newGuardian: string, currentGuardians: string[]) => {

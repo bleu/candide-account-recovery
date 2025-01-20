@@ -27,6 +27,7 @@ export default function Home() {
             title="RECOVER AN ACCOUNT"
             description="Ask for recovery if you lost access to your account."
             onClick={() => console.log("Protect account")}
+            href="/ask-recovery"
           />
           <HomeButton
             label="OWNERS AND GUARDIANS"
@@ -40,6 +41,7 @@ export default function Home() {
             title="CANCEL RECOVERY"
             description="Cancel a request if there's no need to recover the account."
             onClick={() => console.log("Protect account")}
+            href=""
           />
         </div>
       </div>

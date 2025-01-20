@@ -1,7 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
 
-import { Guardian } from "@/components/guardian-list";
 import { Modal } from "@/components/modal";
 import GuardiansStep from "@/components/protect-account-steps/guardians";
 import ReviewStepSection from "@/components/protect-account-steps/review";
@@ -9,17 +8,12 @@ import DelayPeriodStep from "@/components/protect-account-steps/delay-period";
 import ThresholdStep from "@/components/protect-account-steps/threshold";
 import { ConnectWalletButton } from "@/components/connect-wallet-button";
 import { useAccount } from "wagmi";
-import { useValidateNewGuardian } from "@/hooks/useValidateNewGuardian";
 import { useAddGuardians } from "@/hooks/useAddGuardians";
 import { Address } from "viem";
 import { storeGuardians } from "@/utils/storage";
 import { redirect } from "next/navigation";
 import { useToast } from "@/hooks/use-toast";
-
-interface NewGuardian {
-  nickname: string;
-  address: string;
-}
+import { Guardian } from "@/components/guardian-list";
 
 const totalSteps = 4;
 
@@ -28,14 +22,8 @@ export default function ProtectAccount() {
   const [isOpen, setIsOpen] = useState(true);
   const [threshold, setThreshold] = useState(1);
   const [delayPeriod, setDelayPeriod] = useState(3);
-  const [addressError, setAddressError] = useState<string>("");
 
   const [guardians, setGuardians] = useState<Guardian[]>([]);
-  const [newGuardian, setNewGuardian] = useState<NewGuardian>({
-    nickname: "",
-    address: "",
-  });
-  const validateNewGuardian = useValidateNewGuardian();
 
   const {
     address,
@@ -74,44 +62,17 @@ export default function ProtectAccount() {
 
   const { toast } = useToast();
 
-  const handleAddGuardian = (): void => {
-    if (newGuardian.nickname && newGuardian.address) {
-      const { isValid, reason } = validateNewGuardian(
-        newGuardian.address,
-        guardians.map((guardian) => guardian.address)
-      );
-      if (!isValid) {
-        setAddressError(reason);
-        return;
-      }
-
-      setGuardians([...guardians, { ...newGuardian, status: "added" }]);
-      setNewGuardian({ nickname: "", address: "" });
-      setAddressError("");
-    }
+  const handleAddGuardian = (newGuardian: Guardian): void => {
+    setGuardians((prev) => [...prev, newGuardian]);
   };
 
   const handleRemoveGuardian = (index: number): void => {
-    setGuardians(guardians.filter((_, i) => i !== index));
+    setGuardians((prev) => prev.filter((_, i) => i !== index));
   };
 
   const handleExternalLink = (address: string): void => {
     window.open(`https://etherscan.io/address/${address}`);
   };
-
-  const handleUpdateNewGuardian = (
-    field: keyof NewGuardian,
-    value: string
-  ): void => {
-    setNewGuardian((prev) => ({ ...prev, [field]: value }));
-
-    if (field === "address") {
-      setAddressError("");
-    }
-  };
-  const isAddButtonEnabled: boolean = Boolean(
-    newGuardian.nickname && newGuardian.address
-  );
 
   const handleNext = () => {
     if (currentStep < totalSteps) {
@@ -142,13 +103,9 @@ export default function ProtectAccount() {
           <div className="space-y-5">
             <GuardiansStep
               guardians={guardians}
-              isAddButtonEnabled={isAddButtonEnabled}
-              newGuardian={newGuardian}
               onAddGuardian={handleAddGuardian}
               onExternalLink={handleExternalLink}
               onRemoveGuardian={handleRemoveGuardian}
-              onUpdateNewGuardian={handleUpdateNewGuardian}
-              errorMessage={addressError}
             />
           </div>
         );
@@ -179,9 +136,6 @@ export default function ProtectAccount() {
                   onAddGuardian={handleAddGuardian}
                   onRemoveGuardian={handleRemoveGuardian}
                   onExternalLink={handleExternalLink}
-                  newGuardian={newGuardian}
-                  onUpdateNewGuardian={handleUpdateNewGuardian}
-                  isAddButtonEnabled={isAddButtonEnabled}
                   isReview={true}
                 />
               </div>

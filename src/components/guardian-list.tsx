@@ -5,7 +5,7 @@ import { STYLES } from "@/constants/styles";
 export interface Guardian {
   nickname: string;
   address: string;
-  status: string;
+  status?: string;
 }
 
 interface GuardianListProps {

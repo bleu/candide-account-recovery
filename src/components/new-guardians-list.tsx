@@ -47,23 +47,22 @@ export default function NewGuardianList({
   };
 
   const handleAddGuardian = async (): Promise<void> => {
-    if (newGuardian.nickname && newGuardian.address) {
-      const { isValid, reason } = validateNewGuardian(
-        newGuardian.address,
-        guardians.map((guardian) => guardian.address)
-      );
-      if (!isValid) {
-        setAddressError(reason);
-        return;
-      }
+    if (withNicknames && !newGuardian.nickname) return;
+    if (!newGuardian.address) return;
 
-      onAdd(newGuardian);
-      setNewGuardian({ nickname: "", address: "" });
-      setAddressError("");
+    const { isValid, reason } = validateNewGuardian(
+      newGuardian.address,
+      guardians.map((guardian) => guardian.address)
+    );
+    if (!isValid) {
+      setAddressError(reason);
+      return;
     }
-  };
 
-  onAdd(newGuardian);
+    onAdd(newGuardian);
+    setNewGuardian({ nickname: "", address: "" });
+    setAddressError("");
+  };
 
   const isAddButtonEnabled = (): boolean => {
     if (!newGuardian.address) return false;

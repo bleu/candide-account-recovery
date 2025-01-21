@@ -13,7 +13,6 @@ interface RecoveryProps {
   onAdd: (guardian: Guardian) => void;
   onRemove: (index: number) => void;
   onExternalLink: (address: string) => void;
-  onValidateAddress?: (address: string) => Promise<string | null>;
   onSafeAddressChange: (address: string) => void;
 }
 export default function Recovery({
@@ -22,7 +21,6 @@ export default function Recovery({
   onAdd,
   onRemove,
   onExternalLink,
-  onValidateAddress,
   onSafeAddressChange,
 }: RecoveryProps) {
   return (

@@ -27,13 +27,6 @@ export default function AskRecovery() {
     }
   };
 
-  const validateAddress = async (address: string): Promise<string | null> => {
-    if (!address.startsWith("0x")) {
-      return "Invalid address format";
-    }
-    return null;
-  };
-
   const handleAdd = (newGuardian: Guardian): void => {
     setGuardians((prev) => [...prev, newGuardian]);
   };
@@ -57,7 +50,6 @@ export default function AskRecovery() {
             onAdd={handleAdd}
             onExternalLink={handleExternalLink}
             onRemove={handleRemove}
-            onValidateAddress={validateAddress}
           />
         );
       case 2:

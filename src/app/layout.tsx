@@ -3,6 +3,7 @@ import { Roboto, Roboto_Mono } from "next/font/google";
 import "./globals.css";
 import { cn } from "@/lib/utils";
 import Header from "@/components/header";
+import { Web3Provider } from "@/providers/Web3Provider";
 
 const roboto = Roboto({
   weight: ["300", "400", "500", "700"],
@@ -35,8 +36,10 @@ export default function RootLayout({
           "flex flex-col min-h-screen font-roboto"
         )}
       >
-        <Header />
-        {children}
+        <Web3Provider>
+          <Header />
+          {children}
+        </Web3Provider>
       </body>
     </html>
   );

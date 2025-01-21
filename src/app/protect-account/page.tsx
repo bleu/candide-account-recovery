@@ -1,20 +1,24 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { Guardian } from "@/components/guardian-list";
 import { ProgressModal } from "@/components/progress-modal";
 import GuardiansStep from "@/components/protect-account-steps/guardians";
 import ReviewStepSection from "@/components/protect-account-steps/review";
-import { Button } from "@/components/ui/button";
 import DelayPeriodStep from "@/components/protect-account-steps/delay-period";
 import ThresholdStep from "@/components/protect-account-steps/threshold";
+import { ConnectWalletButton } from "@/components/connect-wallet-button";
+import { useAccount } from "wagmi";
+import { useValidateNewGuardian } from "@/hooks/useValidateNewGuardian";
+import { useAddGuardians } from "@/hooks/useAddGuardians";
+import { Address } from "viem";
+import { storeGuardians } from "@/utils/storage";
 
 interface NewGuardian {
   nickname: string;
   address: string;
 }
 
-const isWalletConnected = true;
 const totalSteps = 4;
 
 export default function ProtectAccount() {
@@ -29,15 +33,46 @@ export default function ProtectAccount() {
     nickname: "",
     address: "",
   });
+  const validateNewGuardian = useValidateNewGuardian();
 
-  const isValidAddress = (address: string): boolean => {
-    return /^0x[a-fA-F0-9]{40}$/.test(address);
-  };
+  const {
+    address,
+    chainId,
+    isConnected: isWalletConnected,
+    isConnecting: isWalletConnecting,
+  } = useAccount();
+
+  const {
+    txHashes,
+    addGuardians: postGuardians,
+    error: errorPostGuradians,
+    isLoading: isLoadingPostGuardians,
+  } = useAddGuardians(
+    guardians.map((guardian) => guardian.address) as Address[],
+    threshold
+  );
+
+  // closes modal when transaction is accepted
+  useEffect(() => {
+    if (txHashes.length > 0) {
+      if (chainId && address)
+        storeGuardians(
+          guardians.filter((guardian) => guardian.status === "added"),
+          chainId,
+          address
+        );
+      setIsOpen(false);
+    }
+  }, [txHashes, chainId, address, guardians]);
 
   const handleAddGuardian = (): void => {
     if (newGuardian.nickname && newGuardian.address) {
-      if (!isValidAddress(newGuardian.address)) {
-        setAddressError("Invalid address. Please check and try again");
+      const { isValid, reason } = validateNewGuardian(
+        newGuardian.address,
+        guardians.map((guardian) => guardian.address)
+      );
+      if (!isValid) {
+        setAddressError(reason);
         return;
       }
 
@@ -73,7 +108,7 @@ export default function ProtectAccount() {
     if (currentStep < totalSteps) {
       setCurrentStep((prev) => prev + 1);
     } else {
-      setIsOpen(false);
+      postGuardians();
     }
   };
 
@@ -145,6 +180,18 @@ export default function ProtectAccount() {
                 threshold={threshold}
                 delayPeriod={delayPeriod}
               />
+              <br />
+              {isLoadingPostGuardians && (
+                <p className="font-roboto-mono font-medium text-sm mt-2">
+                  Please, handle the signature process on your smart wallet
+                  manager...
+                </p>
+              )}
+              {errorPostGuradians && (
+                <p className="text-alert font-roboto-mono font-medium text-sm mt-2">
+                  {errorPostGuradians}
+                </p>
+              )}
             </>
           </div>
         );
@@ -180,6 +227,8 @@ export default function ProtectAccount() {
     }
   };
 
+  if (isWalletConnecting) return <LoadingScreen />;
+
   return (
     <div className="flex flex-1 items-center justify-center mx-8">
       {isWalletConnected ? (
@@ -192,12 +241,17 @@ export default function ProtectAccount() {
           totalSteps={totalSteps}
           onNext={handleNext}
           onBack={handleBack}
-          isNextDisabled={currentStep === 1 && guardians.length === 0}
+          isNextDisabled={
+            (currentStep === 1 && guardians.length === 0) ||
+            (currentStep === 4 && isLoadingPostGuardians)
+          }
           nextLabel={
             currentStep === 3
               ? "Finish and Review"
               : currentStep === 4
-              ? "Setup Recovery"
+              ? isLoadingPostGuardians
+                ? "Loading..."
+                : "Setup Recovery"
               : "Next"
           }
         >
@@ -221,9 +275,11 @@ function WalletNotConnected() {
         is lost or compromised by relying on trusted guardians you add to your
         account.
       </p>
-      <Button className="text-lg font-bold  px-4 py-2 rounded-xl">
-        Connect wallet
-      </Button>
+      <ConnectWalletButton />
     </div>
   );
+}
+
+function LoadingScreen() {
+  return <div className="w-full h-full text-center"></div>;
 }

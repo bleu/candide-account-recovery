@@ -4,7 +4,7 @@ import React from "react";
 
 import SearchInput from "./search-input";
 import Link from "next/link";
-import { Button } from "./ui/button";
+import { ConnectWalletButton } from "./connect-wallet-button";
 
 const Header = () => {
   return (
@@ -18,7 +18,7 @@ const Header = () => {
       </div>
       <SearchInput />
       <div className="flex flex-1 justify-center">
-        <Button className="py-2 px-4 rounded-lg">Connect wallet</Button>
+        <ConnectWalletButton />
       </div>
     </header>
   );

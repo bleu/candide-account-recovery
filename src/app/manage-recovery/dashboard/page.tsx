@@ -1,6 +1,7 @@
 "use client";
 
 import { GuardianList } from "@/components/guardian-list";
+import GuardiansContent from "@/components/guardians-content";
 import RecoveryContent from "@/components/recovery-content";
 import RecoverySidebar from "@/components/recovery-sidebar";
 import { Button } from "@/components/ui/button";
@@ -35,6 +36,10 @@ export default function Dashboard() {
   ];
   const recoveryLink = "https://candide.com/recovery/0xabc.eth";
   const hasActiveRecovery = true;
+
+  const handleAddGuardian = () => {
+    console.log("Adding guardian");
+  };
 
   return (
     <div className="flex flex-col flex-1 mx-8">
@@ -74,25 +79,10 @@ export default function Dashboard() {
                 hasActiveRecovery={hasActiveRecovery}
                 recoveryLink={recoveryLink}
               />
-              <div className="col-span-2">
-                <div className="p-6 bg-content-background shadow-lg rounded-xl">
-                  <div className="flex items-center justify-between mb-8">
-                    <h3 className="text-lg font-bold font-roboto-mono text-primary ">
-                      Account Guardians
-                    </h3>
-                    <Button className="rounded-xl font-roboto-mono h-6 font-bold text-xs">
-                      Add Guardian
-                    </Button>
-                  </div>
-                  <GuardianList
-                    guardians={guardians}
-                    isNewGuardinList
-                    onRemoveGuardian={() => {
-                      console.log("remove guardian");
-                    }}
-                  />
-                </div>
-              </div>
+              <GuardiansContent
+                guardians={guardians}
+                onAddGuardian={handleAddGuardian}
+              />
             </div>
           </TabsContent>
         </TabsRoot>

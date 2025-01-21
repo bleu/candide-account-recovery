@@ -9,17 +9,21 @@ import { Guardian } from "../guardian-list";
 
 interface RecoveryProps {
   guardians: Guardian[];
+  safeAddress: string;
   onAdd: (guardian: Guardian) => void;
   onRemove: (index: number) => void;
   onExternalLink: (address: string) => void;
   onValidateAddress?: (address: string) => Promise<string | null>;
+  onSafeAddressChange: (address: string) => void;
 }
 export default function Recovery({
   guardians,
+  safeAddress,
   onAdd,
   onRemove,
   onExternalLink,
   onValidateAddress,
+  onSafeAddressChange,
 }: RecoveryProps) {
   return (
     <>
@@ -33,13 +37,14 @@ export default function Recovery({
         <Input
           placeholder="Address..."
           className={cn(STYLES.input, "flex-1")}
-          onChange={(e) => console.log(e.target.value)}
+          value={safeAddress}
+          onChange={(e) => onSafeAddressChange(e.target.value)}
         />
         <Button
           variant="ghost"
           size="icon"
           className="h-8 w-8 hover:bg-background group"
-          onClick={() => console.log("test")}
+          onClick={() => safeAddress && onExternalLink(safeAddress)}
           type="button"
         >
           <ExternalLink

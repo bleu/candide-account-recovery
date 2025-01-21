@@ -12,8 +12,11 @@ const totalSteps = 2;
 export default function AskRecovery() {
   const [isOpen, setIsOpen] = useState(true);
   const [currentStep, setCurrentStep] = useState(1);
-
+  const [safeAddress, setSafeAddress] = useState("");
   const [guardians, setGuardians] = useState<Guardian[]>([]);
+
+  const isNextDisabled =
+    currentStep === 1 && (!safeAddress || guardians.length === 0);
 
   const handleNext = () => {
     if (currentStep < totalSteps) {
@@ -48,6 +51,8 @@ export default function AskRecovery() {
       case 1:
         return (
           <Recovery
+            safeAddress={safeAddress}
+            onSafeAddressChange={setSafeAddress}
             guardians={guardians}
             onAdd={handleAdd}
             onExternalLink={handleExternalLink}
@@ -95,6 +100,7 @@ export default function AskRecovery() {
         onClose={() => setIsOpen(false)}
         onNext={handleNext}
         nextLabel={currentStep === 1 ? "Generate Link" : "See Details"}
+        isNextDisabled={isNextDisabled}
       >
         {getStepContent()}
       </Modal>

@@ -13,6 +13,8 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ConnectKitProvider, getDefaultConfig } from "connectkit";
 import type { ReactNode } from "react";
 
+const walletConnectProjectId = "02b6cf06bc1d1b779db60f301acca581";
+
 const config = createConfig(
   getDefaultConfig({
     // Your dApps chains
@@ -27,8 +29,7 @@ const config = createConfig(
     },
 
     // Required API Keys
-    walletConnectProjectId:
-      process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID ?? "",
+    walletConnectProjectId,
 
     // Required App Info
     appName: "Candide Account Recovery",

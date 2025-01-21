@@ -1,6 +1,6 @@
 "use client";
 
-import { GuardianList } from "@/components/guardian-list";
+import { Guardian, GuardianList } from "@/components/guardian-list";
 import GuardiansContent from "@/components/guardians-content";
 import RecoveryContent from "@/components/recovery-content";
 import RecoverySidebar from "@/components/recovery-sidebar";
@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/tabs";
 import { STYLES } from "@/constants/styles";
 import { cn } from "@/lib/utils";
-import React from "react";
+import React, { useState } from "react";
 
 const tabState = cn(
   "data-[state=active]:bg-secondary",
@@ -21,24 +21,27 @@ const tabState = cn(
   "data-[state=active]:opacity-100"
 );
 
+const initialGuardians: Guardian[] = [
+  {
+    nickname: "Friend1",
+    address: "0x123456789abcdef123456789abcdef12345678",
+    status: "Pending",
+  },
+  {
+    nickname: "Friend2",
+    address: "0x123456789abcdef123456789abcdef12345678",
+    status: "Pending",
+  },
+];
+
 export default function Dashboard() {
-  const guardians = [
-    {
-      nickname: "Friend1",
-      address: "0x123456789abcdef123456789abcdef12345678",
-      status: "Pending",
-    },
-    {
-      nickname: "Friend2",
-      address: "0x123456789abcdef123456789abcdef12345678",
-      status: "Pending",
-    },
-  ];
   const recoveryLink = "https://candide.com/recovery/0xabc.eth";
   const hasActiveRecovery = true;
 
-  const handleAddGuardian = () => {
-    console.log("Adding guardian");
+  const [currentGuardians, setCurrentGuardians] = useState(initialGuardians);
+
+  const handleChangeGuardians = (guardians: Guardian[]) => {
+    setCurrentGuardians(guardians);
   };
 
   return (
@@ -68,7 +71,7 @@ export default function Dashboard() {
               />
               <RecoveryContent
                 hasActiveRecovery={hasActiveRecovery}
-                guardians={guardians}
+                guardians={currentGuardians}
               />
             </div>
           </TabsContent>
@@ -80,8 +83,8 @@ export default function Dashboard() {
                 recoveryLink={recoveryLink}
               />
               <GuardiansContent
-                guardians={guardians}
-                onAddGuardian={handleAddGuardian}
+                currentGuardians={currentGuardians}
+                onChangeCurrentGuardians={handleChangeGuardians}
               />
             </div>
           </TabsContent>

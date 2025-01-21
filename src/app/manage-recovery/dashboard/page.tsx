@@ -1,8 +1,15 @@
 "use client";
 
+import { GuardianList } from "@/components/guardian-list";
 import RecoveryContent from "@/components/recovery-content";
 import RecoverySidebar from "@/components/recovery-sidebar";
-import { TabsList, TabsRoot, TabsTrigger } from "@/components/ui/tabs";
+import { Button } from "@/components/ui/button";
+import {
+  TabsContent,
+  TabsList,
+  TabsRoot,
+  TabsTrigger,
+} from "@/components/ui/tabs";
 import { STYLES } from "@/constants/styles";
 import { cn } from "@/lib/utils";
 import React from "react";
@@ -32,8 +39,8 @@ export default function Dashboard() {
   return (
     <div className="flex flex-col flex-1 mx-8">
       <div className="max-w-6xl mx-auto">
-        <TabsRoot defaultValue="management" className="flex justify-end ">
-          <TabsList className="bg-content-background p-1 shadow-md rounded-xl mt-12 mb-3">
+        <TabsRoot defaultValue="management" className="flex flex-col w-full">
+          <TabsList className="bg-content-background p-1 shadow-md rounded-xl mt-12 mb-3 self-end">
             <TabsTrigger
               value="management"
               className={cn(STYLES.baseTab, tabState)}
@@ -47,18 +54,48 @@ export default function Dashboard() {
               Account Guardians
             </TabsTrigger>
           </TabsList>
-        </TabsRoot>
 
-        <div className="grid grid-cols-3 gap-6">
-          <RecoverySidebar
-            hasActiveRecovery={hasActiveRecovery}
-            recoveryLink={recoveryLink}
-          />
-          <RecoveryContent
-            hasActiveRecovery={hasActiveRecovery}
-            guardians={guardians}
-          />
-        </div>
+          <TabsContent value="management">
+            <div className="grid grid-cols-3 gap-6">
+              <RecoverySidebar
+                hasActiveRecovery={hasActiveRecovery}
+                recoveryLink={recoveryLink}
+              />
+              <RecoveryContent
+                hasActiveRecovery={hasActiveRecovery}
+                guardians={guardians}
+              />
+            </div>
+          </TabsContent>
+
+          <TabsContent value="guardians">
+            <div className="grid grid-cols-3 gap-6">
+              <RecoverySidebar
+                hasActiveRecovery={hasActiveRecovery}
+                recoveryLink={recoveryLink}
+              />
+              <div className="col-span-2">
+                <div className="p-6 bg-content-background shadow-lg rounded-xl">
+                  <div className="flex items-center justify-between mb-8">
+                    <h3 className="text-lg font-bold font-roboto-mono text-primary ">
+                      Account Guardians
+                    </h3>
+                    <Button className="rounded-xl font-roboto-mono h-6 font-bold text-xs">
+                      Add Guardian
+                    </Button>
+                  </div>
+                  <GuardianList
+                    guardians={guardians}
+                    isNewGuardinList
+                    onRemoveGuardian={() => {
+                      console.log("remove guardian");
+                    }}
+                  />
+                </div>
+              </div>
+            </div>
+          </TabsContent>
+        </TabsRoot>
       </div>
     </div>
   );

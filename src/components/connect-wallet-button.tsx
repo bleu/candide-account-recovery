@@ -1,3 +1,5 @@
+"use client";
+
 import { ConnectKitButton } from "connectkit";
 import { Button } from "@/components/ui/button";
 

@@ -1,12 +1,19 @@
-import { ExternalLink } from "lucide-react";
+import { CircleMinus, ExternalLink, Minus } from "lucide-react";
 import { Guardian } from "./guardian-list";
 import PressableIcon from "./pressable-icon";
+import { Button } from "./ui/button";
 
 interface GuardianRowProps {
   guardian: Guardian;
+  isNewGuardinList?: boolean;
+  onRemoveGuardian?: () => void;
 }
 
-export function GuardianRow({ guardian }: GuardianRowProps) {
+export function GuardianRow({
+  guardian,
+  isNewGuardinList,
+  onRemoveGuardian,
+}: GuardianRowProps) {
   return (
     <div className="grid grid-cols-[1fr,3fr,1fr] items-center py-2 px-3 bg-background rounded-lg">
       <div className="text-xs text-foreground opacity-60 font-medium font-roboto-mono">
@@ -24,9 +31,27 @@ export function GuardianRow({ guardian }: GuardianRowProps) {
         />
       </div>
       <div className="flex justify-end">
-        <span className="px-4 py-1 bg-terciary text-terciary-foreground rounded-md text-xs">
-          {guardian.status}
-        </span>
+        {isNewGuardinList ? (
+          <Button
+            variant="link"
+            className="flex items-center gap-1"
+            onClick={onRemoveGuardian}
+          >
+            <span className="font-roboto-mono text-xs text-primary font-bold">
+              Remove Guardian
+            </span>
+            <div
+              className="flex items-center justify-center rounded-full w-4 h-4 gap-2"
+              style={{ backgroundColor: "rgba(176, 238, 129, 0.1)" }}
+            >
+              <Minus className="text-primary w-3 " />
+            </div>
+          </Button>
+        ) : (
+          <span className="px-4 py-1 bg-terciary text-terciary-foreground rounded-md text-xs">
+            {guardian.status}
+          </span>
+        )}
       </div>
     </div>
   );

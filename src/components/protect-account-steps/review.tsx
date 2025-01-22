@@ -2,7 +2,7 @@ import { STYLES } from "@/constants/styles";
 
 interface ReviewStepSectionProps {
   threshold: number;
-  delayPeriod: number;
+  delayPeriod?: number;
 }
 
 export default function ReviewStepSection({
@@ -13,20 +13,22 @@ export default function ReviewStepSection({
     <>
       <div className="border-t pt-5" style={STYLES.textWithBorderOpacity}>
         <span className="text-lg font-bold font-roboto-mono opacity-60 ">
-          Threshold
+          {delayPeriod ? "Threshold" : "New Threshold"}
         </span>
         <p className="text-base font-roboto-mono text-content-foreground mt-3">
           Minimum {threshold} Guardians approval to recovery.
         </p>
       </div>
-      <div className="border-t pt-5" style={STYLES.textWithBorderOpacity}>
-        <span className="text-lg font-bold font-roboto-mono opacity-60 ">
-          Delay Period
-        </span>
-        <p className="text-base font-roboto-mono text-content-foreground mt-3">
-          {delayPeriod}-day period to cancel a recovery request.
-        </p>
-      </div>
+      {delayPeriod && (
+        <div className="border-t pt-5" style={STYLES.textWithBorderOpacity}>
+          <span className="text-lg font-bold font-roboto-mono opacity-60 ">
+            Delay Period
+          </span>
+          <p className="text-base font-roboto-mono text-content-foreground mt-3">
+            {delayPeriod}-day period to cancel a recovery request.
+          </p>
+        </div>
+      )}
     </>
   );
 }

@@ -8,11 +8,13 @@ import { Button } from "./ui/button";
 interface RecoverySideBarProps {
   hasActiveRecovery: boolean;
   recoveryLink: string;
+  safeAccount: string;
 }
 
 export default function RecoverySidebar({
   hasActiveRecovery,
   recoveryLink,
+  safeAccount,
 }: RecoverySideBarProps) {
   const thresholdAchieved = true;
   const delayPeriodStarted = true;
@@ -33,7 +35,7 @@ export default function RecoverySidebar({
         style={STYLES.textWithBorderOpacity}
         className="flex items-center gap-3 opacity-60 border-b border-opacity-30 pb-2 mb-6"
       >
-        <p className="text-2xl font-roboto-mono">0xabc.eth</p>
+        <p className="text-2xl font-roboto-mono">{safeAccount}</p>
         <PressableIcon icon={ExternalLink} onClick={() => {}} size={18} />
       </div>
       {hasActiveRecovery && (

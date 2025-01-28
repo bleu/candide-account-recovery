@@ -10,4 +10,8 @@ export const STYLES = {
     "text-xs font-bold text-foreground opacity-30"
   ),
   input: "bg-background text-sm border-none focus:ring-primary",
+  modalSectionTitle:
+    "text-base font-bold font-roboto-mono text-content-foreground",
+  modalSectionDescription:
+    "text-sm font-roboto-mono text-content-foreground opacity-60",
 } as const;

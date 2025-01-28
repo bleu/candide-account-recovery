@@ -1,4 +1,4 @@
-import { CircleMinus, ExternalLink, Minus } from "lucide-react";
+import { ExternalLink, Minus } from "lucide-react";
 import { Guardian } from "./guardian-list";
 import PressableIcon from "./pressable-icon";
 import { Button } from "./ui/button";
@@ -6,7 +6,7 @@ import { Button } from "./ui/button";
 interface GuardianRowProps {
   guardian: Guardian;
   isNewGuardinList?: boolean;
-  onRemoveGuardian?: () => void;
+  onRemoveGuardian: (guardian: Guardian) => void;
 }
 
 export function GuardianRow({
@@ -35,7 +35,7 @@ export function GuardianRow({
           <Button
             variant="link"
             className="flex items-center gap-1"
-            onClick={onRemoveGuardian}
+            onClick={() => onRemoveGuardian(guardian)}
           >
             <span className="font-roboto-mono text-xs text-primary font-bold">
               Remove Guardian

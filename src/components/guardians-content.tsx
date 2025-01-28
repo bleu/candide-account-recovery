@@ -67,6 +67,22 @@ export default function GuardiansContent({
     setThreshold(value);
   };
 
+  const handleRemoveCurrentGuardian = (guardian: Guardian): void => {
+    const updatedGuardians = currentGuardians.filter(
+      (g) => g.address !== guardian.address || g.nickname !== guardian.nickname
+    );
+    onChangeCurrentGuardians(updatedGuardians);
+    toast({
+      title: "Guardian removed",
+      description:
+        "This guardian will no longer have permission recover your account.",
+    });
+    toast({
+      title: "New threshold has been set.",
+      description: "Your wallet security settings have been updated.",
+    });
+  };
+
   const getStepContent = () => {
     switch (currentStep) {
       case 1:
@@ -158,9 +174,7 @@ export default function GuardiansContent({
           <GuardianList
             guardians={currentGuardians}
             isNewGuardinList
-            onRemoveGuardian={() => {
-              console.log("remove guardian");
-            }}
+            onRemoveGuardian={handleRemoveCurrentGuardian}
           />
         ) : (
           <EmptyGuardians onOpenGuardianModal={handleOnOpenGuardianModal} />

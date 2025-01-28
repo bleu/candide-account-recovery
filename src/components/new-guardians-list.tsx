@@ -4,7 +4,6 @@ import { STYLES } from "@/constants/styles";
 import { cn } from "@/lib/utils";
 import { Button } from "./ui/button";
 import { ExternalLink, X } from "lucide-react";
-import { useValidateNewGuardian } from "@/hooks/useValidateNewGuardian";
 import { Guardian } from "./guardian-list";
 
 interface NewGuardianListProps {
@@ -12,6 +11,7 @@ interface NewGuardianListProps {
   onAdd: (guardian: Guardian) => void;
   onRemove: (index: number) => void;
   onExternalLink: (address: string) => void;
+  validationFn: (address: string) => { isValid: boolean; reason: string };
   withNicknames?: boolean;
   isReview?: boolean;
   className?: string;
@@ -29,9 +29,8 @@ export default function NewGuardianList({
   withNicknames = false,
   isReview = false,
   className,
+  validationFn,
 }: NewGuardianListProps) {
-  const validateNewGuardian = useValidateNewGuardian();
-
   const [newGuardian, setNewGuardian] = useState<NewGuardianState>({
     address: "",
     nickname: "",
@@ -50,10 +49,7 @@ export default function NewGuardianList({
     if (withNicknames && !newGuardian.nickname) return;
     if (!newGuardian.address) return;
 
-    const { isValid, reason } = validateNewGuardian(
-      newGuardian.address,
-      guardians.map((guardian) => guardian.address)
-    );
+    const { isValid, reason } = validationFn(newGuardian.address);
     if (!isValid) {
       setAddressError(reason);
       return;

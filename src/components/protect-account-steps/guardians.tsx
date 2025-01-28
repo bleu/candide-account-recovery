@@ -7,6 +7,8 @@ import {
 import { Info } from "lucide-react";
 import NewGuardianList from "../new-guardians-list";
 import { Guardian } from "../guardian-list";
+import { useValidateNewGuardian } from "@/hooks/useValidateNewGuardian";
+import { useCallback } from "react";
 
 interface GuardiansStepProps {
   guardians: Guardian[];
@@ -23,6 +25,18 @@ export default function GuardiansStep({
   onExternalLink,
   isReview = false,
 }: GuardiansStepProps) {
+  const validateNewGuardian = useValidateNewGuardian();
+
+  const validationFn = useCallback(
+    (address: string) => {
+      return validateNewGuardian(
+        address,
+        guardians.map((guardian) => guardian.address)
+      );
+    },
+    [guardians, validateNewGuardian]
+  );
+
   return (
     <div className="space-y-4">
       <div className="grid grid-cols-[1fr,2fr]">
@@ -52,6 +66,7 @@ export default function GuardiansStep({
         guardians={guardians}
         onAdd={onAddGuardian}
         onRemove={onRemoveGuardian}
+        validationFn={validationFn}
         onExternalLink={onExternalLink}
         withNicknames={true}
         isReview={isReview}

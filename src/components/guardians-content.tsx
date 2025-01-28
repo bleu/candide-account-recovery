@@ -175,6 +175,7 @@ export default function GuardiansContent({
             guardians={currentGuardians}
             isNewGuardinList
             onRemoveGuardian={handleRemoveCurrentGuardian}
+            onOpenGuardianModal={handleOnOpenGuardianModal}
           />
         ) : (
           <EmptyGuardians onOpenGuardianModal={handleOnOpenGuardianModal} />

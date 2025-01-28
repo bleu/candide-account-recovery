@@ -19,6 +19,7 @@ interface GuardianListProps {
   guardians: Guardian[];
   isNewGuardinList?: boolean;
   onRemoveGuardian?: (guardian: Guardian) => void;
+  onOpenGuardianModal?: () => void;
 }
 
 const totalSteps = 3;
@@ -27,8 +28,10 @@ export function GuardianList({
   guardians,
   isNewGuardinList,
   onRemoveGuardian,
+  onOpenGuardianModal,
 }: GuardianListProps) {
   const [isRemoveModalOpen, setIsRemoveModalOpen] = useState(false);
+  const [isLastGuardianModalOpen, setIsLastGuardianModalOpen] = useState(false);
   const [guardianToRemove, setGuardianToRemove] = useState<Guardian>();
   const [currentStep, setCurrentStep] = useState(1);
   const [threshold, setThreshold] = useState(1);
@@ -53,6 +56,10 @@ export function GuardianList({
 
   const handleRemoveClick = (guardian: Guardian) => {
     setGuardianToRemove(guardian);
+    if (guardians.length === 1) {
+      setIsLastGuardianModalOpen(true);
+      return;
+    }
     setIsRemoveModalOpen(true);
   };
 
@@ -61,6 +68,7 @@ export function GuardianList({
       onRemoveGuardian(guardianToRemove);
     }
     setIsRemoveModalOpen(false);
+    setIsLastGuardianModalOpen(false);
     setGuardianToRemove({ nickname: "", address: "" });
     setCurrentStep(1);
   };
@@ -180,6 +188,32 @@ export function GuardianList({
         }
       >
         {getStepContent()}
+      </Modal>
+      <Modal
+        isOpen={isLastGuardianModalOpen}
+        onClose={() => setIsLastGuardianModalOpen(false)}
+        title="Are you sure you want to remove this guardian?"
+        description="Removing the last guardian will leave your account unprotected, interrupt any ongoing recovery processes, and block future recovery attempts."
+        currentStep={2}
+        totalSteps={1}
+        onNext={onOpenGuardianModal}
+        onBack={handleConfirmRemove}
+        nextLabel="Add Guardian"
+        backLabel="Confirm Removal"
+      >
+        <div className="space-y-5">
+          <p className="text-base font-bold font-roboto-mono">
+            We strongly recommend adding a new guardian before proceeding.
+          </p>
+          <GuardiansToBeRemoved
+            nickname={guardianToRemove?.nickname || ""}
+            address={guardianToRemove?.address || ""}
+            onExternalLink={() =>
+              guardianToRemove?.address &&
+              handleExternalLink(guardianToRemove.address)
+            }
+          />
+        </div>
       </Modal>
     </>
   );

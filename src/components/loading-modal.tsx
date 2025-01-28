@@ -2,19 +2,23 @@ import React from "react";
 import { Dialog, DialogContent, DialogTitle } from "./ui/dialog";
 import LoadingSpinner from "./ui/loading-spinner";
 
+interface LoadingModalProps {
+  loading: boolean;
+  loadingText?: string;
+  setIsloading: (loading: boolean) => void;
+}
+
 export default function LoadingModal({
   loading,
+  loadingText,
   setIsloading,
-}: {
-  loading: boolean;
-  setIsloading: (loading: boolean) => void;
-}) {
+}: LoadingModalProps) {
   return (
     <Dialog open={loading} onOpenChange={() => setIsloading(false)}>
       <DialogContent className="flex flex-col bg-content-background border-none rounded-3xl items-center [&>button]:hidden">
         <LoadingSpinner />
         <DialogTitle className="font-roboto-mono font-normal text-base text-content-foreground opacity-60">
-          Waiting for the transaction signature...
+          {loadingText || "Loading..."}
         </DialogTitle>
       </DialogContent>
     </Dialog>

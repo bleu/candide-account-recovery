@@ -25,7 +25,8 @@ export default function RecoveryContent({
   safeAccount,
 }: RecoveryContentProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const [loading, setIsloading] = useState(false);
+  const [approveLoading, setApproveLoading] = useState(false);
+  const [finishLoading, setFinishLoading] = useState(false);
   const [isChecked, setIsChecked] = useState(false);
 
   const { toast } = useToast();
@@ -33,9 +34,9 @@ export default function RecoveryContent({
   // MOCKED LOADING  UNTIL INTEGRATION
   const handleApproveRecovery = () => {
     setIsOpen(false);
-    setIsloading(true);
+    setApproveLoading(true);
     setTimeout(() => {
-      setIsloading(false);
+      setApproveLoading(false);
       if (thresholdAchieved && isChecked) {
         toast({
           title: "Recovery executed.",
@@ -152,7 +153,15 @@ export default function RecoveryContent({
                 thresholdAchieved={thresholdAchieved}
               />
             </Modal>
-            <LoadingModal loading={loading} setIsloading={setIsloading} />
+            <LoadingModal
+              loading={approveLoading || finishLoading}
+              setIsloading={setApproveLoading || setFinishLoading}
+              loadingText={
+                approveLoading
+                  ? "Waiting for the transaction signature..."
+                  : "Executing recovery..."
+              }
+            />
           </>
         ) : (
           <EmptyActiveRecovery />

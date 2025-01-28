@@ -1,22 +1,26 @@
 "use client";
 
 import { Guardian } from "@/components/guardian-list";
-import Recovery from "@/components/ask-recovery-steps/recovery";
+import SafeAddress from "@/components/ask-recovery-steps/safe-address";
+import NewOwners from "@/components/ask-recovery-steps/new-owners";
+import NewThreshold from "@/components/ask-recovery-steps/new-threshold";
 import ShareLink from "@/components/ask-recovery-steps/share-link";
 import { Modal } from "@/components/modal";
 import { redirect } from "next/navigation";
 import React, { useState } from "react";
 
-const totalSteps = 2;
+const totalSteps = 4;
 
 export default function AskRecovery() {
   const [isOpen, setIsOpen] = useState(true);
   const [currentStep, setCurrentStep] = useState(1);
   const [safeAddress, setSafeAddress] = useState("");
   const [guardians, setGuardians] = useState<Guardian[]>([]);
+  const [threshold, setThreshold] = useState(1);
 
   const isNextDisabled =
-    currentStep === 1 && (!safeAddress || guardians.length === 0);
+    (currentStep === 1 && !safeAddress) ||
+    (currentStep === 2 && guardians.length === 0);
 
   const handleNext = () => {
     if (currentStep < totalSteps) {
@@ -39,21 +43,47 @@ export default function AskRecovery() {
     window.open(`https://etherscan.io/address/${address}`);
   };
 
+  const handleThresholdChange = (value: number) => {
+    setThreshold(value);
+  };
+
   const getStepContent = () => {
     switch (currentStep) {
       case 1:
         return (
-          <Recovery
+          <SafeAddress
             safeAddress={safeAddress}
             onSafeAddressChange={setSafeAddress}
+            onExternalLink={handleExternalLink}
+          />
+        );
+      case 2:
+        return (
+          <NewOwners
             guardians={guardians}
             onAdd={handleAdd}
             onExternalLink={handleExternalLink}
             onRemove={handleRemove}
           />
         );
-      case 2:
-        return <ShareLink />;
+      case 3:
+        return (
+          <NewThreshold
+            totalOwners={guardians.length}
+            onThresholdChange={handleThresholdChange}
+          />
+        );
+      case 4:
+        return (
+          <ShareLink
+            guardians={guardians}
+            threshold={threshold}
+            safeAddress={safeAddress}
+            onAdd={handleAdd}
+            onExternalLink={handleExternalLink}
+            onRemove={handleRemove}
+          />
+        );
       default:
         return "";
     }
@@ -64,7 +94,11 @@ export default function AskRecovery() {
       case 1:
         return "Ask for Recovery";
       case 2:
-        return "Set the Approval Threshold";
+        return "Safe Account New Signers";
+      case 3:
+        return "Safe Account New Threshold";
+      case 4:
+        return "Share Link";
       default:
         return "";
     }
@@ -73,9 +107,13 @@ export default function AskRecovery() {
   const getStepDescription = () => {
     switch (currentStep) {
       case 1:
-        return "Your Recorevy Link was created!";
+        return "Start the recovery process to transfer account ownership through trusted contacts. Guardians approval will be required for the recovery to succeed.";
       case 2:
-        return "Guardians will need to approve before the recovery can proceed. Track the progress by searching your address or cancel the request recovery if you don't need it anymore.";
+        return "Add the wallet addresses of the new authorized signers for the target Safe account.";
+      case 3:
+        return "Set a new threshold for the target Safe account. This number determines how many signers must approve each transaction after recovery is complete.";
+      case 4:
+        return "Review the details below and share the link with guardians or others involved in the recovery. Remember to keep the link with you.";
       default:
         return "";
     }
@@ -91,8 +129,9 @@ export default function AskRecovery() {
         totalSteps={totalSteps}
         onClose={() => setIsOpen(false)}
         onNext={handleNext}
-        nextLabel={currentStep === 1 ? "Generate Link" : "See Details"}
+        nextLabel={currentStep !== 4 ? "Next" : "Go to recovery management"}
         isNextDisabled={isNextDisabled}
+        isProgress
       >
         {getStepContent()}
       </Modal>

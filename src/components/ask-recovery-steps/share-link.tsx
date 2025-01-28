@@ -3,14 +3,14 @@ import { STYLES } from "@/constants/styles";
 import { Button } from "../ui/button";
 import { cn } from "@/lib/utils";
 import { Copy } from "lucide-react";
-import NewGuardianList from "../new-guardians-list";
-import { Guardian } from "../guardian-list";
+import NewAddressList from "../new-guardians-list";
+import { NewAddress } from "../guardian-list";
 
 interface NewOwnersProps {
-  guardians: Guardian[];
+  newOwners: NewAddress[];
   threshold: number;
   safeAddress: string;
-  onAdd: (guardian: Guardian) => void;
+  onAdd: (guardian: NewAddress) => void;
   onRemove: (index: number) => void;
   onExternalLink: (address: string) => void;
 }
@@ -21,7 +21,7 @@ interface RecoveryQueryParams {
   newThreshold: number;
 }
 
-const baseUrl = window.location.origin;
+const baseUrl = "http://localhost:3000";
 
 const createFinalUrl = (params: RecoveryQueryParams): string => {
   const searchParams = new URLSearchParams();
@@ -32,7 +32,7 @@ const createFinalUrl = (params: RecoveryQueryParams): string => {
 };
 
 export default function ShareLink({
-  guardians,
+  newOwners,
   threshold,
   safeAddress,
   onAdd,
@@ -42,7 +42,7 @@ export default function ShareLink({
   const link = createFinalUrl({
     safeAddress,
     newThreshold: threshold,
-    newOwners: guardians.map((guardian) => guardian.address),
+    newOwners: newOwners.map((guardian) => guardian.address),
   });
 
   return (
@@ -65,8 +65,8 @@ export default function ShareLink({
           The public address of the new Safe signers.
         </p>
         <div className="mt-3">
-          <NewGuardianList
-            guardians={guardians}
+          <NewAddressList
+            addresses={newOwners}
             onAdd={onAdd}
             onRemove={onRemove}
             validationFn={(address: string) => ({

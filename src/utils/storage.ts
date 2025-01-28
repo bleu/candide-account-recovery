@@ -1,7 +1,7 @@
 "use client";
 
 import { Address } from "viem";
-import { Guardian } from "@/components/guardian-list";
+import { NewAddress } from "@/components/guardian-list";
 
 // Constants
 const STORAGE_KEY = "candide-address-recovery:v1" as const;
@@ -11,7 +11,7 @@ const buildKey = (chainId: number, address: Address) => {
 };
 
 export const storeGuardians = (
-  guardians: Guardian[],
+  guardians: NewAddress[],
   chainId: number,
   address: Address
 ) => {
@@ -25,12 +25,12 @@ export const storeGuardians = (
 export const getStoredGuardians = (
   chainId: number,
   address: Address
-): Guardian[] => {
+): NewAddress[] => {
   try {
     const item = localStorage.getItem(buildKey(chainId, address));
     if (!item) return [];
 
-    const guardians = JSON.parse(item) as Guardian[];
+    const guardians = JSON.parse(item) as NewAddress[];
 
     return guardians;
   } catch (e) {

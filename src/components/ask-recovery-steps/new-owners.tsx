@@ -1,22 +1,22 @@
-import { Guardian } from "../guardian-list";
-import NewGuardianList from "../new-guardians-list";
+import { NewAddress } from "../guardian-list";
+import NewAddressList from "../new-guardians-list";
 
 interface NewOwnersProps {
-  guardians: Guardian[];
-  onAdd: (guardian: Guardian) => void;
+  newOwners: NewAddress[];
+  onAdd: (guardian: NewAddress) => void;
   onRemove: (index: number) => void;
   onExternalLink: (address: string) => void;
 }
 
 export default function Recovery({
-  guardians,
+  newOwners,
   onAdd,
   onRemove,
   onExternalLink,
 }: NewOwnersProps) {
   return (
-    <NewGuardianList
-      guardians={guardians}
+    <NewAddressList
+      addresses={newOwners}
       onAdd={onAdd}
       onRemove={onRemove}
       validationFn={(address: string) => ({ isValid: true, reason: address })}

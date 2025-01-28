@@ -5,14 +5,14 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { Info } from "lucide-react";
-import NewGuardianList from "../new-guardians-list";
-import { Guardian } from "../guardian-list";
+import NewAddressList from "../new-guardians-list";
+import { NewAddress } from "../guardian-list";
 import { useValidateNewGuardian } from "@/hooks/useValidateNewGuardian";
 import { useCallback } from "react";
 
 interface GuardiansStepProps {
-  guardians: Guardian[];
-  onAddGuardian: (guardian: Guardian) => void;
+  guardians: NewAddress[];
+  onAddGuardian: (guardian: NewAddress) => void;
   onRemoveGuardian: (index: number) => void;
   onExternalLink: (address: string) => void;
   isReview?: boolean;
@@ -62,8 +62,8 @@ export default function GuardiansStep({
           ADDRESS
         </label>
       </div>
-      <NewGuardianList
-        guardians={guardians}
+      <NewAddressList
+        addresses={guardians}
         onAdd={onAddGuardian}
         onRemove={onRemoveGuardian}
         validationFn={validationFn}

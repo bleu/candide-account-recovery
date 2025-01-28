@@ -1,6 +1,6 @@
 "use client";
 
-import { Guardian } from "@/components/guardian-list";
+import { NewAddress } from "@/components/guardian-list";
 import SafeAddress from "@/components/ask-recovery-steps/safe-address";
 import NewOwners from "@/components/ask-recovery-steps/new-owners";
 import NewThreshold from "@/components/ask-recovery-steps/new-threshold";
@@ -15,12 +15,12 @@ export default function AskRecovery() {
   const [isOpen, setIsOpen] = useState(true);
   const [currentStep, setCurrentStep] = useState(1);
   const [safeAddress, setSafeAddress] = useState("");
-  const [guardians, setGuardians] = useState<Guardian[]>([]);
+  const [newOwners, setOwners] = useState<NewAddress[]>([]);
   const [threshold, setThreshold] = useState(1);
 
   const isNextDisabled =
     (currentStep === 1 && !safeAddress) ||
-    (currentStep === 2 && guardians.length === 0);
+    (currentStep === 2 && newOwners.length === 0);
 
   const handleNext = () => {
     if (currentStep < totalSteps) {
@@ -31,12 +31,12 @@ export default function AskRecovery() {
     }
   };
 
-  const handleAdd = (newGuardian: Guardian): void => {
-    setGuardians((prev) => [...prev, newGuardian]);
+  const handleAdd = (newOwner: NewAddress): void => {
+    setOwners((prev) => [...prev, newOwner]);
   };
 
   const handleRemove = (index: number): void => {
-    setGuardians((prev) => prev.filter((_, i) => i !== index));
+    setOwners((prev) => prev.filter((_, i) => i !== index));
   };
 
   const handleExternalLink = (address: string): void => {
@@ -60,7 +60,7 @@ export default function AskRecovery() {
       case 2:
         return (
           <NewOwners
-            guardians={guardians}
+            newOwners={newOwners}
             onAdd={handleAdd}
             onExternalLink={handleExternalLink}
             onRemove={handleRemove}
@@ -69,14 +69,14 @@ export default function AskRecovery() {
       case 3:
         return (
           <NewThreshold
-            totalOwners={guardians.length}
+            totalOwners={newOwners.length}
             onThresholdChange={handleThresholdChange}
           />
         );
       case 4:
         return (
           <ShareLink
-            guardians={guardians}
+            newOwners={newOwners}
             threshold={threshold}
             safeAddress={safeAddress}
             onAdd={handleAdd}
@@ -107,13 +107,13 @@ export default function AskRecovery() {
   const getStepDescription = () => {
     switch (currentStep) {
       case 1:
-        return "Start the recovery process to transfer account ownership through trusted contacts. Guardians approval will be required for the recovery to succeed.";
+        return "Start the recovery process to transfer account ownership through trusted contacts. New Owners approval will be required for the recovery to succeed.";
       case 2:
         return "Add the wallet addresses of the new authorized signers for the target Safe account.";
       case 3:
         return "Set a new threshold for the target Safe account. This number determines how many signers must approve each transaction after recovery is complete.";
       case 4:
-        return "Review the details below and share the link with guardians or others involved in the recovery. Remember to keep the link with you.";
+        return "Review the details below and share the link with newOwners or others involved in the recovery. Remember to keep the link with you.";
       default:
         return "";
     }

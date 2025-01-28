@@ -1,6 +1,6 @@
 import React from "react";
 import { STYLES } from "@/constants/styles";
-import { Guardian, GuardianList } from "./guardian-list";
+import { NewAddress, GuardianList } from "./guardian-list";
 import PressableIcon from "./pressable-icon";
 import { ExternalLink } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -9,7 +9,7 @@ import { Button } from "./ui/button";
 
 interface RecoveryContentProps {
   hasActiveRecovery: boolean;
-  guardians: Guardian[];
+  guardians: NewAddress[];
 }
 
 export default function RecoveryContent({

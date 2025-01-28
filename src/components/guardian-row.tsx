@@ -1,12 +1,12 @@
 import { ExternalLink, Minus } from "lucide-react";
-import { Guardian } from "./guardian-list";
+import { NewAddress } from "./guardian-list";
 import PressableIcon from "./pressable-icon";
 import { Button } from "./ui/button";
 
 interface GuardianRowProps {
-  guardian: Guardian;
+  guardian: NewAddress;
   isNewGuardinList?: boolean;
-  onRemoveGuardian: (guardian: Guardian) => void;
+  onRemoveGuardian: (guardian: NewAddress) => void;
 }
 
 export function GuardianRow({
@@ -38,7 +38,7 @@ export function GuardianRow({
             onClick={() => onRemoveGuardian(guardian)}
           >
             <span className="font-roboto-mono text-xs text-primary font-bold">
-              Remove Guardian
+              Remove NewAddress
             </span>
             <div
               className="flex items-center justify-center rounded-full w-4 h-4 gap-2"

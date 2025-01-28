@@ -4,11 +4,11 @@ import { STYLES } from "@/constants/styles";
 import { cn } from "@/lib/utils";
 import { Button } from "./ui/button";
 import { ExternalLink, X } from "lucide-react";
-import { Guardian } from "./guardian-list";
+import { NewAddress } from "./guardian-list";
 
-interface NewGuardianListProps {
-  guardians: Guardian[];
-  onAdd: (guardian: Guardian) => void;
+interface NewAddressListProps {
+  addresses: NewAddress[];
+  onAdd: (address: NewAddress) => void;
   onRemove: (index: number) => void;
   onExternalLink: (address: string) => void;
   validationFn: (address: string) => { isValid: boolean; reason: string };
@@ -16,13 +16,13 @@ interface NewGuardianListProps {
   isReview?: boolean;
   className?: string;
 }
-interface NewGuardianState {
+interface NewAddressState {
   address: string;
   nickname: string;
 }
 
-export default function NewGuardianList({
-  guardians = [],
+export default function NewAddressList({
+  addresses = [],
   onAdd,
   onRemove,
   onExternalLink,
@@ -30,69 +30,65 @@ export default function NewGuardianList({
   isReview = false,
   className,
   validationFn,
-}: NewGuardianListProps) {
-  const [newGuardian, setNewGuardian] = useState<NewGuardianState>({
+}: NewAddressListProps) {
+  const [newAddress, setNewAddress] = useState<NewAddressState>({
     address: "",
     nickname: "",
   });
   const [addressError, setAddressError] = useState<string>("");
 
-  const handleUpdateNewGuardian = (
-    field: keyof NewGuardianState,
+  const handleUpdateNewAddress = (
+    field: keyof NewAddressState,
     value: string
   ): void => {
-    setNewGuardian((prev) => ({ ...prev, [field]: value }));
+    setNewAddress((prev) => ({ ...prev, [field]: value }));
     setAddressError("");
   };
 
-  const handleAddGuardian = async (): Promise<void> => {
-    if (withNicknames && !newGuardian.nickname) return;
-    if (!newGuardian.address) return;
+  const handleAddAddress = async (): Promise<void> => {
+    if (withNicknames && !newAddress.nickname) return;
+    if (!newAddress.address) return;
 
-    const { isValid, reason } = validationFn(newGuardian.address);
+    const { isValid, reason } = validationFn(newAddress.address);
     if (!isValid) {
       setAddressError(reason);
       return;
     }
 
-    onAdd(newGuardian);
-    setNewGuardian({ nickname: "", address: "" });
+    onAdd(newAddress);
+    setNewAddress({ nickname: "", address: "" });
     setAddressError("");
   };
 
   const isAddButtonEnabled = (): boolean => {
-    if (!newGuardian.address) return false;
-    if (withNicknames && !newGuardian.nickname) return false;
+    if (!newAddress.address) return false;
+    if (withNicknames && !newAddress.nickname) return false;
     return true;
   };
 
   return (
     <div className={cn("space-y-5", className)}>
-      {guardians.map((guardian, index) => (
+      {addresses.map((address, index) => (
         <div
-          key={`${guardian.address}-${index}`}
+          key={`${address.address}-${index}`}
           className={cn(
             withNicknames ? "grid grid-cols-[1fr,2fr] gap-2" : "flex gap-2"
           )}
         >
           {withNicknames && (
-            <Input
-              readOnly
-              value={guardian.nickname}
-              className={STYLES.input}
-            />
+            <Input readOnly value={address.nickname} className={STYLES.input} />
           )}
           <div className="flex flex-1 gap-2">
             <Input
               readOnly
-              value={guardian.address}
+              value={address.address}
               className={cn(STYLES.input, "flex-1")}
             />
             <Button
               variant="ghost"
               size="icon"
               className="h-8 w-8 hover:bg-background group"
-              onClick={() => onExternalLink?.(guardian.address)}
+              onClick={() => onExternalLink?.(address.address)}
               type="button"
             >
               <ExternalLink
@@ -115,7 +111,7 @@ export default function NewGuardianList({
         </div>
       ))}
 
-      {/* Add New Guardian */}
+      {/* Add New Address */}
       {!isReview && (
         <div>
           <div
@@ -126,9 +122,9 @@ export default function NewGuardianList({
             {withNicknames && (
               <Input
                 placeholder="Nickname..."
-                value={newGuardian.nickname}
+                value={newAddress.nickname}
                 onChange={(e) =>
-                  handleUpdateNewGuardian("nickname", e.target.value)
+                  handleUpdateNewAddress("nickname", e.target.value)
                 }
                 className={STYLES.input}
               />
@@ -136,9 +132,9 @@ export default function NewGuardianList({
             <div className="flex flex-1 gap-2">
               <Input
                 placeholder="Address..."
-                value={newGuardian.address}
+                value={newAddress.address}
                 onChange={(e) =>
-                  handleUpdateNewGuardian("address", e.target.value)
+                  handleUpdateNewAddress("address", e.target.value)
                 }
                 className={cn(STYLES.input, "flex-1")}
               />
@@ -146,7 +142,7 @@ export default function NewGuardianList({
                 variant="ghost"
                 className="hover:bg-background text-sm"
                 disabled={!isAddButtonEnabled()}
-                onClick={handleAddGuardian}
+                onClick={handleAddAddress}
                 type="button"
               >
                 Add +

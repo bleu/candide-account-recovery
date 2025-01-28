@@ -9,6 +9,7 @@ import { Button } from "./ui/button";
 import { Modal } from "./modal";
 import LoadingModal from "./loading-modal";
 import ApproveRecoveryModalContent from "./approve-recovery-modal-content";
+import { useToast } from "@/hooks/use-toast";
 
 interface RecoveryContentProps {
   hasActiveRecovery: boolean;
@@ -27,12 +28,34 @@ export default function RecoveryContent({
   const [loading, setIsloading] = useState(false);
   const [isChecked, setIsChecked] = useState(false);
 
+  const { toast } = useToast();
+
   // MOCKED LOADING  UNTIL INTEGRATION
   const handleApproveRecovery = () => {
     setIsOpen(false);
     setIsloading(true);
     setTimeout(() => {
       setIsloading(false);
+      if (thresholdAchieved && isChecked) {
+        toast({
+          title: "Recovery executed.",
+          description: "Delay Period has started.",
+        });
+        return;
+      }
+      if (!thresholdAchieved) {
+        toast({
+          title: "Recovery approved.",
+          description:
+            "Waiting for other guardians to approve before starting the delay period.",
+        });
+        return;
+      }
+      toast({
+        title: "Recovery approved.",
+        description: "The threshold was achieved. Click to start delay period.",
+      });
+      return;
     }, 4000);
   };
 

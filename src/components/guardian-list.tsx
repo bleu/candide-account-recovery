@@ -242,7 +242,7 @@ function GuardiansToBeRemoved({
       </div>
       <div className="grid grid-cols-[1fr,2fr] gap-2">
         <Input readOnly value={nickname} className={STYLES.input} />
-        <div className="flex flex-1 gap-2">
+        <div className="flex flex-1 gap-2 items-center">
           <Input
             readOnly
             value={address}

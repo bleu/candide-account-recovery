@@ -17,6 +17,8 @@ interface RecoveryContentProps {
   guardians: Guardian[];
   safeSigners: string[];
   safeAccount: string;
+  threshold: number;
+  delayPeriod: number;
 }
 
 export default function RecoveryContent({
@@ -24,6 +26,8 @@ export default function RecoveryContent({
   guardians,
   safeSigners,
   safeAccount,
+  threshold,
+  delayPeriod,
 }: RecoveryContentProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [approveLoading, setApproveLoading] = useState(false);
@@ -98,7 +102,7 @@ export default function RecoveryContent({
                   style={STYLES.textWithBorderOpacity}
                   className={STYLES.textWithBorder}
                 >
-                  3-day period not started.
+                  {delayPeriod}-day period not started.
                 </span>
               </div>
               <div className="flex flex-col gap-1">
@@ -107,7 +111,7 @@ export default function RecoveryContent({
                   style={STYLES.textWithBorderOpacity}
                   className={STYLES.textWithBorder}
                 >
-                  2 of 2 Guardians
+                  1 of {threshold} Guardians
                 </span>
               </div>
             </div>

@@ -11,8 +11,8 @@ export default function ManageRecovery() {
           Manage Recovery
         </h2>
         <p className="text-lg font-roboto-mono text-center text-foreground max-w-lg">
-          Search for an address to approve on going requests and manage
-          guardians permissions.
+          Search by account address to view recoveries in delay period. For
+          recoveries not yet in delay period, a recovery link is required.
         </p>
       </div>
     </Suspense>

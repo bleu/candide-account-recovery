@@ -26,7 +26,7 @@ const SearchInput = () => {
       <Input
         ref={inputRef}
         className="flex-1 border-none bg-content-background text-primary text-xs font-medium py-3 font-roboto-mono focus:outline-none focus:ring-0 focus:ring-offset-0 focus-visible:outline-none focus-visible:ring-0 focus:placeholder:text-primary"
-        placeholder="Type address"
+        placeholder="Type address or recovery link"
       />
     </div>
   );

@@ -60,13 +60,13 @@ export default function Dashboard() {
               value="management"
               className={cn(STYLES.baseTab, tabState)}
             >
-              Recovery Management
+              Recovery Process
             </TabsTrigger>
             <TabsTrigger
-              value="guardians"
+              value="settings"
               className={cn(STYLES.baseTab, tabState)}
             >
-              Account Guardians
+              Recovery Settings
             </TabsTrigger>
           </TabsList>
 
@@ -86,7 +86,7 @@ export default function Dashboard() {
             </div>
           </TabsContent>
 
-          <TabsContent value="guardians">
+          <TabsContent value="settings">
             <div className="grid grid-cols-3 gap-6">
               <RecoverySidebar
                 hasActiveRecovery={hasActiveRecovery}

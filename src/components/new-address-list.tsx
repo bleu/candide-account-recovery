@@ -150,7 +150,7 @@ export default function NewAddressList({
             </div>
           </div>
           {addressError && (
-            <p className="text-alert font-roboto-mono font-medium text-sm mt-2">
+            <p className={cn(STYLES.textError, "text-sm mt-2")}>
               {addressError}
             </p>
           )}

@@ -1,10 +1,9 @@
 "use client";
 
-import { NewAddress, GuardianList } from "@/components/guardian-list";
+import { NewAddress } from "@/components/guardian-list";
 import GuardiansContent from "@/components/guardians-content";
 import RecoveryContent from "@/components/recovery-content";
 import RecoverySidebar from "@/components/recovery-sidebar";
-import { Button } from "@/components/ui/button";
 import {
   TabsContent,
   TabsList,
@@ -46,6 +45,8 @@ export default function Dashboard() {
   const hasActiveRecovery = true;
 
   const [currentGuardians, setCurrentGuardians] = useState(initialGuardians);
+  const [threshold, setThreshold] = useState(1);
+  const [delayPeriod, setDelayPeriod] = useState(3);
 
   const handleChangeGuardians = (guardians: NewAddress[]) => {
     setCurrentGuardians(guardians);
@@ -60,13 +61,13 @@ export default function Dashboard() {
               value="management"
               className={cn(STYLES.baseTab, tabState)}
             >
-              Recovery Management
+              Recovery Process
             </TabsTrigger>
             <TabsTrigger
-              value="guardians"
+              value="settings"
               className={cn(STYLES.baseTab, tabState)}
             >
-              Account Guardians
+              Recovery Settings
             </TabsTrigger>
           </TabsList>
 
@@ -82,11 +83,13 @@ export default function Dashboard() {
                 guardians={currentGuardians}
                 safeSigners={safeSigners}
                 safeAccount={safeAccount}
+                threshold={threshold}
+                delayPeriod={delayPeriod}
               />
             </div>
           </TabsContent>
 
-          <TabsContent value="guardians">
+          <TabsContent value="settings">
             <div className="grid grid-cols-3 gap-6">
               <RecoverySidebar
                 hasActiveRecovery={hasActiveRecovery}
@@ -94,7 +97,11 @@ export default function Dashboard() {
                 safeAccount={safeAccount}
               />
               <GuardiansContent
+                threshold={threshold}
+                delayPeriod={delayPeriod}
                 currentGuardians={currentGuardians}
+                onThresholdChange={setThreshold}
+                onDelayPeriodChange={setDelayPeriod}
                 onChangeCurrentGuardians={handleChangeGuardians}
               />
             </div>

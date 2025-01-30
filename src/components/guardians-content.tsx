@@ -6,23 +6,31 @@ import GuardiansStep from "./protect-account-steps/guardians";
 import ThresholdStep from "./protect-account-steps/threshold";
 import ReviewStepSection from "./protect-account-steps/review";
 import { useToast } from "@/hooks/use-toast";
+import ParametersSection from "./parameters-section";
 
 const buttonStyles = "rounded-xl font-roboto-mono h-7 font-bold text-xs";
 const totalSteps = 3;
 
 interface GuardiansContentProps {
   currentGuardians: NewAddress[];
+  threshold: number;
+  delayPeriod: number;
+  onThresholdChange: (threshold: number) => void;
+  onDelayPeriodChange: (delayPeriod: number) => void;
   onChangeCurrentGuardians: (guardians: NewAddress[]) => void;
 }
 
 export default function GuardiansContent({
   currentGuardians,
+  threshold,
+  delayPeriod,
+  onThresholdChange,
+  onDelayPeriodChange,
   onChangeCurrentGuardians,
 }: GuardiansContentProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [guardians, setGuardians] = useState<NewAddress[]>([]);
   const [currentStep, setCurrentStep] = useState(1);
-  const [threshold, setThreshold] = useState(1);
 
   const { toast } = useToast();
 
@@ -64,7 +72,7 @@ export default function GuardiansContent({
   };
 
   const handleThresholdChange = (value: number) => {
-    setThreshold(value);
+    onThresholdChange(value);
   };
 
   const handleRemoveCurrentGuardian = (guardian: NewAddress): void => {
@@ -180,6 +188,13 @@ export default function GuardiansContent({
         ) : (
           <EmptyGuardians onOpenGuardianModal={handleOnOpenGuardianModal} />
         )}
+        <ParametersSection
+          guardians={currentGuardians}
+          delayPeriod={delayPeriod}
+          threshold={threshold}
+          onDelayPeriodChange={onDelayPeriodChange}
+          onThresholdChange={onThresholdChange}
+        />
       </div>
       <Modal
         isOpen={isOpen}

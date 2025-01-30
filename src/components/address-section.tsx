@@ -17,7 +17,7 @@ export default function AddressSection({
     <div className="space-y-3">
       <p className={STYLES.modalSectionTitle}>{title}</p>
       <p className={STYLES.modalSectionDescription}>{description}</p>
-      <div className="flex flex-col space-y-2">
+      <div className="inline-flex flex-col space-y-2">
         {addresses.map((address) => (
           <div
             key={address}

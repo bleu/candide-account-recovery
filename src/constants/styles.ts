@@ -14,4 +14,5 @@ export const STYLES = {
     "text-base font-bold font-roboto-mono text-content-foreground",
   modalSectionDescription:
     "text-sm font-roboto-mono text-content-foreground opacity-60",
+  textError: "text-alert font-roboto-mono font-medium",
 } as const;

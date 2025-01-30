@@ -4,13 +4,13 @@ import { Button } from "./ui/button";
 import { Modal } from "./modal";
 import ThresholdStep from "./protect-account-steps/threshold";
 import DelayPeriodStep from "./protect-account-steps/delay-period";
-import { Guardian } from "./guardian-list";
+import { NewAddress } from "./guardian-list";
 import { useToast } from "@/hooks/use-toast";
 
 const totalSteps = 2;
 
 interface ParametersSectionProps {
-  guardians: Guardian[];
+  guardians: NewAddress[];
   threshold: number;
   delayPeriod: number;
   onThresholdChange: (threshold: number) => void;

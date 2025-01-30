@@ -1,37 +1,74 @@
-import React from "react";
-import { Input } from "../ui/input";
 import { STYLES } from "@/constants/styles";
-import { Button } from "../ui/button";
-import { cn } from "@/lib/utils";
-import { Copy } from "lucide-react";
+import { NewAddress } from "../guardian-list";
+import AddressSection from "@/components/address-section";
 
-export default function ShareLink() {
+interface NewOwnersProps {
+  newOwners: NewAddress[];
+  threshold: number;
+  safeAddress: string;
+  onAdd: (guardian: NewAddress) => void;
+  onRemove: (index: number) => void;
+  onExternalLink: (address: string) => void;
+}
+
+export default function ShareLink({
+  newOwners,
+  threshold,
+  safeAddress,
+}: NewOwnersProps) {
   return (
-    <>
-      <p className="font-roboto-mono font-bold text-base text-content-foreground">
-        Recovery link
-      </p>
-      <p className="mt-3 mb-5 font-roboto-mono text-sm text-content-foreground opacity-60">
-        Copy the link to share with guardians or others involved in the
-        recovery.
-      </p>
-      <div className="flex items-center gap-2">
-        <Input
-          placeholder="http://"
-          className={cn(STYLES.input, "flex-1")}
-          onChange={(e) => console.log(e.target.value)}
-          readOnly
-        />
-        <Button
-          variant="ghost"
-          size="icon"
-          className="h-8 w-8 hover:bg-background group"
-          onClick={() => console.log("test")}
-          type="button"
-        >
-          <Copy size={16} className="opacity-50 group-hover:opacity-100" />
-        </Button>
+    <div className="space-y-5">
+      {/* Citation section (lateral bar) */}
+      <div className="flex flex-row justify-start">
+        <div className="w-2 min-h-max border-l-2 border-solid border-white opacity-20"></div>
+        <div className="flex flex-col gap-5">
+          {/* Safe Address */}
+          <AddressSection
+            title="Target Safe Account"
+            description="The address of the account that need to be recovered."
+            addresses={[safeAddress]}
+          />
+          {/* New Owners */}
+          <AddressSection
+            title="Safe Account New Signers"
+            description="The public address of the new Safe signers."
+            addresses={newOwners.map((owner) => owner.address)}
+          />
+
+          {/* New threshold */}
+          <div className="space-y-3">
+            <p className={STYLES.modalSectionTitle}>
+              Safe Account New Threshold
+            </p>
+            <p className={STYLES.modalSectionDescription}>
+              Minimum {threshold} signers to approve transactions.
+            </p>
+          </div>
+        </div>
       </div>
-    </>
+
+      {/* Link */}
+      <div className="pt-3">
+        <p className="mb-3 text-lg font-bold font-roboto-mono text-alert">
+          Save Recovery Access Link
+        </p>
+        <p className="text-sm font-bold font-roboto-mono">
+          This unique link is the only way to access and manage this specific
+          recovery process. Copy and store it securely.
+        </p>
+        <p className="text-sm font-roboto-mono opacity-60">
+          - Each recovery process has its own unique link{" "}
+        </p>
+        <p className="text-sm font-roboto-mono opacity-60">
+          - Share with guardians to track recovery progress{" "}
+        </p>
+        <p className="text-sm mb-3 font-roboto-mono opacity-60">
+          - Save a backup –{" "}
+          <span className="italic">
+            you{"'"}ll need to start over if this link is lost
+          </span>
+        </p>
+      </div>
+    </div>
   );
 }

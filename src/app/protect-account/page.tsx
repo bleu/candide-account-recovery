@@ -13,7 +13,7 @@ import { Address } from "viem";
 import { storeGuardians } from "@/utils/storage";
 import { redirect } from "next/navigation";
 import { useToast } from "@/hooks/use-toast";
-import { Guardian } from "@/components/guardian-list";
+import { NewAddress } from "@/components/guardian-list";
 
 const totalSteps = 4;
 
@@ -23,7 +23,7 @@ export default function ProtectAccount() {
   const [threshold, setThreshold] = useState(1);
   const [delayPeriod, setDelayPeriod] = useState(3);
 
-  const [guardians, setGuardians] = useState<Guardian[]>([]);
+  const [guardians, setGuardians] = useState<NewAddress[]>([]);
 
   const {
     address,
@@ -62,7 +62,7 @@ export default function ProtectAccount() {
 
   const { toast } = useToast();
 
-  const handleAddGuardian = (newGuardian: Guardian): void => {
+  const handleAddGuardian = (newGuardian: NewAddress): void => {
     setGuardians((prev) => [...prev, newGuardian]);
   };
 

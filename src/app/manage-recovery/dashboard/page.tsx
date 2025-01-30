@@ -1,6 +1,6 @@
 "use client";
 
-import { Guardian, GuardianList } from "@/components/guardian-list";
+import { NewAddress, GuardianList } from "@/components/guardian-list";
 import GuardiansContent from "@/components/guardians-content";
 import RecoveryContent from "@/components/recovery-content";
 import RecoverySidebar from "@/components/recovery-sidebar";
@@ -21,7 +21,7 @@ const tabState = cn(
   "data-[state=active]:opacity-100"
 );
 
-const initialGuardians: Guardian[] = [
+const initialGuardians: NewAddress[] = [
   {
     nickname: "Friend1",
     address: "0x123456789abcdef123456789abcdef12345678",
@@ -47,7 +47,7 @@ export default function Dashboard() {
 
   const [currentGuardians, setCurrentGuardians] = useState(initialGuardians);
 
-  const handleChangeGuardians = (guardians: Guardian[]) => {
+  const handleChangeGuardians = (guardians: NewAddress[]) => {
     setCurrentGuardians(guardians);
   };
 

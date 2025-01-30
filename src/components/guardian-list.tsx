@@ -9,16 +9,16 @@ import { Button } from "./ui/button";
 import { ExternalLink } from "lucide-react";
 import ReviewStepSection from "./protect-account-steps/review";
 
-export interface Guardian {
+export interface NewAddress {
   nickname: string;
   address: string;
   status?: string;
 }
 
 interface GuardianListProps {
-  guardians: Guardian[];
+  guardians: NewAddress[];
   isNewGuardianList?: boolean;
-  onRemoveGuardian?: (guardian: Guardian) => void;
+  onRemoveGuardian?: (guardian: NewAddress) => void;
   onOpenGuardianModal?: () => void;
 }
 
@@ -32,7 +32,7 @@ export function GuardianList({
 }: GuardianListProps) {
   const [isRemoveModalOpen, setIsRemoveModalOpen] = useState(false);
   const [isLastGuardianModalOpen, setIsLastGuardianModalOpen] = useState(false);
-  const [guardianToRemove, setGuardianToRemove] = useState<Guardian>();
+  const [guardianToRemove, setGuardianToRemove] = useState<NewAddress>();
   const [currentStep, setCurrentStep] = useState(1);
   const [threshold, setThreshold] = useState(1);
 
@@ -54,7 +54,7 @@ export function GuardianList({
     }
   };
 
-  const handleRemoveClick = (guardian: Guardian) => {
+  const handleRemoveClick = (guardian: NewAddress) => {
     setGuardianToRemove(guardian);
     if (guardians.length === 1) {
       setIsLastGuardianModalOpen(true);
@@ -200,7 +200,7 @@ export function GuardianList({
         totalSteps={1}
         onNext={onOpenGuardianModal}
         onBack={handleConfirmRemove}
-        nextLabel="Add Guardian"
+        nextLabel="Add Guardians"
         backLabel="Confirm Removal"
       >
         <div className="space-y-5">

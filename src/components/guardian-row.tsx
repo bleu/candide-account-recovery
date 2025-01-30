@@ -1,12 +1,12 @@
 import { ExternalLink, Minus } from "lucide-react";
-import { Guardian } from "./guardian-list";
+import { NewAddress } from "./guardian-list";
 import PressableIcon from "./pressable-icon";
 import { Button } from "./ui/button";
 
 interface GuardianRowProps {
-  guardian: Guardian;
+  guardian: NewAddress;
   isNewGuardianList?: boolean;
-  onRemoveGuardian: (guardian: Guardian) => void;
+  onRemoveGuardian: (guardian: NewAddress) => void;
 }
 
 export function GuardianRow({

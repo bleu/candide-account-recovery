@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { STYLES } from "@/constants/styles";
-import { Guardian, GuardianList } from "./guardian-list";
+import { NewAddress, GuardianList } from "./guardian-list";
 import PressableIcon from "./pressable-icon";
 import { ExternalLink } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -13,7 +13,7 @@ import { useToast } from "@/hooks/use-toast";
 
 interface RecoveryContentProps {
   hasActiveRecovery: boolean;
-  guardians: Guardian[];
+  guardians: NewAddress[];
   safeSigners: string[];
   safeAccount: string;
 }

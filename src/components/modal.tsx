@@ -1,3 +1,4 @@
+import { cn } from "@/lib/utils";
 import DialogProgressBar from "./dialog-progress-bar";
 import { Button } from "./ui/button";
 import {
@@ -9,23 +10,24 @@ import {
   DialogTitle,
 } from "./ui/dialog";
 
-interface ProgressModalProps {
+interface ModalProps {
   isOpen: boolean;
-  onClose: () => void;
   title: string;
   description?: string;
-  children: React.ReactNode;
-  currentStep?: number;
-  totalSteps?: number;
-  onBack?: () => void;
-  onNext?: () => void;
+  children?: React.ReactNode;
+  currentStep: number;
+  totalSteps: number;
   nextLabel?: string;
   backLabel?: string;
   isNextDisabled?: boolean;
   isBackDisabled?: boolean;
+  isProgress?: boolean;
+  onBack?: () => void;
+  onNext?: () => void;
+  onClose: () => void;
 }
 
-export function ProgressModal({
+export function Modal({
   isOpen,
   onClose,
   title,
@@ -33,19 +35,20 @@ export function ProgressModal({
   children,
   currentStep,
   totalSteps,
+  isProgress,
   onBack,
   onNext,
   nextLabel = "Next",
   backLabel = "Back",
   isNextDisabled = false,
   isBackDisabled = false,
-}: ProgressModalProps) {
+}: ModalProps) {
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="flex flex-col gap-4 flex-1 max-w-2xl bg-content-background border-none rounded-3xl">
         <div className="flex flex-col gap-8">
           <div>
-            {totalSteps && (
+            {isProgress && (
               <div className="flex gap-2 mb-8 pr-5">
                 {Array.from({ length: totalSteps }, (_, index) => (
                   <DialogProgressBar
@@ -66,10 +69,12 @@ export function ProgressModal({
               )}
             </DialogHeader>
           </div>
-          <div className="flex-1">{children}</div>
-          <DialogFooter>
+          {children && <div className="flex-1">{children}</div>}
+          <DialogFooter
+            className={cn(isProgress ? "sm:justify-end" : "sm:justify-center")}
+          >
             {(onBack || onNext) && (
-              <div className="flex justify-end gap-3">
+              <div className="flex gap-3">
                 {onBack && currentStep !== 1 && (
                   <Button
                     variant="outline"

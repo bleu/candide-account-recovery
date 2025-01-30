@@ -86,7 +86,7 @@ export default function NewGuardianList({
               className={STYLES.input}
             />
           )}
-          <div className="flex flex-1 gap-2">
+          <div className="flex flex-1 gap-2 items-center">
             <Input
               readOnly
               value={guardian.address}
@@ -137,7 +137,7 @@ export default function NewGuardianList({
                 className={STYLES.input}
               />
             )}
-            <div className="flex flex-1 gap-2">
+            <div className="flex flex-1 gap-2 items-center">
               <Input
                 placeholder="Address..."
                 value={newGuardian.address}

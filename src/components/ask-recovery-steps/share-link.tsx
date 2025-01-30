@@ -21,7 +21,7 @@ export default function ShareLink({
       {/* Citation section (lateral bar) */}
       <div className="flex flex-row justify-start">
         <div className="w-2 min-h-max border-l-2 border-solid border-white opacity-20"></div>
-        <div>
+        <div className="flex flex-col gap-5">
           {/* Safe Address */}
           <AddressSection
             title="Target Safe Account"
@@ -41,7 +41,7 @@ export default function ShareLink({
               Safe Account New Threshold
             </p>
             <p className={STYLES.modalSectionDescription}>
-              Minimum {threshold} signers to approve transactions
+              Minimum {threshold} signers to approve transactions.
             </p>
           </div>
         </div>

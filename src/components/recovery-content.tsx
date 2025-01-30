@@ -31,7 +31,9 @@ export default function RecoveryContent({
 
   const { toast } = useToast();
 
-  // MOCKED LOADING  UNTIL INTEGRATION
+  const thresholdAchieved = true;
+
+  //TODO: CANDIDE-32 - MOCKED LOADING  UNTIL INTEGRATION
   const handleApproveRecovery = () => {
     setIsOpen(false);
     setApproveLoading(true);
@@ -63,8 +65,6 @@ export default function RecoveryContent({
   const handleCheckToggle = () => {
     setIsChecked((prev) => !prev);
   };
-
-  const thresholdAchieved = true;
 
   return (
     <div className="col-span-2">

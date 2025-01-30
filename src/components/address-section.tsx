@@ -26,6 +26,7 @@ export default function AddressSection({
             <p className="text-primary font-roboto-mono font-medium text-xs">
               {address}
             </p>
+            {/* TODO: CANDIDE-36 - Handle all external links to manage multiple chains */}
             <ExternalLinkIcon
               size={12}
               className="text-primary"

@@ -137,13 +137,7 @@ export default function ParametersSection({
         isProgress
         onNext={handleNext}
         onBack={handleBack}
-        nextLabel={
-          currentStep === 2
-            ? "Finish and review"
-            : currentStep === 3
-            ? "Add Guardian"
-            : "Next"
-        }
+        nextLabel={currentStep === 2 ? "Finish and review" : "Next"}
       >
         {getStepContent()}
       </Modal>

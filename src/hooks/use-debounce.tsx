@@ -1,4 +1,3 @@
-// hooks/useDebounce.ts
 import { useEffect, useCallback, useRef } from "react";
 
 export function useDebounce<T extends (...args: any[]) => any>(
@@ -8,12 +7,10 @@ export function useDebounce<T extends (...args: any[]) => any>(
   const timeoutRef = useRef<NodeJS.Timeout | undefined>(undefined);
   const callbackRef = useRef(callback);
 
-  // Update callback ref when callback changes
   useEffect(() => {
     callbackRef.current = callback;
   }, [callback]);
 
-  // Cleanup timeout on unmount
   useEffect(() => {
     return () => {
       if (timeoutRef.current) {

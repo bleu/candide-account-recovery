@@ -173,7 +173,7 @@ export default function GuardiansContent({
         {currentGuardians.length > 0 ? (
           <GuardianList
             guardians={currentGuardians}
-            isNewGuardinList
+            isNewGuardianList
             onRemoveGuardian={handleRemoveCurrentGuardian}
             onOpenGuardianModal={handleOnOpenGuardianModal}
           />

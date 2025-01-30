@@ -17,7 +17,7 @@ export interface Guardian {
 
 interface GuardianListProps {
   guardians: Guardian[];
-  isNewGuardinList?: boolean;
+  isNewGuardianList?: boolean;
   onRemoveGuardian?: (guardian: Guardian) => void;
   onOpenGuardianModal?: () => void;
 }
@@ -26,7 +26,7 @@ const totalSteps = 3;
 
 export function GuardianList({
   guardians,
-  isNewGuardinList,
+  isNewGuardianList,
   onRemoveGuardian,
   onOpenGuardianModal,
 }: GuardianListProps) {
@@ -156,14 +156,16 @@ export function GuardianList({
         <div className={cn(STYLES.label, "grid grid-cols-[1fr,3fr,1fr] gap-4")}>
           <div>NICKNAME</div>
           <div>ADDRESS</div>
-          {!isNewGuardinList && <div className="text-right mr-4">APPROVAL</div>}
+          {!isNewGuardianList && (
+            <div className="text-right mr-4">APPROVAL</div>
+          )}
         </div>
         <div className="space-y-2">
           {guardians.map((guardian) => (
             <GuardianRow
               key={guardian.nickname}
               guardian={guardian}
-              isNewGuardinList={isNewGuardinList}
+              isNewGuardianList={isNewGuardianList}
               onRemoveGuardian={() => handleRemoveClick(guardian)}
             />
           ))}

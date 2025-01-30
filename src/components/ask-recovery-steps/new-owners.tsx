@@ -1,5 +1,5 @@
 import { NewAddress } from "../guardian-list";
-import NewAddressList from "../new-guardians-list";
+import NewAddressList from "../new-address-list";
 
 interface NewOwnersProps {
   newOwners: NewAddress[];

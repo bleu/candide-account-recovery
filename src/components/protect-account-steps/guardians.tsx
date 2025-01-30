@@ -5,7 +5,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { Info } from "lucide-react";
-import NewAddressList from "../new-guardians-list";
+import NewAddressList from "../new-address-list";
 import { NewAddress } from "../guardian-list";
 import { useValidateNewGuardian } from "@/hooks/useValidateNewGuardian";
 import { useCallback } from "react";

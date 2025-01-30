@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Guardian, GuardianList } from "./guardian-list";
+import { NewAddress, GuardianList } from "./guardian-list";
 import { Modal } from "./modal";
 import { Button } from "./ui/button";
 import GuardiansStep from "./protect-account-steps/guardians";
@@ -12,12 +12,12 @@ const buttonStyles = "rounded-xl font-roboto-mono h-7 font-bold text-xs";
 const totalSteps = 3;
 
 interface GuardiansContentProps {
-  currentGuardians: Guardian[];
+  currentGuardians: NewAddress[];
   threshold: number;
   delayPeriod: number;
   onThresholdChange: (threshold: number) => void;
   onDelayPeriodChange: (delayPeriod: number) => void;
-  onChangeCurrentGuardians: (guardians: Guardian[]) => void;
+  onChangeCurrentGuardians: (guardians: NewAddress[]) => void;
 }
 
 export default function GuardiansContent({
@@ -29,7 +29,7 @@ export default function GuardiansContent({
   onChangeCurrentGuardians,
 }: GuardiansContentProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const [guardians, setGuardians] = useState<Guardian[]>([]);
+  const [guardians, setGuardians] = useState<NewAddress[]>([]);
   const [currentStep, setCurrentStep] = useState(1);
 
   const { toast } = useToast();
@@ -38,7 +38,7 @@ export default function GuardiansContent({
     setIsOpen(true);
   };
 
-  const handleAddGuardian = (newGuardian: Guardian): void => {
+  const handleAddGuardian = (newGuardian: NewAddress): void => {
     setGuardians((prev) => [...prev, newGuardian]);
   };
 
@@ -56,7 +56,7 @@ export default function GuardiansContent({
     } else {
       // postGuardians();
       toast({
-        title: "Guardian added",
+        title: "NewAddress added",
         description:
           "Your new guardian will now be part of your account recovery setup.",
       });
@@ -75,13 +75,13 @@ export default function GuardiansContent({
     onThresholdChange(value);
   };
 
-  const handleRemoveCurrentGuardian = (guardian: Guardian): void => {
+  const handleRemoveCurrentGuardian = (guardian: NewAddress): void => {
     const updatedGuardians = currentGuardians.filter(
       (g) => g.address !== guardian.address || g.nickname !== guardian.nickname
     );
     onChangeCurrentGuardians(updatedGuardians);
     toast({
-      title: "Guardian removed",
+      title: "NewAddress removed",
       description:
         "This guardian will no longer have permission recover your account.",
     });
@@ -116,7 +116,7 @@ export default function GuardiansContent({
           <div className="space-y-5">
             <>
               <span className="text-lg font-bold font-roboto-mono opacity-60">
-                New Guardian
+                New NewAddress
               </span>
               <div className="mt-3">
                 <GuardiansStep
@@ -139,7 +139,7 @@ export default function GuardiansContent({
   const getStepTitle = () => {
     switch (currentStep) {
       case 1:
-        return "Add Guardians";
+        return "Add Guardian";
       case 2:
         return "Define New Threshold";
       case 3:
@@ -181,7 +181,7 @@ export default function GuardiansContent({
         {currentGuardians.length > 0 ? (
           <GuardianList
             guardians={currentGuardians}
-            isNewGuardinList
+            isNewGuardianList
             onRemoveGuardian={handleRemoveCurrentGuardian}
             onOpenGuardianModal={handleOnOpenGuardianModal}
           />

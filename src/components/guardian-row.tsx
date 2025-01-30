@@ -1,17 +1,17 @@
 import { ExternalLink, Minus } from "lucide-react";
-import { Guardian } from "./guardian-list";
+import { NewAddress } from "./guardian-list";
 import PressableIcon from "./pressable-icon";
 import { Button } from "./ui/button";
 
 interface GuardianRowProps {
-  guardian: Guardian;
-  isNewGuardinList?: boolean;
-  onRemoveGuardian: (guardian: Guardian) => void;
+  guardian: NewAddress;
+  isNewGuardianList?: boolean;
+  onRemoveGuardian: (guardian: NewAddress) => void;
 }
 
 export function GuardianRow({
   guardian,
-  isNewGuardinList,
+  isNewGuardianList,
   onRemoveGuardian,
 }: GuardianRowProps) {
   return (
@@ -20,7 +20,7 @@ export function GuardianRow({
         {guardian.nickname}
       </div>
       <div className="flex items-center gap-2">
-        <code className="text-xs text-foreground opacity-60 font-medium font-roboto-mono">
+        <code className="text-xs text-foreground opacity-6g0 font-medium font-roboto-mono">
           {guardian.address}
         </code>
         <PressableIcon
@@ -31,7 +31,7 @@ export function GuardianRow({
         />
       </div>
       <div className="flex justify-end">
-        {isNewGuardinList ? (
+        {isNewGuardianList ? (
           <Button
             variant="link"
             className="flex items-center gap-1"

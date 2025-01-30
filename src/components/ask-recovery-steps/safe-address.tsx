@@ -1,25 +1,17 @@
 import React from "react";
-import NewGuardianList from "../new-guardians-list";
 import { ExternalLink } from "lucide-react";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
 import { STYLES } from "@/constants/styles";
 import { cn } from "@/lib/utils";
-import { Guardian } from "../guardian-list";
 
 interface RecoveryProps {
-  guardians: Guardian[];
   safeAddress: string;
-  onAdd: (guardian: Guardian) => void;
-  onRemove: (index: number) => void;
   onExternalLink: (address: string) => void;
   onSafeAddressChange: (address: string) => void;
 }
 export default function Recovery({
-  guardians,
   safeAddress,
-  onAdd,
-  onRemove,
   onExternalLink,
   onSafeAddressChange,
 }: RecoveryProps) {
@@ -51,18 +43,6 @@ export default function Recovery({
           />
         </Button>
       </div>
-      <p className="font-roboto-mono font-bold text-base text-content-foreground mt-7">
-        Safe Signer
-      </p>
-      <p className="mt-3 mb-5 font-roboto-mono text-sm text-content-foreground opacity-60">
-        The public address of the new Safe signer.
-      </p>
-      <NewGuardianList
-        guardians={guardians}
-        onAdd={onAdd}
-        onRemove={onRemove}
-        onExternalLink={onExternalLink}
-      />
     </>
   );
 }

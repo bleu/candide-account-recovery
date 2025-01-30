@@ -17,15 +17,16 @@ export default function AddressSection({
     <div className="space-y-3">
       <p className={STYLES.modalSectionTitle}>{title}</p>
       <p className={STYLES.modalSectionDescription}>{description}</p>
-      <div className="space-y-2">
+      <div className="inline-flex flex-col space-y-2">
         {addresses.map((address) => (
           <div
             key={address}
-            className="items-center gap-2 bg-terciary inline-flex py-0.5 px-2 rounded-md"
+            className="items-center gap-2 bg-terciary inline-flex justify-between py-0.5 px-2 rounded-md"
           >
             <p className="text-primary font-roboto-mono font-medium text-xs">
               {address}
             </p>
+            {/* TODO: CANDIDE-36 - Handle all external links to manage multiple chains */}
             <ExternalLinkIcon
               size={12}
               className="text-primary"

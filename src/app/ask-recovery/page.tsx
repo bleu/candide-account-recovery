@@ -9,7 +9,23 @@ import { Modal } from "@/components/modal";
 import { redirect } from "next/navigation";
 import React, { useState } from "react";
 
+interface RecoveryQueryParams {
+  safeAddress: string;
+  newOwners: string[];
+  newThreshold: number;
+}
+
 const totalSteps = 4;
+
+const baseUrl = "http://localhost:3000/manage-recovery/dashboard";
+
+const createFinalUrl = (params: RecoveryQueryParams): string => {
+  const searchParams = new URLSearchParams();
+  searchParams.append("safeAddress", params.safeAddress);
+  searchParams.append("newOwners", params.newOwners.join(","));
+  searchParams.append("newThreshold", params.newThreshold.toString());
+  return `${baseUrl}?${searchParams.toString()}`;
+};
 
 export default function AskRecovery() {
   const [isOpen, setIsOpen] = useState(true);
@@ -22,14 +38,30 @@ export default function AskRecovery() {
     (currentStep === 1 && !safeAddress) ||
     (currentStep === 2 && newOwners.length === 0);
 
+  const link = createFinalUrl({
+    safeAddress,
+    newThreshold: threshold,
+    newOwners: newOwners.map((guardian) => guardian.address),
+  });
+
   const handleNext = () => {
     if (currentStep < totalSteps) {
       setCurrentStep((prev) => prev + 1);
     } else {
-      setIsOpen(false);
-      redirect("/manage-recovery/dashboard");
+      navigator.clipboard.writeText(link);
     }
   };
+
+  const handleBack =
+    currentStep > 1
+      ? () => {
+          if (currentStep === 4) {
+            redirect(link);
+          } else {
+            setCurrentStep((prev) => prev - 1);
+          }
+        }
+      : undefined;
 
   const handleAdd = (newOwner: NewAddress): void => {
     setOwners((prev) => [...prev, newOwner]);
@@ -98,7 +130,7 @@ export default function AskRecovery() {
       case 3:
         return "Safe Account New Threshold";
       case 4:
-        return "Share Link";
+        return "Summary";
       default:
         return "";
     }
@@ -113,7 +145,7 @@ export default function AskRecovery() {
       case 3:
         return "Set a new threshold for the target Safe account. This number determines how many signers must approve each transaction after recovery is complete.";
       case 4:
-        return "Review the details below and share the link with newOwners or others involved in the recovery. Remember to keep the link with you.";
+        return "Review the details of your recovery request and save the tracking link.";
       default:
         return "";
     }
@@ -129,9 +161,17 @@ export default function AskRecovery() {
         totalSteps={totalSteps}
         onClose={() => setIsOpen(false)}
         onNext={handleNext}
-        nextLabel={currentStep !== 4 ? "Next" : "Go to recovery management"}
+        onBack={handleBack}
+        backLabel={currentStep !== 4 ? "Back" : "Details"}
+        nextLabel={
+          currentStep === 4
+            ? "Copy Link"
+            : currentStep == 3
+            ? "Finish and Review"
+            : "Next"
+        }
         isNextDisabled={isNextDisabled}
-        isProgress
+        isProgress={currentStep !== 4}
       >
         {getStepContent()}
       </Modal>

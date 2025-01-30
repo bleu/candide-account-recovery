@@ -34,6 +34,13 @@ const initialGuardians: Guardian[] = [
   },
 ];
 
+const safeSigners = [
+  "0x1234567890abcdef1234567890abcdef12345678",
+  "0x1334567890abcdef1234567890abcdef12345678",
+];
+
+const safeAccount = "0xabc.eth";
+
 export default function Dashboard() {
   const recoveryLink = "https://candide.com/recovery/0xabc.eth";
   const hasActiveRecovery = true;
@@ -68,10 +75,13 @@ export default function Dashboard() {
               <RecoverySidebar
                 hasActiveRecovery={hasActiveRecovery}
                 recoveryLink={recoveryLink}
+                safeAccount={safeAccount}
               />
               <RecoveryContent
                 hasActiveRecovery={hasActiveRecovery}
                 guardians={currentGuardians}
+                safeSigners={safeSigners}
+                safeAccount={safeAccount}
               />
             </div>
           </TabsContent>
@@ -81,6 +91,7 @@ export default function Dashboard() {
               <RecoverySidebar
                 hasActiveRecovery={hasActiveRecovery}
                 recoveryLink={recoveryLink}
+                safeAccount={safeAccount}
               />
               <GuardiansContent
                 currentGuardians={currentGuardians}

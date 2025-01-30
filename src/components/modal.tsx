@@ -14,7 +14,7 @@ interface ModalProps {
   isOpen: boolean;
   title: string;
   description?: string;
-  children: React.ReactNode;
+  children?: React.ReactNode;
   currentStep: number;
   totalSteps: number;
   nextLabel?: string;
@@ -69,7 +69,7 @@ export function Modal({
               )}
             </DialogHeader>
           </div>
-          <div className="flex-1">{children}</div>
+          {children && <div className="flex-1">{children}</div>}
           <DialogFooter
             className={cn(isProgress ? "sm:justify-end" : "sm:justify-center")}
           >

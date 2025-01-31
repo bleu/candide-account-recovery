@@ -1,5 +1,6 @@
 "use client";
 
+import { createFinalUrl, RecoveryQueryParams } from "@/app/ask-recovery/page";
 import { NewAddress } from "@/components/guardian-list";
 import GuardiansContent from "@/components/guardians-content";
 import RecoveryContent from "@/components/recovery-content";
@@ -12,7 +13,14 @@ import {
 } from "@/components/ui/tabs";
 import { STYLES } from "@/constants/styles";
 import { cn } from "@/lib/utils";
-import React, { useState } from "react";
+import React, { Usable, useEffect, useState } from "react";
+import { isAddress } from "viem";
+
+type LinkParams = {
+  safeAddress?: string;
+  newOwners?: string;
+  newThreshold?: string;
+};
 
 const tabState = cn(
   "data-[state=active]:bg-secondary",
@@ -40,17 +48,73 @@ const safeSigners = [
 
 const safeAccount = "0xabc.eth";
 
-export default function Dashboard() {
-  const recoveryLink = "https://candide.com/recovery/0xabc.eth";
+const recoverLinkParams = (linkParams: LinkParams) => {
+  const { safeAddress } = linkParams;
+  const newOwners =
+    linkParams?.newOwners !== undefined
+      ? linkParams.newOwners.split(",")
+      : undefined;
+  const newThreshold =
+    linkParams?.newThreshold !== undefined
+      ? Number(linkParams.newThreshold)
+      : undefined;
+  const recoveryLink =
+    safeAddress &&
+    newOwners &&
+    newThreshold &&
+    validateLinkParams({ safeAddress, newOwners, newThreshold }).isValid
+      ? createFinalUrl({ safeAddress, newOwners, newThreshold })
+      : undefined;
+
+  return { safeAddress, recoveryLink, newOwners, newThreshold };
+};
+
+// TODO: improve this to use a logic similar as form
+const validateLinkParams = ({
+  safeAddress,
+  newOwners,
+  newThreshold,
+}: RecoveryQueryParams): { isValid: boolean; reason: string } => {
+  if (!isAddress(safeAddress))
+    return { isValid: false, reason: "Safe address is not an address." };
+
+  for (const owner of newOwners) {
+    if (!isAddress(owner))
+      return { isValid: false, reason: "One of the owners is not an address." };
+  }
+
+  if (newThreshold < 1 || newThreshold > newOwners.length)
+    return {
+      isValid: false,
+      reason: "Threshold must be between 1 and number of owners.",
+    };
+
+  return { isValid: true, reason: "" };
+};
+
+export default function Dashboard({
+  searchParams,
+}: {
+  searchParams: Usable<LinkParams>;
+}) {
+  const params = React.use(searchParams);
+  const { safeAddress, newOwners, newThreshold, recoveryLink } =
+    recoverLinkParams(params);
+
   const hasActiveRecovery = true;
 
   const [currentGuardians, setCurrentGuardians] = useState(initialGuardians);
   const [threshold, setThreshold] = useState(1);
   const [delayPeriod, setDelayPeriod] = useState(3);
+  const [isLinkRequired, setIsLinkRequired] = useState(true);
 
   const handleChangeGuardians = (guardians: NewAddress[]) => {
     setCurrentGuardians(guardians);
   };
+
+  useEffect(() => {
+    if (recoveryLink) setIsLinkRequired(false);
+  }, [recoveryLink]);
 
   return (
     <div className="flex flex-col flex-1 mx-8">
@@ -75,7 +139,7 @@ export default function Dashboard() {
             <div className="grid grid-cols-3 gap-6">
               <RecoverySidebar
                 hasActiveRecovery={hasActiveRecovery}
-                recoveryLink={recoveryLink}
+                recoveryLink={recoveryLink ?? ""}
                 safeAccount={safeAccount}
               />
               <RecoveryContent
@@ -85,6 +149,7 @@ export default function Dashboard() {
                 safeAccount={safeAccount}
                 threshold={threshold}
                 delayPeriod={delayPeriod}
+                isLinkRequired={isLinkRequired}
               />
             </div>
           </TabsContent>
@@ -93,7 +158,7 @@ export default function Dashboard() {
             <div className="grid grid-cols-3 gap-6">
               <RecoverySidebar
                 hasActiveRecovery={hasActiveRecovery}
-                recoveryLink={recoveryLink}
+                recoveryLink={recoveryLink ?? ""}
                 safeAccount={safeAccount}
               />
               <GuardiansContent

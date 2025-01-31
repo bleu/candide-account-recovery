@@ -19,6 +19,7 @@ interface RecoveryContentProps {
   safeAccount: string;
   threshold: number;
   delayPeriod: number;
+  isLinkRequired: boolean;
 }
 
 export default function RecoveryContent({
@@ -28,6 +29,7 @@ export default function RecoveryContent({
   safeAccount,
   threshold,
   delayPeriod,
+  isLinkRequired,
 }: RecoveryContentProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [approveLoading, setApproveLoading] = useState(false);
@@ -35,7 +37,6 @@ export default function RecoveryContent({
   const [isChecked, setIsChecked] = useState(false);
   const [linkError, setLinkError] = useState<string>("");
   const [linkValue, setLinkValue] = useState<string>("");
-  const [isLinkRequired, setIsLinkRequired] = useState(true);
 
   const { toast } = useToast();
 
@@ -72,14 +73,6 @@ export default function RecoveryContent({
 
   const handleCheckToggle = () => {
     setIsChecked((prev) => !prev);
-  };
-
-  const handleVerifyLink = () => {
-    if (linkValue.toLowerCase() === "bleu") {
-      setIsLinkRequired(false);
-    } else {
-      setLinkError("Invalid link. Please check and try again.");
-    }
   };
 
   const handleLinkChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -195,7 +188,6 @@ export default function RecoveryContent({
             linkValue={linkValue}
             linkError={linkError}
             onLinkChange={handleLinkChange}
-            onVerifyLink={handleVerifyLink}
           />
         )}
       </div>

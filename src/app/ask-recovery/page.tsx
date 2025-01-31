@@ -9,7 +9,7 @@ import { Modal } from "@/components/modal";
 import { redirect } from "next/navigation";
 import React, { useState } from "react";
 
-interface RecoveryQueryParams {
+export interface RecoveryQueryParams {
   safeAddress: string;
   newOwners: string[];
   newThreshold: number;
@@ -19,7 +19,7 @@ const totalSteps = 4;
 
 const baseUrl = "http://localhost:3000/manage-recovery/dashboard";
 
-const createFinalUrl = (params: RecoveryQueryParams): string => {
+export const createFinalUrl = (params: RecoveryQueryParams): string => {
   const searchParams = new URLSearchParams();
   searchParams.append("safeAddress", params.safeAddress);
   searchParams.append("newOwners", params.newOwners.join(","));

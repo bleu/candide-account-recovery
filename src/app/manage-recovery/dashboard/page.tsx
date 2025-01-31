@@ -12,9 +12,11 @@ import {
   TabsTrigger,
 } from "@/components/ui/tabs";
 import { STYLES } from "@/constants/styles";
+import { useRecoveryInfo } from "@/hooks/useRecoveryInfo";
 import { cn } from "@/lib/utils";
 import React, { Usable, useEffect, useState } from "react";
 import { isAddress } from "viem";
+import { useAccount } from "wagmi";
 
 type LinkParams = {
   safeAddress?: string;
@@ -98,14 +100,27 @@ export default function Dashboard({
   searchParams: Usable<LinkParams>;
 }) {
   const params = React.use(searchParams);
-  const { safeAddress, newOwners, newThreshold, recoveryLink } =
-    recoverLinkParams(params);
+  const {
+    safeAddress,
+    newOwners,
+    newThreshold,
+    recoveryLink: recoveryLinkFromParams,
+  } = recoverLinkParams(params);
+
+  const { data: recoveryInfo } = useRecoveryInfo();
+  const { address } = useAccount();
 
   const hasActiveRecovery = true;
 
   const [currentGuardians, setCurrentGuardians] = useState(initialGuardians);
   const [threshold, setThreshold] = useState(1);
   const [delayPeriod, setDelayPeriod] = useState(3);
+  const [recoveryLink, setRecoveryLink] = useState<string | undefined>(
+    undefined
+  );
+  const [recoveryLinkFromWallet, setRecoveryLinkFromWallet] = useState<
+    string | undefined
+  >(undefined);
   const [isLinkRequired, setIsLinkRequired] = useState(true);
 
   const handleChangeGuardians = (guardians: NewAddress[]) => {
@@ -113,8 +128,23 @@ export default function Dashboard({
   };
 
   useEffect(() => {
-    if (recoveryLink) setIsLinkRequired(false);
-  }, [recoveryLink]);
+    //Build a link with recoveryInfo if there is one
+    if (address && recoveryInfo) {
+      const newRecoveryLinkFromWallet = createFinalUrl({
+        safeAddress: address,
+        newOwners: recoveryInfo.newOwners,
+        newThreshold: Number(recoveryInfo.newThreshold),
+      });
+      setRecoveryLinkFromWallet(newRecoveryLinkFromWallet);
+    }
+  }, [recoveryInfo, address]);
+
+  useEffect(() => {
+    if (recoveryLinkFromWallet || recoveryLinkFromParams) {
+      setIsLinkRequired(false);
+      setRecoveryLink(recoveryLinkFromWallet ?? recoveryLinkFromParams);
+    }
+  }, [recoveryLinkFromParams, recoveryLinkFromWallet]);
 
   return (
     <div className="flex flex-col flex-1 mx-8">

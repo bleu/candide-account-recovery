@@ -57,7 +57,9 @@ export default function RecoverySidebar({
         style={STYLES.textWithBorderOpacity}
         className="flex items-center gap-3 opacity-60 border-b border-opacity-30 pb-2 mb-6"
       >
-        <p className="text-2xl font-roboto-mono">{safeAccount}</p>
+        <p className="text-2xl font-roboto-mono">
+          {truncateAddress(safeAddress)}
+        </p>
         <PressableIcon icon={ExternalLink} onClick={() => {}} size={18} />
       </div>
       {hasActiveRecovery && (

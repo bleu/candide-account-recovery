@@ -1,4 +1,4 @@
-import { isAddress } from "viem";
+import { Address, isAddress } from "viem";
 
 export interface RecoveryQueryParams {
   safeAddress: string;
@@ -23,7 +23,7 @@ export const createFinalUrl = (params: RecoveryQueryParams): string => {
 };
 
 export const recoverLinkParams = (linkParams: LinkParams) => {
-  const { safeAddress } = linkParams;
+  const safeAddress = linkParams.safeAddress as Address;
   const newOwners =
     linkParams?.newOwners !== undefined
       ? linkParams.newOwners.split(",")

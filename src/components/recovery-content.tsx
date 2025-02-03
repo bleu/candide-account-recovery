@@ -11,12 +11,15 @@ import LoadingModal from "./loading-modal";
 import ApproveRecoveryModalContent from "./approve-recovery-modal-content";
 import { useToast } from "@/hooks/use-toast";
 import RecoveryLinkInput from "./recovery-link-input";
+import { useGuardians } from "@/hooks/useGuardians";
+import { Address } from "viem";
+import { useAccount } from "wagmi";
 
 interface RecoveryContentProps {
   hasActiveRecovery: boolean;
   guardians: NewAddress[];
   safeSigners: string[];
-  safeAccount: string;
+  safeAddress: Address | undefined;
   threshold: number;
   delayPeriod: number;
   isLinkRequired: boolean;
@@ -26,7 +29,7 @@ export default function RecoveryContent({
   hasActiveRecovery,
   guardians,
   safeSigners,
-  safeAccount,
+  safeAddress,
   threshold,
   delayPeriod,
   isLinkRequired,
@@ -79,6 +82,10 @@ export default function RecoveryContent({
     setLinkValue(e.target.value);
     if (linkError) setLinkError("");
   };
+  const { address } = useAccount();
+  const { data: safeGuardians } = useGuardians(safeAddress);
+  const isUserGuardian =
+    safeGuardians && address && safeGuardians.includes(address);
 
   return (
     <div className="col-span-2">
@@ -141,6 +148,7 @@ export default function RecoveryContent({
                   <Button
                     className="text-xs font-bold px-3 py-2 rounded-xl"
                     onClick={() => setIsOpen(true)}
+                    disabled={!isUserGuardian}
                   >
                     Approve Recovery
                   </Button>
@@ -160,14 +168,16 @@ export default function RecoveryContent({
                   nextLabel="Sign and Approve"
                   backLabel="Cancel"
                 >
-                  <ApproveRecoveryModalContent
-                    handleCheckToggle={handleCheckToggle}
-                    delayPeriod={3}
-                    isChecked={isChecked}
-                    safeAccount={safeAccount}
-                    safeSigners={safeSigners}
-                    thresholdAchieved={thresholdAchieved}
-                  />
+                  {safeAddress && (
+                    <ApproveRecoveryModalContent
+                      handleCheckToggle={handleCheckToggle}
+                      delayPeriod={3}
+                      isChecked={isChecked}
+                      safeAccount={safeAddress}
+                      safeSigners={safeSigners}
+                      thresholdAchieved={thresholdAchieved}
+                    />
+                  )}
                 </Modal>
                 <LoadingModal
                   loading={approveLoading || finishLoading}

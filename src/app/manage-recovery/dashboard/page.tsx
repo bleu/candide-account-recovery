@@ -46,15 +46,14 @@ const safeSigners = [
   "0x1334567890abcdef1234567890abcdef12345678",
 ];
 
-const safeAccount = "0xabc.eth";
-
 export default function Dashboard({
   searchParams,
 }: {
   searchParams: Usable<LinkParams>;
 }) {
   const params = React.use(searchParams);
-  const { recoveryLink: recoveryLinkFromParams } = recoverLinkParams(params);
+  const { safeAddress, recoveryLink: recoveryLinkFromParams } =
+    recoverLinkParams(params);
 
   const { data: recoveryInfo } = useRecoveryInfo();
   const { address } = useAccount();
@@ -119,13 +118,13 @@ export default function Dashboard({
               <RecoverySidebar
                 hasActiveRecovery={hasActiveRecovery}
                 recoveryLink={recoveryLink ?? ""}
-                safeAccount={safeAccount}
+                safeAddress={safeAddress}
               />
               <RecoveryContent
                 hasActiveRecovery={hasActiveRecovery}
                 guardians={currentGuardians}
                 safeSigners={safeSigners}
-                safeAccount={safeAccount}
+                safeAddress={safeAddress}
                 threshold={threshold}
                 delayPeriod={delayPeriod}
                 isLinkRequired={isLinkRequired}
@@ -138,7 +137,7 @@ export default function Dashboard({
               <RecoverySidebar
                 hasActiveRecovery={hasActiveRecovery}
                 recoveryLink={recoveryLink ?? ""}
-                safeAccount={safeAccount}
+                safeAddress={safeAddress}
               />
               <GuardiansContent
                 threshold={threshold}

@@ -8,17 +8,19 @@ import { Modal } from "./modal";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import LoadingModal from "./loading-modal";
+import { Address } from "viem";
+import { truncateAddress } from "@/utils/truncate-address";
 
 interface RecoverySideBarProps {
   hasActiveRecovery: boolean;
   recoveryLink: string;
-  safeAccount: string;
+  safeAddress: Address | undefined;
 }
 
 export default function RecoverySidebar({
   hasActiveRecovery,
   recoveryLink,
-  safeAccount,
+  safeAddress,
 }: RecoverySideBarProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [isWaitingTransaction, setIsWaitingTransaction] = useState(false);

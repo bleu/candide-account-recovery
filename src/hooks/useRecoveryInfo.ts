@@ -14,7 +14,7 @@ export function useRecoveryInfo(safeAddress?: Address) {
   const addressToFetch = safeAddress ?? account?.address;
 
   return useQuery({
-    queryKey: ["guardians", addressToFetch, publicClient?.transport.url],
+    queryKey: ["recoveryInfo", addressToFetch, publicClient?.transport.url],
     queryFn: async () => {
       if (!addressToFetch || !publicClient?.transport.url) {
         throw new Error("Account or publicClient transport URL not available");

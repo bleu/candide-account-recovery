@@ -7,25 +7,11 @@ import NewThreshold from "@/components/ask-recovery-steps/new-threshold";
 import ShareLink from "@/components/ask-recovery-steps/share-link";
 import { Modal } from "@/components/modal";
 import { redirect } from "next/navigation";
-import React, { useState } from "react";
-
-export interface RecoveryQueryParams {
-  safeAddress: string;
-  newOwners: string[];
-  newThreshold: number;
-}
+import React, { useCallback, useState } from "react";
+import { isAddress } from "viem";
+import { createFinalUrl } from "@/utils/recovery-link";
 
 const totalSteps = 4;
-
-const baseUrl = "http://localhost:3000/manage-recovery/dashboard";
-
-export const createFinalUrl = (params: RecoveryQueryParams): string => {
-  const searchParams = new URLSearchParams();
-  searchParams.append("safeAddress", params.safeAddress);
-  searchParams.append("newOwners", params.newOwners.join(","));
-  searchParams.append("newThreshold", params.newThreshold.toString());
-  return `${baseUrl}?${searchParams.toString()}`;
-};
 
 export default function AskRecovery() {
   const [isOpen, setIsOpen] = useState(true);
@@ -33,6 +19,7 @@ export default function AskRecovery() {
   const [safeAddress, setSafeAddress] = useState("");
   const [newOwners, setOwners] = useState<NewAddress[]>([]);
   const [threshold, setThreshold] = useState(1);
+  const [safeAddressError, setSafeAddressError] = useState<string>("");
 
   const isNextDisabled =
     (currentStep === 1 && !safeAddress) ||
@@ -45,10 +32,25 @@ export default function AskRecovery() {
   });
 
   const handleNext = () => {
-    if (currentStep < totalSteps) {
-      setCurrentStep((prev) => prev + 1);
-    } else {
-      navigator.clipboard.writeText(link);
+    switch (currentStep) {
+      case 1: {
+        if (!isAddress(safeAddress)) {
+          setSafeAddressError("Insert a valid address.");
+          break;
+        }
+        setCurrentStep((prev) => prev + 1);
+        break;
+      }
+      case 2:
+        setCurrentStep((prev) => prev + 1);
+        break;
+      case 3:
+        setCurrentStep((prev) => prev + 1);
+        break;
+      case 4:
+        navigator.clipboard.writeText(link);
+      default:
+        break;
     }
   };
 
@@ -79,6 +81,20 @@ export default function AskRecovery() {
     setThreshold(value);
   };
 
+  const validateNewOwner = useCallback(
+    (address: string) => {
+      if (!isAddress(address))
+        return { isValid: false, reason: "Insert a valid address." };
+      if (address === safeAddress)
+        return {
+          isValid: false,
+          reason: "The safe address can't be an owner.",
+        };
+      return { isValid: true, reason: "" };
+    },
+    [safeAddress]
+  );
+
   const getStepContent = () => {
     switch (currentStep) {
       case 1:
@@ -87,6 +103,7 @@ export default function AskRecovery() {
             safeAddress={safeAddress}
             onSafeAddressChange={setSafeAddress}
             onExternalLink={handleExternalLink}
+            error={safeAddressError}
           />
         );
       case 2:
@@ -96,6 +113,7 @@ export default function AskRecovery() {
             onAdd={handleAdd}
             onExternalLink={handleExternalLink}
             onRemove={handleRemove}
+            validationFn={validateNewOwner}
           />
         );
       case 3:

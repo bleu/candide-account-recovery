@@ -9,11 +9,13 @@ interface RecoveryProps {
   safeAddress: string;
   onExternalLink: (address: string) => void;
   onSafeAddressChange: (address: string) => void;
+  error?: string;
 }
 export default function Recovery({
   safeAddress,
   onExternalLink,
   onSafeAddressChange,
+  error,
 }: RecoveryProps) {
   return (
     <>
@@ -43,6 +45,7 @@ export default function Recovery({
           />
         </Button>
       </div>
+      {error && <p className={cn(STYLES.textError, "text-sm mt-2")}>{error}</p>}
     </>
   );
 }

@@ -1,6 +1,5 @@
 "use client";
 
-import { createFinalUrl, RecoveryQueryParams } from "@/app/ask-recovery/page";
 import { NewAddress } from "@/components/guardian-list";
 import GuardiansContent from "@/components/guardians-content";
 import RecoveryContent from "@/components/recovery-content";
@@ -14,15 +13,14 @@ import {
 import { STYLES } from "@/constants/styles";
 import { useRecoveryInfo } from "@/hooks/useRecoveryInfo";
 import { cn } from "@/lib/utils";
+import {
+  createFinalUrl,
+  LinkParams,
+  recoverLinkParams,
+} from "@/utils/recovery-link";
 import React, { Usable, useEffect, useState } from "react";
-import { isAddress } from "viem";
+import { Address } from "viem";
 import { useAccount } from "wagmi";
-
-type LinkParams = {
-  safeAddress?: string;
-  newOwners?: string;
-  newThreshold?: string;
-};
 
 const tabState = cn(
   "data-[state=active]:bg-secondary",
@@ -50,62 +48,13 @@ const safeSigners = [
 
 const safeAccount = "0xabc.eth";
 
-const recoverLinkParams = (linkParams: LinkParams) => {
-  const { safeAddress } = linkParams;
-  const newOwners =
-    linkParams?.newOwners !== undefined
-      ? linkParams.newOwners.split(",")
-      : undefined;
-  const newThreshold =
-    linkParams?.newThreshold !== undefined
-      ? Number(linkParams.newThreshold)
-      : undefined;
-  const recoveryLink =
-    safeAddress &&
-    newOwners &&
-    newThreshold &&
-    validateLinkParams({ safeAddress, newOwners, newThreshold }).isValid
-      ? createFinalUrl({ safeAddress, newOwners, newThreshold })
-      : undefined;
-
-  return { safeAddress, recoveryLink, newOwners, newThreshold };
-};
-
-// TODO: improve this to use a logic similar as form
-const validateLinkParams = ({
-  safeAddress,
-  newOwners,
-  newThreshold,
-}: RecoveryQueryParams): { isValid: boolean; reason: string } => {
-  if (!isAddress(safeAddress))
-    return { isValid: false, reason: "Safe address is not an address." };
-
-  for (const owner of newOwners) {
-    if (!isAddress(owner))
-      return { isValid: false, reason: "One of the owners is not an address." };
-  }
-
-  if (newThreshold < 1 || newThreshold > newOwners.length)
-    return {
-      isValid: false,
-      reason: "Threshold must be between 1 and number of owners.",
-    };
-
-  return { isValid: true, reason: "" };
-};
-
 export default function Dashboard({
   searchParams,
 }: {
   searchParams: Usable<LinkParams>;
 }) {
   const params = React.use(searchParams);
-  const {
-    safeAddress,
-    newOwners,
-    newThreshold,
-    recoveryLink: recoveryLinkFromParams,
-  } = recoverLinkParams(params);
+  const { recoveryLink: recoveryLinkFromParams } = recoverLinkParams(params);
 
   const { data: recoveryInfo } = useRecoveryInfo();
   const { address } = useAccount();
@@ -132,7 +81,7 @@ export default function Dashboard({
     if (address && recoveryInfo) {
       const newRecoveryLinkFromWallet = createFinalUrl({
         safeAddress: address,
-        newOwners: recoveryInfo.newOwners,
+        newOwners: recoveryInfo.newOwners as Address[],
         newThreshold: Number(recoveryInfo.newThreshold),
       });
       setRecoveryLinkFromWallet(newRecoveryLinkFromWallet);

@@ -43,7 +43,6 @@ export const recoverLinkParams = (linkParams: LinkParams) => {
   return { safeAddress, recoveryLink, newOwners, newThreshold };
 };
 
-// TODO: improve this to use a logic similar as form
 export const validateLinkParams = ({
   safeAddress,
   newOwners,

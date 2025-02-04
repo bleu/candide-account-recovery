@@ -34,65 +34,61 @@ export function useApprovalsInfo({
   return useQuery({
     queryKey: ["approvalsInfo", safeAddress, newOwners, newThreshold],
     queryFn: async () => {
-      try {
-        if (
-          !safeAddress ||
-          !newOwners ||
-          !newThreshold ||
-          !client?.transport.url ||
-          !guardians ||
-          !chainId
-        ) {
-          throw new Error("A needed parameter is not available");
-        }
-
-        const srm = new SocialRecoveryModule();
-        const guardiansApprovalsList = await Promise.all(
-          guardians.map((guardian) =>
-            srm.hasGuardianApproved(
-              client.transport.url,
-              safeAddress,
-              guardian,
-              newOwners,
-              newThreshold
-            )
-          )
-        );
-
-        const storedGuardians = getStoredGuardians(
-          chainId,
-          safeAddress.toLowerCase() as Address
-        );
-
-        const guardiansApprovals = guardians.map((guardian, idx) => ({
-          nickname:
-            getGuardianNickname(guardian as Address, storedGuardians) ??
-            `Friend ${idx + 1}`,
-          address: guardian,
-          status: guardiansApprovalsList[idx] ? "Approved" : "Pending",
-        }));
-
-        const totalGuardianApprovals = guardiansApprovals.filter(
-          (guardian) => guardian.status === "Approved"
-        ).length;
-
-        const pendingGuardians = guardiansApprovals
-          .filter((guardian) => guardian.status === "Pending")
-          .map((guardian) => guardian.address);
-
-        const guardiansThreshold = Number(
-          await srm.threshold(client.transport.url, safeAddress)
-        );
-
-        return {
-          guardiansApprovals,
-          totalGuardianApprovals,
-          guardiansThreshold,
-          pendingGuardians,
-        };
-      } catch (e) {
-        console.log(e);
+      if (
+        !safeAddress ||
+        !newOwners ||
+        !newThreshold ||
+        !client?.transport.url ||
+        !guardians ||
+        !chainId
+      ) {
+        throw new Error("A needed parameter is not available");
       }
+
+      const srm = new SocialRecoveryModule();
+      const guardiansApprovalsList = await Promise.all(
+        guardians.map((guardian) =>
+          srm.hasGuardianApproved(
+            client.transport.url,
+            safeAddress,
+            guardian,
+            newOwners,
+            newThreshold
+          )
+        )
+      );
+
+      const storedGuardians = getStoredGuardians(
+        chainId,
+        safeAddress.toLowerCase() as Address
+      );
+
+      const guardiansApprovals = guardians.map((guardian, idx) => ({
+        nickname:
+          getGuardianNickname(guardian as Address, storedGuardians) ??
+          `Friend ${idx + 1}`,
+        address: guardian,
+        status: guardiansApprovalsList[idx] ? "Approved" : "Pending",
+      }));
+
+      const totalGuardianApprovals = guardiansApprovals.filter(
+        (guardian) => guardian.status === "Approved"
+      ).length;
+
+      const pendingGuardians = guardiansApprovals
+        .filter((guardian) => guardian.status === "Pending")
+        .map((guardian) => guardian.address);
+
+      const guardiansThreshold = Number(
+        await srm.threshold(client.transport.url, safeAddress)
+      );
+
+      return {
+        guardiansApprovals,
+        totalGuardianApprovals,
+        guardiansThreshold,
+        pendingGuardians,
+      };
     },
     enabled:
       Boolean(safeAddress) &&

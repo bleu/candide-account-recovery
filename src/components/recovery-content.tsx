@@ -104,8 +104,6 @@ export default function RecoveryContent({
     newThreshold,
   });
 
-  console.log({ isLastGuardianToConfirm });
-
   useEffect(() => {
     if (confirmTxHash && !isLastGuardianToConfirm) {
       toast({

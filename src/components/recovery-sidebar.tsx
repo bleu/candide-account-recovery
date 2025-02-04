@@ -93,7 +93,6 @@ export default function RecoverySidebar({
       />
       <LoadingModal
         loading={isWaitingTransaction}
-        setIsloading={setIsWaitingTransaction}
         loadingText="Canceling recovery..."
       />
     </div>

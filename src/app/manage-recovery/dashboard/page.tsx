@@ -52,8 +52,12 @@ export default function Dashboard({
   searchParams: Usable<LinkParams>;
 }) {
   const params = React.use(searchParams);
-  const { safeAddress, recoveryLink: recoveryLinkFromParams } =
-    recoverLinkParams(params);
+  const {
+    safeAddress,
+    newOwners,
+    newThreshold,
+    recoveryLink: recoveryLinkFromParams,
+  } = recoverLinkParams(params);
 
   const { data: recoveryInfo } = useRecoveryInfo();
   const { address } = useAccount();
@@ -125,7 +129,8 @@ export default function Dashboard({
                 guardians={currentGuardians}
                 safeSigners={safeSigners}
                 safeAddress={safeAddress}
-                threshold={threshold}
+                newOwners={newOwners}
+                newThreshold={newThreshold}
                 delayPeriod={delayPeriod}
                 isLinkRequired={isLinkRequired}
               />

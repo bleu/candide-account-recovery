@@ -26,7 +26,7 @@ export const recoverLinkParams = (linkParams: LinkParams) => {
   const safeAddress = linkParams.safeAddress as Address;
   const newOwners =
     linkParams?.newOwners !== undefined
-      ? linkParams.newOwners.split(",")
+      ? (linkParams.newOwners.split(",") as Address[])
       : undefined;
   const newThreshold =
     linkParams?.newThreshold !== undefined

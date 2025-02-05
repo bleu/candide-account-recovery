@@ -34,7 +34,7 @@ export function useRecoveryInfo(safeAddress?: Address) {
       }
     },
     enabled: Boolean(addressToFetch) && Boolean(publicClient?.transport.url),
-    staleTime: Infinity, // Data will never become stale
+    staleTime: 120000, // 2 minutes
     refetchOnMount: false, // Don't refetch when component mounts
     refetchOnWindowFocus: false, // Don't refetch when window regains focus
     refetchOnReconnect: false, // Don't refetch when reconnecting

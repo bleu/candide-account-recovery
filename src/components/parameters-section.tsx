@@ -115,7 +115,7 @@ export default function ParametersSection({
             style={STYLES.textWithBorderOpacity}
             className={STYLES.textWithBorder}
           >
-            1 of {threshold} Guardians
+            {threshold} of {guardians.length} Guardians
           </span>
         </div>
       </div>

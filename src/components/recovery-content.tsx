@@ -14,8 +14,8 @@ import RecoveryLinkInput from "./recovery-link-input";
 import { Address } from "viem";
 import { useAccount } from "wagmi";
 import { useConfirmRecovery } from "@/hooks/useConfirmRecovery";
-import { useApprovalsInfo } from "@/hooks/useApprovalsInfo";
 import { useExecuteRecovery } from "@/hooks/useExecuteRecovery";
+import { ApprovalsInfo } from "@/hooks/useApprovalsInfo";
 
 interface RecoveryContentProps {
   hasActiveRecovery: boolean;
@@ -25,6 +25,7 @@ interface RecoveryContentProps {
   newThreshold: number | undefined;
   delayPeriod: number;
   isLinkRequired: boolean;
+  approvalsInfo: ApprovalsInfo | undefined;
 }
 
 export default function RecoveryContent({
@@ -35,6 +36,7 @@ export default function RecoveryContent({
   newThreshold,
   delayPeriod,
   isLinkRequired,
+  approvalsInfo,
 }: RecoveryContentProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [shouldExecute, setShouldExecute] = useState(false);
@@ -44,11 +46,6 @@ export default function RecoveryContent({
   const { toast } = useToast();
 
   const { address } = useAccount();
-  const { data: approvalsInfo } = useApprovalsInfo({
-    safeAddress,
-    newOwners,
-    newThreshold,
-  });
 
   const thresholdAchieved =
     approvalsInfo &&

@@ -6,6 +6,14 @@ import { Address } from "viem";
 import { useQuery } from "@tanstack/react-query";
 import { getStoredGuardians } from "@/utils/storage";
 import { useGuardians } from "./useGuardians";
+import { NewAddress } from "@/components/guardian-list";
+
+export interface ApprovalsInfo {
+  guardiansApprovals: NewAddress[];
+  totalGuardianApprovals: number;
+  guardiansThreshold: number;
+  pendingGuardians: Address[];
+}
 
 const getGuardianNickname = (
   address: Address,
@@ -31,7 +39,7 @@ export function useApprovalsInfo({
   const { chainId } = useAccount();
   const { data: guardians } = useGuardians(safeAddress);
 
-  return useQuery({
+  return useQuery<ApprovalsInfo>({
     queryKey: ["approvalsInfo", safeAddress, newOwners, newThreshold],
     queryFn: async () => {
       if (

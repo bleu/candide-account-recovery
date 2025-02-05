@@ -11,6 +11,7 @@ import {
   TabsTrigger,
 } from "@/components/ui/tabs";
 import { STYLES } from "@/constants/styles";
+import { useApprovalsInfo } from "@/hooks/useApprovalsInfo";
 import useHashParams from "@/hooks/useHashParams";
 import { useOngoingRecoveryInfo } from "@/hooks/useOngoingRecoveryInfo";
 import { useOwners } from "@/hooks/useOwners";
@@ -76,6 +77,12 @@ export default function Dashboard() {
 
   const { data: safeSigners } = useOwners(safeAddress);
 
+  const { data: approvalsInfo } = useApprovalsInfo({
+    safeAddress,
+    newOwners,
+    newThreshold,
+  });
+
   return (
     <div className="flex flex-col flex-1 mx-8">
       <div className="max-w-6xl mx-auto">
@@ -110,6 +117,7 @@ export default function Dashboard() {
                 newThreshold={newThreshold}
                 delayPeriod={delayPeriod}
                 isLinkRequired={isLinkRequired}
+                approvalsInfo={approvalsInfo}
               />
             </div>
           </TabsContent>
@@ -124,10 +132,10 @@ export default function Dashboard() {
               <GuardiansContent
                 threshold={threshold}
                 delayPeriod={delayPeriod}
-                currentGuardians={currentGuardians}
                 onThresholdChange={setThreshold}
                 onDelayPeriodChange={setDelayPeriod}
                 onChangeCurrentGuardians={handleChangeGuardians}
+                approvalsInfo={approvalsInfo}
               />
             </div>
           </TabsContent>

@@ -4,7 +4,7 @@ import { Input } from "./ui/input";
 import { Button } from "./ui/button";
 import { cn } from "@/lib/utils";
 import { STYLES } from "@/constants/styles";
-import { redirect } from "next/navigation";
+import Link from "next/link";
 
 interface RecoveryLinkInputProps {
   linkValue: string;
@@ -33,9 +33,9 @@ export default function RecoveryLinkInput({
           onChange={onLinkChange}
           placeholder="http://"
         />
-        <Button className="text-xs h-6" onClick={() => redirect(linkValue)}>
-          Enter
-        </Button>
+        <Link href={linkValue}>
+          <Button className="text-xs h-6">Enter</Button>
+        </Link>
       </div>
       {linkError && (
         <p className={cn(STYLES.textError, "text-xs mt-2 self-start")}>

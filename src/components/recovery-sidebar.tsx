@@ -8,17 +8,19 @@ import { Modal } from "./modal";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import LoadingModal from "./loading-modal";
+import { Address } from "viem";
+import { truncateAddress } from "@/utils/truncate-address";
 
 interface RecoverySideBarProps {
   hasActiveRecovery: boolean;
   recoveryLink: string;
-  safeAccount: string;
+  safeAddress: Address | undefined;
 }
 
 export default function RecoverySidebar({
   hasActiveRecovery,
   recoveryLink,
-  safeAccount,
+  safeAddress,
 }: RecoverySideBarProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [isWaitingTransaction, setIsWaitingTransaction] = useState(false);
@@ -57,7 +59,9 @@ export default function RecoverySidebar({
         style={STYLES.textWithBorderOpacity}
         className="flex items-center gap-3 opacity-60 border-b border-opacity-30 pb-2 mb-6"
       >
-        <p className="text-2xl font-roboto-mono">{safeAccount}</p>
+        <p className="text-2xl font-roboto-mono">
+          {truncateAddress(safeAddress)}
+        </p>
         <PressableIcon icon={ExternalLink} onClick={() => {}} size={18} />
       </div>
       {hasActiveRecovery && (
@@ -89,7 +93,6 @@ export default function RecoverySidebar({
       />
       <LoadingModal
         loading={isWaitingTransaction}
-        setIsloading={setIsWaitingTransaction}
         loadingText="Canceling recovery..."
       />
     </div>

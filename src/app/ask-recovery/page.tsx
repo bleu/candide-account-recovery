@@ -88,7 +88,7 @@ export default function AskRecovery() {
       if (address === safeAddress)
         return {
           isValid: false,
-          reason: "The safe address can't be an owner.",
+          reason: "This safe address can't be an owner.",
         };
       return { isValid: true, reason: "" };
     },

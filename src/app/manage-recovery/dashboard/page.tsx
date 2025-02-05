@@ -15,7 +15,7 @@ import useHashParams from "@/hooks/useHashParams";
 import { useOngoingRecoveryInfo } from "@/hooks/useOngoingRecoveryInfo";
 import { cn } from "@/lib/utils";
 import { createFinalUrl } from "@/utils/recovery-link";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { Address } from "viem";
 import { useAccount } from "wagmi";
 
@@ -60,36 +60,22 @@ export default function Dashboard() {
   const [currentGuardians, setCurrentGuardians] = useState(initialGuardians);
   const [threshold, setThreshold] = useState(1);
   const [delayPeriod, setDelayPeriod] = useState(3);
-  const [recoveryLink, setRecoveryLink] = useState<string | undefined>(
-    undefined
-  );
-  const [recoveryLinkFromWallet, setRecoveryLinkFromWallet] = useState<
-    string | undefined
-  >(undefined);
-  const [isLinkRequired, setIsLinkRequired] = useState(true);
 
   const handleChangeGuardians = (guardians: NewAddress[]) => {
     setCurrentGuardians(guardians);
   };
 
-  useEffect(() => {
-    //Build a link with recoveryInfo if there is one
-    if (address && recoveryInfo) {
-      const newRecoveryLinkFromWallet = createFinalUrl({
-        safeAddress: address,
-        newOwners: recoveryInfo.newOwners as Address[],
-        newThreshold: Number(recoveryInfo.newThreshold),
-      });
-      setRecoveryLinkFromWallet(newRecoveryLinkFromWallet);
-    }
-  }, [recoveryInfo, address]);
+  const recoveryLinkFromWallet =
+    address &&
+    recoveryInfo &&
+    createFinalUrl({
+      safeAddress: address,
+      newOwners: recoveryInfo.newOwners as Address[],
+      newThreshold: Number(recoveryInfo.newThreshold),
+    });
 
-  useEffect(() => {
-    if (recoveryLinkFromWallet || recoveryLinkFromParams) {
-      setIsLinkRequired(false);
-      setRecoveryLink(recoveryLinkFromWallet ?? recoveryLinkFromParams);
-    }
-  }, [recoveryLinkFromParams, recoveryLinkFromWallet]);
+  const recoveryLink = recoveryLinkFromWallet ?? recoveryLinkFromParams;
+  const isLinkRequired = !Boolean(recoveryLink);
 
   return (
     <div className="flex flex-col flex-1 mx-8">

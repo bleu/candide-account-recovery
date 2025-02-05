@@ -14,9 +14,8 @@ export type LinkParams = {
   newThreshold?: string;
 };
 
-const baseUrl = window !== undefined && window.location.host;
-
 export const createFinalUrl = (params: RecoveryQueryParams): string => {
+  const baseUrl = window !== undefined && window.location.host;
   const hashParams = new URLSearchParams();
   hashParams.append("safeAddress", params.safeAddress);
   hashParams.append("newOwners", params.newOwners.join(","));

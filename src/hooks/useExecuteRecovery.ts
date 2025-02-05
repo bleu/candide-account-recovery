@@ -5,9 +5,9 @@ import { Address } from "viem";
 import { useAccount, usePublicClient, useWalletClient } from "wagmi";
 
 interface ExecuteRecoveryParams {
-  safeAddress: Address;
-  newOwners: Address[];
-  newThreshold: number;
+  safeAddress: Address | undefined;
+  newOwners: Address[] | undefined;
+  newThreshold: number | undefined;
 }
 
 export function useExecuteRecovery({
@@ -24,6 +24,10 @@ export function useExecuteRecovery({
     mutationFn: async () => {
       if (!signer || !walletClient || !publicClient) {
         throw new Error("Missing signer or client");
+      }
+
+      if (!safeAddress || !newOwners || !newThreshold) {
+        throw new Error("Missing executeRecovery params");
       }
 
       const srm = new SocialRecoveryModule();

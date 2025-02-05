@@ -1,3 +1,5 @@
+"use client";
+
 import { Address, isAddress } from "viem";
 
 export interface RecoveryQueryParams {
@@ -12,14 +14,14 @@ export type LinkParams = {
   newThreshold?: string;
 };
 
-const baseUrl = "http://localhost:3000/manage-recovery/dashboard";
+const baseUrl = window !== undefined && window.location.host;
 
 export const createFinalUrl = (params: RecoveryQueryParams): string => {
-  const searchParams = new URLSearchParams();
-  searchParams.append("safeAddress", params.safeAddress);
-  searchParams.append("newOwners", params.newOwners.join(","));
-  searchParams.append("newThreshold", params.newThreshold.toString());
-  return `${baseUrl}?${searchParams.toString()}`;
+  const hashParams = new URLSearchParams();
+  hashParams.append("safeAddress", params.safeAddress);
+  hashParams.append("newOwners", params.newOwners.join(","));
+  hashParams.append("newThreshold", params.newThreshold.toString());
+  return `${baseUrl}#${hashParams.toString()}`;
 };
 
 export const recoverLinkParams = (linkParams: LinkParams) => {

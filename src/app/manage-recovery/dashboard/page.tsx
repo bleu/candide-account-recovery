@@ -11,14 +11,11 @@ import {
   TabsTrigger,
 } from "@/components/ui/tabs";
 import { STYLES } from "@/constants/styles";
+import useHashParams from "@/hooks/useHashParams";
 import { useRecoveryInfo } from "@/hooks/useRecoveryInfo";
 import { cn } from "@/lib/utils";
-import {
-  createFinalUrl,
-  LinkParams,
-  recoverLinkParams,
-} from "@/utils/recovery-link";
-import React, { Usable, useEffect, useState } from "react";
+import { createFinalUrl } from "@/utils/recovery-link";
+import React, { useEffect, useState } from "react";
 import { Address } from "viem";
 import { useAccount } from "wagmi";
 
@@ -46,18 +43,14 @@ const safeSigners = [
   "0x1334567890abcdef1234567890abcdef12345678",
 ];
 
-export default function Dashboard({
-  searchParams,
-}: {
-  searchParams: Usable<LinkParams>;
-}) {
-  const params = React.use(searchParams);
+export default function Dashboard() {
+  const params = useHashParams();
   const {
     safeAddress,
     newOwners,
     newThreshold,
     recoveryLink: recoveryLinkFromParams,
-  } = recoverLinkParams(params);
+  } = params;
 
   const { data: recoveryInfo } = useRecoveryInfo();
   const { address } = useAccount();

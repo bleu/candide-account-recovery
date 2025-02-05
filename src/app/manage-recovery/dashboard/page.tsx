@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/tabs";
 import { STYLES } from "@/constants/styles";
 import useHashParams from "@/hooks/useHashParams";
-import { useRecoveryInfo } from "@/hooks/useRecoveryInfo";
+import { useOngoingRecoveryInfo } from "@/hooks/useOngoingRecoveryInfo";
 import { cn } from "@/lib/utils";
 import { createFinalUrl } from "@/utils/recovery-link";
 import React, { useEffect, useState } from "react";
@@ -52,7 +52,7 @@ export default function Dashboard() {
     recoveryLink: recoveryLinkFromParams,
   } = params;
 
-  const { data: recoveryInfo } = useRecoveryInfo();
+  const { data: recoveryInfo } = useOngoingRecoveryInfo();
   const { address } = useAccount();
 
   const hasActiveRecovery = true;

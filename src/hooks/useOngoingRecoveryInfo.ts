@@ -6,8 +6,7 @@ import { Address } from "viem";
 import { useQuery } from "@tanstack/react-query";
 import { socialRecoveryModuleAbi } from "@/utils/abis/socialRecoveryModuleAbi";
 
-// Track a recovery process that has been approved by guardians
-export function useRecoveryInfo(safeAddress?: Address) {
+export function useOngoingRecoveryInfo(safeAddress?: Address) {
   const publicClient = usePublicClient();
   const account = useAccount();
 

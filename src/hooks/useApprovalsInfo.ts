@@ -66,7 +66,7 @@ export function useApprovalsInfo({
       const guardiansApprovals = guardians.map((guardian, idx) => ({
         nickname:
           getGuardianNickname(guardian as Address, storedGuardians) ??
-          `Friend ${idx + 1}`,
+          `Guardian ${idx + 1}`,
         address: guardian,
         status: guardiansApprovalsList[idx] ? "Approved" : "Pending",
       }));

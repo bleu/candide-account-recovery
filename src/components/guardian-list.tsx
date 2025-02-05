@@ -256,6 +256,17 @@ export function GuardianList({
               handleExternalLink(guardianToRemove.address)
             }
           />
+          {isLoading && (
+            <p className="font-roboto-mono font-medium text-sm mt-2">
+              Please, handle the signature process on your smart wallet
+              manager...
+            </p>
+          )}
+          {error && (
+            <p className="text-alert font-roboto-mono font-medium text-sm mt-2">
+              {error}
+            </p>
+          )}
         </div>
       </Modal>
     </>

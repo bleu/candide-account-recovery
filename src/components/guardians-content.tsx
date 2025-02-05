@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { NewAddress, GuardianList } from "./guardian-list";
 import { Modal } from "./modal";
 import { Button } from "./ui/button";
@@ -8,6 +8,10 @@ import ReviewStepSection from "./protect-account-steps/review";
 import { useToast } from "@/hooks/use-toast";
 import ParametersSection from "./parameters-section";
 import { ApprovalsInfo } from "@/hooks/useApprovalsInfo";
+import { useAddGuardians } from "@/hooks/useAddGuardians";
+import { Address } from "viem";
+import { storeGuardians } from "@/utils/storage";
+import { useAccount } from "wagmi";
 
 const buttonStyles = "rounded-xl font-roboto-mono h-7 font-bold text-xs";
 const totalSteps = 3;
@@ -35,6 +39,8 @@ export default function GuardiansContent({
 
   const currentGuardians = approvalsInfo && approvalsInfo.guardiansApprovals;
 
+  const { chainId, address } = useAccount();
+
   const { toast } = useToast();
 
   const handleOnOpenGuardianModal = () => {
@@ -58,7 +64,6 @@ export default function GuardiansContent({
     if (currentStep < totalSteps) {
       setCurrentStep((prev) => prev + 1);
     } else {
-      // postGuardians();
       toast({
         title: "NewAddress added",
         description:
@@ -85,6 +90,7 @@ export default function GuardiansContent({
       (g) => g.address !== guardian.address || g.nickname !== guardian.nickname
     );
     onChangeCurrentGuardians(updatedGuardians);
+    if (chainId && address) storeGuardians(updatedGuardians, chainId, address);
     toast({
       title: "NewAddress removed",
       description:
@@ -95,6 +101,34 @@ export default function GuardiansContent({
       description: "Your wallet security settings have been updated.",
     });
   };
+
+  const {
+    txHashes,
+    // TODO: will be used on CANDIDE-33
+    // addGuardians: postGuardians,
+    // error: errorPostGuradians,
+    // isLoading: isLoadingPostGuardians,
+  } = useAddGuardians(
+    guardians.map((guardian) => guardian.address) as Address[],
+    threshold
+  );
+
+  // closes modal when transaction is accepted
+  useEffect(() => {
+    if (txHashes.length > 0) {
+      if (chainId && address)
+        storeGuardians(
+          guardians.filter((guardian) => guardian.status === "added"),
+          chainId,
+          address
+        );
+      toast({
+        title: "Account Recovery is setup!",
+        description: "Your account is now protected.",
+      });
+      setIsOpen(false);
+    }
+  }, [txHashes, chainId, address, guardians, toast]);
 
   const getStepContent = () => {
     switch (currentStep) {

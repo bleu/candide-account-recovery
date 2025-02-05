@@ -42,7 +42,8 @@ export default function ProtectAccount() {
     threshold
   );
 
-  // closes modal when transaction is accepted
+  const { toast } = useToast();
+
   useEffect(() => {
     if (txHashes.length > 0) {
       if (chainId && address)
@@ -52,15 +53,14 @@ export default function ProtectAccount() {
           address
         );
       toast({
-        title: "Account Recovery is setup!",
-        description: "Your account is now protected.",
+        title: "Guardian added.",
+        description:
+          "Your new guardian will now be part of your account recovery setup.",
       });
       setIsOpen(false);
       redirect("/manage-recovery/dashboard");
     }
-  }, [txHashes, chainId, address, guardians]);
-
-  const { toast } = useToast();
+  }, [txHashes, chainId, address, guardians, toast]);
 
   const handleAddGuardian = (newGuardian: NewAddress): void => {
     setGuardians((prev) => [...prev, newGuardian]);

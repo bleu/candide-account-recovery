@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { STYLES } from "@/constants/styles";
-import { NewAddress, GuardianList } from "./guardian-list";
+import { GuardianList } from "./guardian-list";
 import PressableIcon from "./pressable-icon";
 import { ExternalLink } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -19,8 +19,7 @@ import { useExecuteRecovery } from "@/hooks/useExecuteRecovery";
 
 interface RecoveryContentProps {
   hasActiveRecovery: boolean;
-  guardians: NewAddress[];
-  safeSigners: string[];
+  safeSigners: string[] | undefined;
   safeAddress: Address | undefined;
   newOwners: Address[] | undefined;
   newThreshold: number | undefined;
@@ -30,7 +29,6 @@ interface RecoveryContentProps {
 
 export default function RecoveryContent({
   hasActiveRecovery,
-  guardians,
   safeSigners,
   safeAddress,
   newOwners,
@@ -168,7 +166,8 @@ export default function RecoveryContent({
                   style={STYLES.textWithBorderOpacity}
                   className={STYLES.textWithBorder}
                 >
-                  1 of {newThreshold} Guardians
+                  {approvalsInfo?.guardiansThreshold} of{" "}
+                  {approvalsInfo?.guardiansApprovals.length} Guardians
                 </span>
               </div>
             </div>
@@ -176,28 +175,31 @@ export default function RecoveryContent({
               <>
                 <div className="flex-col gap-1 inline-flex">
                   <p className={STYLES.label}>SAFE SIGNERS</p>
-                  {safeSigners.map((address) => (
-                    <div
-                      key={address}
-                      className={cn(
-                        STYLES.textWithBorder,
-                        "inline-flex items-center gap-2"
-                      )}
-                      style={STYLES.textWithBorderOpacity}
-                    >
-                      <span>{address}</span>
-                      <PressableIcon
-                        icon={ExternalLink}
-                        onClick={() => {}}
-                        size={12}
-                      />
-                    </div>
-                  ))}
+                  {safeSigners &&
+                    safeSigners.map((address) => (
+                      <div
+                        key={address}
+                        className={cn(
+                          STYLES.textWithBorder,
+                          "inline-flex items-center gap-2"
+                        )}
+                        style={STYLES.textWithBorderOpacity}
+                      >
+                        <span>{address}</span>
+                        <PressableIcon
+                          icon={ExternalLink}
+                          onClick={() => {}}
+                          size={12}
+                        />
+                      </div>
+                    ))}
                 </div>
                 <h4 className="my-6 text-primary font-roboto-mono text-sm">
                   GUARDIANS APPROVAL
                 </h4>
-                <GuardianList guardians={guardians} />
+                {approvalsInfo?.guardiansApprovals && (
+                  <GuardianList guardians={approvalsInfo.guardiansApprovals} />
+                )}
                 <div className="flex justify-end mt-4 mb-2 gap-2">
                   <Button
                     className="text-xs font-bold px-3 py-2 rounded-xl"

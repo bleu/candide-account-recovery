@@ -13,6 +13,7 @@ import {
 import { STYLES } from "@/constants/styles";
 import useHashParams from "@/hooks/useHashParams";
 import { useOngoingRecoveryInfo } from "@/hooks/useOngoingRecoveryInfo";
+import { useOwners } from "@/hooks/useOwners";
 import { cn } from "@/lib/utils";
 import { createFinalUrl } from "@/utils/recovery-link";
 import React, { useState } from "react";
@@ -25,30 +26,12 @@ const tabState = cn(
   "data-[state=active]:opacity-100"
 );
 
-const initialGuardians: NewAddress[] = [
-  {
-    nickname: "Friend1",
-    address: "0x123456789abcdef123456789abcdef12345678",
-    status: "Pending",
-  },
-  {
-    nickname: "Friend2",
-    address: "0x123456789abcdef123456789abcdef12345678",
-    status: "Pending",
-  },
-];
-
-const safeSigners = [
-  "0x1234567890abcdef1234567890abcdef12345678",
-  "0x1334567890abcdef1234567890abcdef12345678",
-];
-
 export default function Dashboard() {
   const params = useHashParams();
   const {
-    safeAddress,
-    newOwners,
-    newThreshold,
+    safeAddress: safeAddressFromParams,
+    newOwners: newOwnersFromParams,
+    newThreshold: newThresholdFromParams,
     recoveryLink: recoveryLinkFromParams,
   } = params;
 
@@ -57,7 +40,7 @@ export default function Dashboard() {
 
   const hasActiveRecovery = true;
 
-  const [currentGuardians, setCurrentGuardians] = useState(initialGuardians);
+  const [currentGuardians, setCurrentGuardians] = useState<NewAddress[]>([]);
   const [threshold, setThreshold] = useState(1);
   const [delayPeriod, setDelayPeriod] = useState(3);
 
@@ -66,16 +49,32 @@ export default function Dashboard() {
   };
 
   const recoveryLinkFromWallet =
-    address &&
-    recoveryInfo &&
-    createFinalUrl({
-      safeAddress: address,
-      newOwners: recoveryInfo.newOwners as Address[],
-      newThreshold: Number(recoveryInfo.newThreshold),
-    });
+    address && recoveryInfo && recoveryInfo.newThreshold.toString() !== "0"
+      ? createFinalUrl({
+          safeAddress: address,
+          newOwners: recoveryInfo.newOwners as Address[],
+          newThreshold: Number(recoveryInfo.newThreshold),
+        })
+      : undefined;
 
   const recoveryLink = recoveryLinkFromWallet ?? recoveryLinkFromParams;
   const isLinkRequired = !Boolean(recoveryLink);
+
+  const safeAddressFromWallet = recoveryLinkFromWallet ? address : undefined;
+  const newOwnersFromWallet =
+    recoveryInfo && recoveryLinkFromWallet
+      ? (recoveryInfo.newOwners as Address[])
+      : undefined;
+  const newThresholdFromWallet =
+    recoveryInfo && recoveryLinkFromWallet
+      ? Number(recoveryInfo.newThreshold)
+      : undefined;
+
+  const safeAddress = safeAddressFromWallet ?? safeAddressFromParams;
+  const newOwners = newOwnersFromWallet ?? newOwnersFromParams;
+  const newThreshold = newThresholdFromWallet ?? newThresholdFromParams;
+
+  const { data: safeSigners } = useOwners(safeAddress);
 
   return (
     <div className="flex flex-col flex-1 mx-8">
@@ -105,7 +104,6 @@ export default function Dashboard() {
               />
               <RecoveryContent
                 hasActiveRecovery={hasActiveRecovery}
-                guardians={currentGuardians}
                 safeSigners={safeSigners}
                 safeAddress={safeAddress}
                 newOwners={newOwners}

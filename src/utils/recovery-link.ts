@@ -26,10 +26,7 @@ export const createFinalUrl = (params: RecoveryQueryParams): string => {
 
 export const recoverLinkParams = (linkParams: LinkParams) => {
   const safeAddress = linkParams.safeAddress as Address;
-  const newOwners =
-    linkParams?.newOwners !== undefined
-      ? (linkParams.newOwners.split(",") as Address[])
-      : undefined;
+  const newOwners = linkParams?.newOwners?.split(",");
   const newThreshold =
     linkParams?.newThreshold !== undefined
       ? Number(linkParams.newThreshold)

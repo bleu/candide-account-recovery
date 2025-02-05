@@ -11,8 +11,13 @@ import {
   TabsTrigger,
 } from "@/components/ui/tabs";
 import { STYLES } from "@/constants/styles";
+import useHashParams from "@/hooks/useHashParams";
+import { useOngoingRecoveryInfo } from "@/hooks/useOngoingRecoveryInfo";
 import { cn } from "@/lib/utils";
+import { createFinalUrl } from "@/utils/recovery-link";
 import React, { useState } from "react";
+import { Address } from "viem";
+import { useAccount } from "wagmi";
 
 const tabState = cn(
   "data-[state=active]:bg-secondary",
@@ -38,10 +43,18 @@ const safeSigners = [
   "0x1334567890abcdef1234567890abcdef12345678",
 ];
 
-const safeAccount = "0xabc.eth";
-
 export default function Dashboard() {
-  const recoveryLink = "https://candide.com/recovery/0xabc.eth";
+  const params = useHashParams();
+  const {
+    safeAddress,
+    newOwners,
+    newThreshold,
+    recoveryLink: recoveryLinkFromParams,
+  } = params;
+
+  const { data: recoveryInfo } = useOngoingRecoveryInfo();
+  const { address } = useAccount();
+
   const hasActiveRecovery = true;
 
   const [currentGuardians, setCurrentGuardians] = useState(initialGuardians);
@@ -51,6 +64,18 @@ export default function Dashboard() {
   const handleChangeGuardians = (guardians: NewAddress[]) => {
     setCurrentGuardians(guardians);
   };
+
+  const recoveryLinkFromWallet =
+    address &&
+    recoveryInfo &&
+    createFinalUrl({
+      safeAddress: address,
+      newOwners: recoveryInfo.newOwners as Address[],
+      newThreshold: Number(recoveryInfo.newThreshold),
+    });
+
+  const recoveryLink = recoveryLinkFromWallet ?? recoveryLinkFromParams;
+  const isLinkRequired = !Boolean(recoveryLink);
 
   return (
     <div className="flex flex-col flex-1 mx-8">
@@ -75,16 +100,18 @@ export default function Dashboard() {
             <div className="grid grid-cols-3 gap-6">
               <RecoverySidebar
                 hasActiveRecovery={hasActiveRecovery}
-                recoveryLink={recoveryLink}
-                safeAccount={safeAccount}
+                recoveryLink={recoveryLink ?? ""}
+                safeAddress={safeAddress}
               />
               <RecoveryContent
                 hasActiveRecovery={hasActiveRecovery}
                 guardians={currentGuardians}
                 safeSigners={safeSigners}
-                safeAccount={safeAccount}
-                threshold={threshold}
+                safeAddress={safeAddress}
+                newOwners={newOwners}
+                newThreshold={newThreshold}
                 delayPeriod={delayPeriod}
+                isLinkRequired={isLinkRequired}
               />
             </div>
           </TabsContent>
@@ -93,8 +120,8 @@ export default function Dashboard() {
             <div className="grid grid-cols-3 gap-6">
               <RecoverySidebar
                 hasActiveRecovery={hasActiveRecovery}
-                recoveryLink={recoveryLink}
-                safeAccount={safeAccount}
+                recoveryLink={recoveryLink ?? ""}
+                safeAddress={safeAddress}
               />
               <GuardiansContent
                 threshold={threshold}

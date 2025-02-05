@@ -6,6 +6,7 @@ interface NewOwnersProps {
   onAdd: (guardian: NewAddress) => void;
   onRemove: (index: number) => void;
   onExternalLink: (address: string) => void;
+  validationFn: (address: string) => { isValid: boolean; reason: string };
 }
 
 export default function Recovery({
@@ -13,14 +14,15 @@ export default function Recovery({
   onAdd,
   onRemove,
   onExternalLink,
+  validationFn,
 }: NewOwnersProps) {
   return (
     <NewAddressList
       addresses={newOwners}
       onAdd={onAdd}
       onRemove={onRemove}
-      validationFn={(address: string) => ({ isValid: true, reason: address })}
       onExternalLink={onExternalLink}
+      validationFn={validationFn}
     />
   );
 }

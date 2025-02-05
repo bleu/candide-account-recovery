@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { STYLES } from "@/constants/styles";
 import { NewAddress, GuardianList } from "./guardian-list";
 import PressableIcon from "./pressable-icon";
@@ -11,81 +11,138 @@ import LoadingModal from "./loading-modal";
 import ApproveRecoveryModalContent from "./approve-recovery-modal-content";
 import { useToast } from "@/hooks/use-toast";
 import RecoveryLinkInput from "./recovery-link-input";
+import { Address } from "viem";
+import { useAccount } from "wagmi";
+import { useConfirmRecovery } from "@/hooks/useConfirmRecovery";
+import { useApprovalsInfo } from "@/hooks/useApprovalsInfo";
+import { useExecuteRecovery } from "@/hooks/useExecuteRecovery";
 
 interface RecoveryContentProps {
   hasActiveRecovery: boolean;
   guardians: NewAddress[];
   safeSigners: string[];
-  safeAccount: string;
-  threshold: number;
+  safeAddress: Address | undefined;
+  newOwners: Address[] | undefined;
+  newThreshold: number | undefined;
   delayPeriod: number;
+  isLinkRequired: boolean;
 }
 
 export default function RecoveryContent({
   hasActiveRecovery,
   guardians,
   safeSigners,
-  safeAccount,
-  threshold,
+  safeAddress,
+  newOwners,
+  newThreshold,
   delayPeriod,
+  isLinkRequired,
 }: RecoveryContentProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const [approveLoading, setApproveLoading] = useState(false);
-  const [finishLoading, setFinishLoading] = useState(false);
-  const [isChecked, setIsChecked] = useState(false);
+  const [shouldExecute, setShouldExecute] = useState(false);
   const [linkError, setLinkError] = useState<string>("");
   const [linkValue, setLinkValue] = useState<string>("");
-  const [isLinkRequired, setIsLinkRequired] = useState(true);
 
   const { toast } = useToast();
 
-  const thresholdAchieved = true;
+  const { address } = useAccount();
+  const { data: approvalsInfo } = useApprovalsInfo({
+    safeAddress,
+    newOwners,
+    newThreshold,
+  });
 
-  //TODO: CANDIDE-32 - MOCKED LOADING  UNTIL INTEGRATION
+  const thresholdAchieved =
+    approvalsInfo &&
+    approvalsInfo.totalGuardianApprovals >= approvalsInfo.guardiansThreshold;
+
+  const isUserPendingGuardian =
+    address &&
+    approvalsInfo &&
+    approvalsInfo.pendingGuardians.includes(address);
+
+  const isLastGuardianToConfirm =
+    isUserPendingGuardian &&
+    approvalsInfo.totalGuardianApprovals ===
+      approvalsInfo.guardiansThreshold - 1;
+
   const handleApproveRecovery = () => {
     setIsOpen(false);
-    setApproveLoading(true);
-    setTimeout(() => {
-      setApproveLoading(false);
-      if (thresholdAchieved && isChecked) {
-        toast({
-          title: "Recovery executed.",
-          description: "Delay Period has started.",
-        });
-        return;
-      }
-      if (!thresholdAchieved) {
-        toast({
-          title: "Recovery approved.",
-          description:
-            "Waiting for other guardians to approve before starting the delay period.",
-        });
-        return;
-      }
-      toast({
-        title: "Recovery approved.",
-        description: "The threshold was achieved. Click to start delay period.",
-      });
-      return;
-    }, 4000);
+    confirmRecovery();
+    return;
   };
 
   const handleCheckToggle = () => {
-    setIsChecked((prev) => !prev);
-  };
-
-  const handleVerifyLink = () => {
-    if (linkValue.toLowerCase() === "bleu") {
-      setIsLinkRequired(false);
-    } else {
-      setLinkError("Invalid link. Please check and try again.");
-    }
+    setShouldExecute((prev) => !prev);
   };
 
   const handleLinkChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setLinkValue(e.target.value);
     if (linkError) setLinkError("");
   };
+
+  const {
+    confirmRecovery,
+    txHash: confirmTxHash,
+    error: confirmError,
+    isLoading: confirmIsLoading,
+  } = useConfirmRecovery({
+    safeAddress,
+    newOwners,
+    newThreshold,
+    shouldExecute,
+  });
+
+  const {
+    executeRecovery,
+    txHash: executeTxHash,
+    error: executeError,
+    isLoading: executeIsLoading,
+  } = useExecuteRecovery({
+    safeAddress,
+    newOwners,
+    newThreshold,
+  });
+
+  useEffect(() => {
+    if (confirmTxHash && !isLastGuardianToConfirm) {
+      toast({
+        title: "Recovery approved.",
+        description:
+          "Waiting for other guardians to approve before starting the delay period.",
+      });
+      return;
+    }
+    if (confirmTxHash && !shouldExecute) {
+      toast({
+        title: "Recovery approved.",
+        description: "The threshold was achieved. Click to start delay period.",
+      });
+      return;
+    }
+    if (executeTxHash || (confirmTxHash && shouldExecute)) {
+      toast({
+        title: "Recovery executed.",
+        description: "Delay Period has started.",
+      });
+    }
+  }, [
+    confirmTxHash,
+    executeTxHash,
+    shouldExecute,
+    isLastGuardianToConfirm,
+    toast,
+  ]);
+
+  useEffect(() => {
+    if (confirmError || executeError) {
+      toast({
+        title: "Error executing transaction.",
+        description: (confirmError ?? executeError)!.message,
+        isWarning: true,
+      });
+    }
+  }, [confirmError, executeError, toast]);
 
   return (
     <div className="col-span-2">
@@ -111,7 +168,7 @@ export default function RecoveryContent({
                   style={STYLES.textWithBorderOpacity}
                   className={STYLES.textWithBorder}
                 >
-                  1 of {threshold} Guardians
+                  1 of {newThreshold} Guardians
                 </span>
               </div>
             </div>
@@ -142,18 +199,25 @@ export default function RecoveryContent({
                 </h4>
                 <GuardianList guardians={guardians} />
                 <div className="flex justify-end mt-4 mb-2 gap-2">
-                  <Button className="text-xs font-bold px-3 py-2 rounded-xl">
+                  <Button
+                    className="text-xs font-bold px-3 py-2 rounded-xl"
+                    disabled={!thresholdAchieved}
+                    onClick={() => {
+                      executeRecovery();
+                    }}
+                  >
                     Start Delay Period
                   </Button>
                   <Button
                     className="text-xs font-bold px-3 py-2 rounded-xl"
                     onClick={() => setIsOpen(true)}
+                    disabled={!isUserPendingGuardian}
                   >
                     Approve Recovery
                   </Button>
                 </div>
                 <span className="text-xs flex justify-end text-[10px] opacity-60">
-                  Only Guardians can approve this recovery request.
+                  Only pending Guardians can approve this recovery request.
                 </span>
                 <Modal
                   title="Approve Recovery Request"
@@ -167,23 +231,20 @@ export default function RecoveryContent({
                   nextLabel="Sign and Approve"
                   backLabel="Cancel"
                 >
-                  <ApproveRecoveryModalContent
-                    handleCheckToggle={handleCheckToggle}
-                    delayPeriod={3}
-                    isChecked={isChecked}
-                    safeAccount={safeAccount}
-                    safeSigners={safeSigners}
-                    thresholdAchieved={thresholdAchieved}
-                  />
+                  {safeAddress && (
+                    <ApproveRecoveryModalContent
+                      handleCheckToggle={handleCheckToggle}
+                      delayPeriod={3}
+                      isChecked={shouldExecute}
+                      safeAccount={safeAddress}
+                      safeSigners={safeSigners}
+                      isLastGuardianToConfirm={Boolean(isLastGuardianToConfirm)}
+                    />
+                  )}
                 </Modal>
                 <LoadingModal
-                  loading={approveLoading || finishLoading}
-                  setIsloading={setApproveLoading || setFinishLoading}
-                  loadingText={
-                    approveLoading
-                      ? "Waiting for the transaction signature..."
-                      : "Executing recovery..."
-                  }
+                  loading={confirmIsLoading || executeIsLoading}
+                  loadingText={"Waiting for the transaction signature..."}
                 />
               </>
             ) : (
@@ -195,7 +256,6 @@ export default function RecoveryContent({
             linkValue={linkValue}
             linkError={linkError}
             onLinkChange={handleLinkChange}
-            onVerifyLink={handleVerifyLink}
           />
         )}
       </div>

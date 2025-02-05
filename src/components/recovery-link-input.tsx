@@ -4,19 +4,18 @@ import { Input } from "./ui/input";
 import { Button } from "./ui/button";
 import { cn } from "@/lib/utils";
 import { STYLES } from "@/constants/styles";
+import Link from "next/link";
 
 interface RecoveryLinkInputProps {
   linkValue: string;
   linkError: string;
   onLinkChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  onVerifyLink: () => void;
 }
 
 export default function RecoveryLinkInput({
   linkValue,
   linkError,
   onLinkChange,
-  onVerifyLink,
 }: RecoveryLinkInputProps) {
   return (
     <div className="flex flex-col items-center justify-center text-center self-center my-12 max-w-xs mx-auto">
@@ -34,9 +33,9 @@ export default function RecoveryLinkInput({
           onChange={onLinkChange}
           placeholder="http://"
         />
-        <Button className="text-xs h-6" onClick={onVerifyLink}>
-          Enter
-        </Button>
+        <Link href={linkValue}>
+          <Button className="text-xs h-6">Enter</Button>
+        </Link>
       </div>
       {linkError && (
         <p className={cn(STYLES.textError, "text-xs mt-2 self-start")}>

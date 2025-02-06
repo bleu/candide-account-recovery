@@ -16,6 +16,7 @@ import { useAccount } from "wagmi";
 import { useConfirmRecovery } from "@/hooks/useConfirmRecovery";
 import { useExecuteRecovery } from "@/hooks/useExecuteRecovery";
 import { ApprovalsInfo } from "@/hooks/useApprovalsInfo";
+import { RecoveryInfo } from "@/hooks/useOngoingRecoveryInfo";
 
 interface RecoveryContentProps {
   hasActiveRecovery: boolean;
@@ -26,6 +27,7 @@ interface RecoveryContentProps {
   delayPeriod: number;
   isLinkRequired: boolean;
   approvalsInfo: ApprovalsInfo | undefined;
+  recoveryInfo: RecoveryInfo | undefined;
 }
 
 export default function RecoveryContent({
@@ -37,6 +39,7 @@ export default function RecoveryContent({
   delayPeriod,
   isLinkRequired,
   approvalsInfo,
+  recoveryInfo,
 }: RecoveryContentProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [shouldExecute, setShouldExecute] = useState(false);
@@ -60,6 +63,12 @@ export default function RecoveryContent({
     isUserPendingGuardian &&
     approvalsInfo.totalGuardianApprovals ===
       approvalsInfo.guardiansThreshold - 1;
+
+  const { executeAfter } = recoveryInfo ?? {};
+
+  const delayPeriodEnded = executeAfter
+    ? executeAfter !== 0 && Date.now() >= executeAfter
+    : false;
 
   const handleApproveRecovery = () => {
     setIsOpen(false);
@@ -198,15 +207,27 @@ export default function RecoveryContent({
                   <GuardianList guardians={approvalsInfo.guardiansApprovals} />
                 )}
                 <div className="flex justify-end mt-4 mb-2 gap-2">
-                  <Button
-                    className="text-xs font-bold px-3 py-2 rounded-xl"
-                    disabled={!thresholdAchieved}
-                    onClick={() => {
-                      executeRecovery();
-                    }}
-                  >
-                    Start Delay Period
-                  </Button>
+                  {!delayPeriodEnded && (
+                    <Button
+                      className="text-xs font-bold px-3 py-2 rounded-xl"
+                      disabled={!thresholdAchieved}
+                      onClick={executeRecovery}
+                    >
+                      Start Delay Period
+                    </Button>
+                  )}
+
+                  {delayPeriodEnded && (
+                    <Button
+                      className="text-xs font-bold px-3 py-2 rounded-xl"
+                      onClick={() => {
+                        //finalizeRecovery
+                        console.log("finalize recovery");
+                      }}
+                    >
+                      Finalize Recovery
+                    </Button>
+                  )}
                   <Button
                     className="text-xs font-bold px-3 py-2 rounded-xl"
                     onClick={() => setIsOpen(true)}
@@ -216,7 +237,9 @@ export default function RecoveryContent({
                   </Button>
                 </div>
                 <span className="text-xs flex justify-end text-[10px] opacity-60">
-                  Only pending Guardians can approve this recovery request.
+                  {delayPeriodEnded
+                    ? "Anyone can finalize the reocvery request."
+                    : "Only pending Guardians can approve this recovery request."}
                 </span>
                 <Modal
                   title="Approve Recovery Request"

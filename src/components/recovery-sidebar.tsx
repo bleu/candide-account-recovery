@@ -10,26 +10,49 @@ import { useToast } from "@/hooks/use-toast";
 import LoadingModal from "./loading-modal";
 import { Address } from "viem";
 import { truncateAddress } from "@/utils/truncate-address";
+import { ApprovalsInfo } from "@/hooks/useApprovalsInfo";
+import { RecoveryInfo } from "@/hooks/useOngoingRecoveryInfo";
+import { formatRemainingTime } from "@/utils/format-remaining-time";
+import { useAccount } from "wagmi";
 
 interface RecoverySideBarProps {
   hasActiveRecovery: boolean;
   recoveryLink: string;
   safeAddress: Address | undefined;
+  approvalsInfo: ApprovalsInfo | undefined;
+  recoveryInfo: RecoveryInfo | undefined;
 }
 
 export default function RecoverySidebar({
   hasActiveRecovery,
   recoveryLink,
   safeAddress,
+  approvalsInfo,
+  recoveryInfo,
 }: RecoverySideBarProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [isWaitingTransaction, setIsWaitingTransaction] = useState(false);
 
+  const { address } = useAccount();
+
   const { toast } = useToast();
 
-  const thresholdAchieved = true;
-  const delayPeriodStarted = true;
-  const delayPeriodEnded = false;
+  const { executeAfter } = recoveryInfo ?? {};
+
+  const { totalGuardianApprovals, guardiansThreshold } = approvalsInfo ?? {};
+
+  const thresholdAchieved = Boolean(
+    totalGuardianApprovals &&
+      guardiansThreshold &&
+      totalGuardianApprovals >= guardiansThreshold
+  );
+  const delayPeriodStarted = executeAfter
+    ? executeAfter !== 0 && Date.now() < executeAfter
+    : false;
+  const delayPeriodEnded = executeAfter
+    ? executeAfter !== 0 && Date.now() >= executeAfter
+    : false;
+  const remainingTime = executeAfter ? formatRemainingTime(executeAfter) : "";
 
   const handleCancelRecovery = () => {
     setIsOpen(false);
@@ -51,7 +74,7 @@ export default function RecoverySidebar({
           delayPeriodEnded={delayPeriodEnded}
           thresholdAchieved={thresholdAchieved}
           delayPeriodStarted={delayPeriodStarted}
-          remainingTime="2d 23h 59min"
+          remainingTime={remainingTime}
         />
       )}
       <h3 className="mb-2 font-bold text-sm font-roboto-mono">SAFE ACCOUNT</h3>
@@ -76,6 +99,7 @@ export default function RecoverySidebar({
           <Button
             className="font-bold text-xs rounded-xl"
             onClick={() => setIsOpen(true)}
+            disabled={address !== safeAddress}
           >
             Cancel
           </Button>

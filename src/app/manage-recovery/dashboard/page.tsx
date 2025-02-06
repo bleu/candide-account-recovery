@@ -108,6 +108,8 @@ export default function Dashboard() {
                 hasActiveRecovery={hasActiveRecovery}
                 recoveryLink={recoveryLink ?? ""}
                 safeAddress={safeAddress}
+                approvalsInfo={approvalsInfo}
+                recoveryInfo={recoveryInfo}
               />
               <RecoveryContent
                 hasActiveRecovery={hasActiveRecovery}
@@ -118,6 +120,7 @@ export default function Dashboard() {
                 delayPeriod={delayPeriod}
                 isLinkRequired={isLinkRequired}
                 approvalsInfo={approvalsInfo}
+                recoveryInfo={recoveryInfo}
               />
             </div>
           </TabsContent>
@@ -128,6 +131,8 @@ export default function Dashboard() {
                 hasActiveRecovery={hasActiveRecovery}
                 recoveryLink={recoveryLink ?? ""}
                 safeAddress={safeAddress}
+                approvalsInfo={approvalsInfo}
+                recoveryInfo={recoveryInfo}
               />
               <GuardiansContent
                 threshold={threshold}

@@ -17,6 +17,7 @@ import { useConfirmRecovery } from "@/hooks/useConfirmRecovery";
 import { useExecuteRecovery } from "@/hooks/useExecuteRecovery";
 import { ApprovalsInfo } from "@/hooks/useApprovalsInfo";
 import { RecoveryInfo } from "@/hooks/useOngoingRecoveryInfo";
+import { useFinalizeRecovery } from "@/hooks/useFinalizeRecovery";
 
 interface RecoveryContentProps {
   hasActiveRecovery: boolean;
@@ -108,6 +109,23 @@ export default function RecoveryContent({
     newThreshold,
   });
 
+  const {
+    finalizeRecovery,
+    txHash: finalizeTxHash,
+    error: finalizeError,
+    isLoading: finalizeIsLoading,
+  } = useFinalizeRecovery(safeAddress);
+
+  useEffect(() => {
+    if (finalizeTxHash) {
+      toast({
+        title: "Recovery finalized.",
+        description: `Check new wallet on the transaction when it has finished: ${finalizeTxHash}`,
+      });
+      return;
+    }
+  }, [finalizeTxHash, toast]);
+
   useEffect(() => {
     if (confirmTxHash && !isLastGuardianToConfirm) {
       toast({
@@ -139,14 +157,14 @@ export default function RecoveryContent({
   ]);
 
   useEffect(() => {
-    if (confirmError || executeError) {
+    if (confirmError || executeError || finalizeError) {
       toast({
         title: "Error executing transaction.",
-        description: (confirmError ?? executeError)!.message,
+        description: (confirmError ?? executeError ?? finalizeError)!.message,
         isWarning: true,
       });
     }
-  }, [confirmError, executeError, toast]);
+  }, [confirmError, executeError, finalizeError, toast]);
 
   return (
     <div className="col-span-2">
@@ -220,10 +238,7 @@ export default function RecoveryContent({
                   {delayPeriodEnded && (
                     <Button
                       className="text-xs font-bold px-3 py-2 rounded-xl"
-                      onClick={() => {
-                        //finalizeRecovery
-                        console.log("finalize recovery");
-                      }}
+                      onClick={finalizeRecovery}
                     >
                       Finalize Recovery
                     </Button>
@@ -265,7 +280,9 @@ export default function RecoveryContent({
                   )}
                 </Modal>
                 <LoadingModal
-                  loading={confirmIsLoading || executeIsLoading}
+                  loading={
+                    confirmIsLoading || executeIsLoading || finalizeIsLoading
+                  }
                   loadingText={"Waiting for the transaction signature..."}
                 />
               </>

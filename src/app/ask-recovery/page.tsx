@@ -10,6 +10,7 @@ import { redirect } from "next/navigation";
 import React, { useCallback, useState } from "react";
 import { isAddress } from "viem";
 import { createFinalUrl } from "@/utils/recovery-link";
+import { useGuardians } from "@/hooks/useGuardians";
 
 const totalSteps = 4;
 
@@ -30,6 +31,8 @@ export default function AskRecovery() {
     newThreshold: threshold,
     newOwners: newOwners.map((guardian) => guardian.address),
   });
+
+  const { data: guardians } = useGuardians(safeAddress as `0x${string}`);
 
   const handleNext = () => {
     switch (currentStep) {
@@ -90,9 +93,19 @@ export default function AskRecovery() {
           isValid: false,
           reason: "This safe address can't be an owner.",
         };
+      if (!guardians)
+        return {
+          isValid: false,
+          reason: "Couldn't fetch guardians.",
+        };
+      if (guardians.includes(address))
+        return {
+          isValid: false,
+          reason: "Guardians can't be new owners.",
+        };
       return { isValid: true, reason: "" };
     },
-    [safeAddress]
+    [safeAddress, guardians]
   );
 
   const getStepContent = () => {

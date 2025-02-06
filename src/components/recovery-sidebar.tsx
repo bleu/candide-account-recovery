@@ -60,7 +60,7 @@ export default function RecoverySidebar({
     if (error) {
       toast({
         title: "Error canceling recovery.",
-        description: error.message,
+        description: error,
         isWarning: true,
       });
     }

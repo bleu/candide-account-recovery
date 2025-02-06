@@ -169,7 +169,7 @@ export default function RecoveryContent({
     if (confirmError || executeError || finalizeError) {
       toast({
         title: "Error executing transaction.",
-        description: (confirmError ?? executeError ?? finalizeError)!.message,
+        description: confirmError ?? executeError ?? finalizeError,
         isWarning: true,
       });
     }

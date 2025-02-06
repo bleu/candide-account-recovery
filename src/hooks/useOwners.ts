@@ -5,23 +5,25 @@ import { useAccount, useClient } from "wagmi";
 import { Address } from "viem";
 import { useQuery } from "@tanstack/react-query";
 
-export function useOwners() {
+export function useOwners(safeAddress: Address | undefined) {
   const client = useClient();
   const account = useAccount();
 
+  const addressToFetch = safeAddress ?? account?.address;
+
   return useQuery({
-    queryKey: ["owners", account?.address, client?.transport.url],
+    queryKey: ["owners", addressToFetch, client?.transport.url],
     queryFn: async () => {
-      if (!account?.address || !client?.transport.url) {
+      if (!addressToFetch || !client?.transport.url) {
         throw new Error("Account or client transport URL not available");
       }
 
-      const safeAccount = new SafeAccountV0_3_0(account.address);
+      const safeAccount = new SafeAccountV0_3_0(addressToFetch);
       const owners = (await safeAccount.getOwners(
         client.transport.url
       )) as Address[];
       return owners;
     },
-    enabled: Boolean(account?.address) && Boolean(client?.transport.url),
+    enabled: Boolean(addressToFetch) && Boolean(client?.transport.url),
   });
 }

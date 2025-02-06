@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { NewAddress, GuardianList } from "./guardian-list";
 import { Modal } from "./modal";
 import { Button } from "./ui/button";
@@ -7,30 +7,39 @@ import ThresholdStep from "./protect-account-steps/threshold";
 import ReviewStepSection from "./protect-account-steps/review";
 import { useToast } from "@/hooks/use-toast";
 import ParametersSection from "./parameters-section";
+import { ApprovalsInfo } from "@/hooks/useApprovalsInfo";
+import { useAddGuardians } from "@/hooks/useAddGuardians";
+import { Address } from "viem";
+import { storeGuardians } from "@/utils/storage";
+import { useAccount } from "wagmi";
 
 const buttonStyles = "rounded-xl font-roboto-mono h-7 font-bold text-xs";
 const totalSteps = 3;
 
 interface GuardiansContentProps {
-  currentGuardians: NewAddress[];
   threshold: number;
   delayPeriod: number;
   onThresholdChange: (threshold: number) => void;
   onDelayPeriodChange: (delayPeriod: number) => void;
   onChangeCurrentGuardians: (guardians: NewAddress[]) => void;
+  approvalsInfo: ApprovalsInfo | undefined;
 }
 
 export default function GuardiansContent({
-  currentGuardians,
   threshold,
   delayPeriod,
   onThresholdChange,
   onDelayPeriodChange,
   onChangeCurrentGuardians,
+  approvalsInfo,
 }: GuardiansContentProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [guardians, setGuardians] = useState<NewAddress[]>([]);
   const [currentStep, setCurrentStep] = useState(1);
+
+  const currentGuardians = approvalsInfo && approvalsInfo.guardiansApprovals;
+
+  const { chainId, address } = useAccount();
 
   const { toast } = useToast();
 
@@ -51,10 +60,10 @@ export default function GuardiansContent({
   };
 
   const handleNext = () => {
+    if (!currentGuardians) return;
     if (currentStep < totalSteps) {
       setCurrentStep((prev) => prev + 1);
     } else {
-      // postGuardians();
       toast({
         title: "NewAddress added",
         description:
@@ -76,10 +85,12 @@ export default function GuardiansContent({
   };
 
   const handleRemoveCurrentGuardian = (guardian: NewAddress): void => {
+    if (!currentGuardians) return;
     const updatedGuardians = currentGuardians.filter(
       (g) => g.address !== guardian.address || g.nickname !== guardian.nickname
     );
     onChangeCurrentGuardians(updatedGuardians);
+    if (chainId && address) storeGuardians(updatedGuardians, chainId, address);
     toast({
       title: "NewAddress removed",
       description:
@@ -90,6 +101,34 @@ export default function GuardiansContent({
       description: "Your wallet security settings have been updated.",
     });
   };
+
+  const {
+    txHashes,
+    // TODO: will be used on CANDIDE-33
+    // addGuardians: postGuardians,
+    // error: errorPostGuradians,
+    // isLoading: isLoadingPostGuardians,
+  } = useAddGuardians(
+    guardians.map((guardian) => guardian.address) as Address[],
+    threshold
+  );
+
+  // closes modal when transaction is accepted
+  useEffect(() => {
+    if (txHashes.length > 0) {
+      if (chainId && address)
+        storeGuardians(
+          guardians.filter((guardian) => guardian.status === "added"),
+          chainId,
+          address
+        );
+      toast({
+        title: "Account Recovery is setup!",
+        description: "Your account is now protected.",
+      });
+      setIsOpen(false);
+    }
+  }, [txHashes, chainId, address, guardians, toast]);
 
   const getStepContent = () => {
     switch (currentStep) {
@@ -104,12 +143,16 @@ export default function GuardiansContent({
         );
       case 2:
         return (
-          <ThresholdStep
-            totalGuardians={currentGuardians.length + guardians.length}
-            currentThreshold={threshold}
-            onThresholdChange={handleThresholdChange}
-            isNewThreshold
-          />
+          <>
+            {currentGuardians && (
+              <ThresholdStep
+                totalGuardians={currentGuardians.length + guardians.length}
+                currentThreshold={threshold}
+                onThresholdChange={handleThresholdChange}
+                isNewThreshold
+              />
+            )}
+          </>
         );
       case 3:
         return (
@@ -169,7 +212,7 @@ export default function GuardiansContent({
           <h3 className="text-lg font-bold font-roboto-mono text-primary ">
             Account Guardians
           </h3>
-          {currentGuardians.length > 0 && (
+          {currentGuardians && currentGuardians.length > 0 && (
             <Button
               className={buttonStyles}
               onClick={handleOnOpenGuardianModal}
@@ -178,7 +221,7 @@ export default function GuardiansContent({
             </Button>
           )}
         </div>
-        {currentGuardians.length > 0 ? (
+        {currentGuardians && currentGuardians.length > 0 ? (
           <GuardianList
             guardians={currentGuardians}
             isNewGuardianList
@@ -188,13 +231,15 @@ export default function GuardiansContent({
         ) : (
           <EmptyGuardians onOpenGuardianModal={handleOnOpenGuardianModal} />
         )}
-        <ParametersSection
-          guardians={currentGuardians}
-          delayPeriod={delayPeriod}
-          threshold={threshold}
-          onDelayPeriodChange={onDelayPeriodChange}
-          onThresholdChange={onThresholdChange}
-        />
+        {approvalsInfo && (
+          <ParametersSection
+            guardians={approvalsInfo.guardiansApprovals}
+            delayPeriod={delayPeriod}
+            threshold={approvalsInfo.guardiansThreshold}
+            onDelayPeriodChange={onDelayPeriodChange}
+            onThresholdChange={onThresholdChange}
+          />
+        )}
       </div>
       <Modal
         isOpen={isOpen}

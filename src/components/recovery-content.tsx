@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { STYLES } from "@/constants/styles";
-import { NewAddress, GuardianList } from "./guardian-list";
+import { GuardianList } from "./guardian-list";
 import PressableIcon from "./pressable-icon";
 import { ExternalLink } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -14,29 +14,29 @@ import RecoveryLinkInput from "./recovery-link-input";
 import { Address } from "viem";
 import { useAccount } from "wagmi";
 import { useConfirmRecovery } from "@/hooks/useConfirmRecovery";
-import { useApprovalsInfo } from "@/hooks/useApprovalsInfo";
 import { useExecuteRecovery } from "@/hooks/useExecuteRecovery";
+import { ApprovalsInfo } from "@/hooks/useApprovalsInfo";
 
 interface RecoveryContentProps {
   hasActiveRecovery: boolean;
-  guardians: NewAddress[];
-  safeSigners: string[];
+  safeSigners: string[] | undefined;
   safeAddress: Address | undefined;
   newOwners: Address[] | undefined;
   newThreshold: number | undefined;
   delayPeriod: number;
   isLinkRequired: boolean;
+  approvalsInfo: ApprovalsInfo | undefined;
 }
 
 export default function RecoveryContent({
   hasActiveRecovery,
-  guardians,
   safeSigners,
   safeAddress,
   newOwners,
   newThreshold,
   delayPeriod,
   isLinkRequired,
+  approvalsInfo,
 }: RecoveryContentProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [shouldExecute, setShouldExecute] = useState(false);
@@ -46,11 +46,6 @@ export default function RecoveryContent({
   const { toast } = useToast();
 
   const { address } = useAccount();
-  const { data: approvalsInfo } = useApprovalsInfo({
-    safeAddress,
-    newOwners,
-    newThreshold,
-  });
 
   const thresholdAchieved =
     approvalsInfo &&
@@ -168,7 +163,8 @@ export default function RecoveryContent({
                   style={STYLES.textWithBorderOpacity}
                   className={STYLES.textWithBorder}
                 >
-                  1 of {newThreshold} Guardians
+                  {approvalsInfo?.guardiansThreshold} of{" "}
+                  {approvalsInfo?.guardiansApprovals.length} Guardians
                 </span>
               </div>
             </div>
@@ -176,28 +172,31 @@ export default function RecoveryContent({
               <>
                 <div className="flex-col gap-1 inline-flex">
                   <p className={STYLES.label}>SAFE SIGNERS</p>
-                  {safeSigners.map((address) => (
-                    <div
-                      key={address}
-                      className={cn(
-                        STYLES.textWithBorder,
-                        "inline-flex items-center gap-2"
-                      )}
-                      style={STYLES.textWithBorderOpacity}
-                    >
-                      <span>{address}</span>
-                      <PressableIcon
-                        icon={ExternalLink}
-                        onClick={() => {}}
-                        size={12}
-                      />
-                    </div>
-                  ))}
+                  {safeSigners &&
+                    safeSigners.map((address) => (
+                      <div
+                        key={address}
+                        className={cn(
+                          STYLES.textWithBorder,
+                          "inline-flex items-center gap-2"
+                        )}
+                        style={STYLES.textWithBorderOpacity}
+                      >
+                        <span>{address}</span>
+                        <PressableIcon
+                          icon={ExternalLink}
+                          onClick={() => {}}
+                          size={12}
+                        />
+                      </div>
+                    ))}
                 </div>
                 <h4 className="my-6 text-primary font-roboto-mono text-sm">
                   GUARDIANS APPROVAL
                 </h4>
-                <GuardianList guardians={guardians} />
+                {approvalsInfo?.guardiansApprovals && (
+                  <GuardianList guardians={approvalsInfo.guardiansApprovals} />
+                )}
                 <div className="flex justify-end mt-4 mb-2 gap-2">
                   <Button
                     className="text-xs font-bold px-3 py-2 rounded-xl"

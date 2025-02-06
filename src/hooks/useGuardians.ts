@@ -12,7 +12,7 @@ export function useGuardians(safeAddress?: Address) {
   const addressToFetch = safeAddress ?? account?.address;
 
   return useQuery({
-    queryKey: ["guardians", account?.address, client?.transport.url],
+    queryKey: ["guardians", addressToFetch, client?.transport.url],
     queryFn: async () => {
       if (!addressToFetch || !client?.transport.url) {
         throw new Error("Account or client transport URL not available");

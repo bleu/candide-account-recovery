@@ -3,7 +3,7 @@ import AddressSection from "./address-section";
 import { Square, SquareCheckBig } from "lucide-react";
 interface ApproveRecoveryModalContentProps {
   safeAccount: string;
-  safeSigners: string[];
+  safeSigners: string[] | undefined;
   isChecked: boolean;
   isLastGuardianToConfirm: boolean;
   delayPeriod: number;
@@ -25,11 +25,13 @@ export default function ApproveRecoveryModalContent({
         description="The address of the account that need to be recovered."
         addresses={[safeAccount]}
       />
-      <AddressSection
-        title="Safe Signers"
-        description="The public address of the new Safe signers."
-        addresses={safeSigners}
-      />
+      {safeSigners && (
+        <AddressSection
+          title="Safe Signers"
+          description="The public address of the new Safe signers."
+          addresses={safeSigners}
+        />
+      )}
       {isLastGuardianToConfirm && (
         <div
           className="flex items-center gap-2 cursor-pointer"

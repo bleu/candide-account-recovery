@@ -14,6 +14,7 @@ import { storeGuardians } from "@/utils/storage";
 import { redirect } from "next/navigation";
 import { useToast } from "@/hooks/use-toast";
 import { NewAddress } from "@/components/guardian-list";
+import LoadingModal from "@/components/loading-modal";
 
 const totalSteps = 4;
 
@@ -144,12 +145,6 @@ export default function ProtectAccount() {
                 delayPeriod={delayPeriod}
               />
               <br />
-              {isLoadingPostGuardians && (
-                <p className="font-roboto-mono font-medium text-sm mt-2">
-                  Please, handle the signature process on your smart wallet
-                  manager...
-                </p>
-              )}
               {errorPostGuradians && (
                 <p className="text-alert font-roboto-mono font-medium text-sm mt-2">
                   {errorPostGuradians}
@@ -195,32 +190,38 @@ export default function ProtectAccount() {
   return (
     <div className="flex flex-1 items-center justify-center mx-8">
       {isWalletConnected ? (
-        <Modal
-          isOpen={isOpen}
-          onClose={() => setIsOpen(false)}
-          title={getStepTitle()}
-          description={getStepDescription()}
-          currentStep={currentStep}
-          totalSteps={totalSteps}
-          onNext={handleNext}
-          onBack={handleBack}
-          isNextDisabled={
-            (currentStep === 1 && guardians.length === 0) ||
-            (currentStep === 4 && isLoadingPostGuardians)
-          }
-          nextLabel={
-            currentStep === 3
-              ? "Finish and Review"
-              : currentStep === 4
-              ? isLoadingPostGuardians
-                ? "Loading..."
-                : "Setup Recovery"
-              : "Next"
-          }
-          isProgress
-        >
-          {getStepContent()}
-        </Modal>
+        <>
+          <Modal
+            isOpen={isOpen}
+            onClose={() => setIsOpen(false)}
+            title={getStepTitle()}
+            description={getStepDescription()}
+            currentStep={currentStep}
+            totalSteps={totalSteps}
+            onNext={handleNext}
+            onBack={handleBack}
+            isNextDisabled={
+              (currentStep === 1 && guardians.length === 0) ||
+              (currentStep === 4 && isLoadingPostGuardians)
+            }
+            nextLabel={
+              currentStep === 3
+                ? "Finish and Review"
+                : currentStep === 4
+                ? isLoadingPostGuardians
+                  ? "Loading..."
+                  : "Setup Recovery"
+                : "Next"
+            }
+            isProgress
+          >
+            {getStepContent()}
+          </Modal>
+          <LoadingModal
+            loading={isLoadingPostGuardians}
+            loadingText={"Waiting for the transaction signature..."}
+          />
+        </>
       ) : (
         <WalletNotConnected />
       )}

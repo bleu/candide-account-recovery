@@ -5,7 +5,7 @@ import { RecoveryLinkSection } from "./recovery-link-section";
 import PressableIcon from "./pressable-icon";
 import { Button } from "./ui/button";
 import { Modal } from "./modal";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import LoadingModal from "./loading-modal";
 import { Address } from "viem";
@@ -14,6 +14,7 @@ import { ApprovalsInfo } from "@/hooks/useApprovalsInfo";
 import { RecoveryInfo } from "@/hooks/useOngoingRecoveryInfo";
 import { formatRemainingTime } from "@/utils/format-remaining-time";
 import { useAccount } from "wagmi";
+import { useCancelRecovery } from "@/hooks/useCancelRecovery";
 
 interface RecoverySideBarProps {
   hasActiveRecovery: boolean;
@@ -31,7 +32,6 @@ export default function RecoverySidebar({
   recoveryInfo,
 }: RecoverySideBarProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const [isWaitingTransaction, setIsWaitingTransaction] = useState(false);
 
   const { address } = useAccount();
 
@@ -54,18 +54,27 @@ export default function RecoverySidebar({
     : false;
   const remainingTime = executeAfter ? formatRemainingTime(executeAfter) : "";
 
-  const handleCancelRecovery = () => {
-    setIsOpen(false);
-    setIsWaitingTransaction(true);
-    setTimeout(() => {
-      setIsWaitingTransaction(false);
+  const { txHash, cancelRecovery, error, isLoading } = useCancelRecovery();
+
+  useEffect(() => {
+    if (error) {
+      toast({
+        title: "Error canceling recovery.",
+        description: error.message,
+        isWarning: true,
+      });
+    }
+  }, [error, toast]);
+
+  useEffect(() => {
+    if (txHash) {
       toast({
         title: "Recovery Request canceled.",
         description:
           "All approvals have been revoked, and the process is now terminated.",
       });
-    }, 4000);
-  };
+    }
+  }, [txHash, toast]);
 
   return (
     <div className="col-span-1">
@@ -111,14 +120,11 @@ export default function RecoverySidebar({
         currentStep={1}
         totalSteps={1}
         nextLabel="Cancel Request"
-        onNext={handleCancelRecovery}
+        onNext={cancelRecovery}
         title="Cancel Recovery Request?"
         description="By canceling this recovery request, the process will be stopped immediately. Guardians will no longer be able to approve it, and the request cannot be executed. Are you sure you want to cancel?"
       />
-      <LoadingModal
-        loading={isWaitingTransaction}
-        loadingText="Canceling recovery..."
-      />
+      <LoadingModal loading={isLoading} loadingText="Canceling recovery..." />
     </div>
   );
 }

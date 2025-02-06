@@ -5,7 +5,7 @@ import { useAccount, useClient } from "wagmi";
 import { Address } from "viem";
 import { useQuery } from "@tanstack/react-query";
 
-export function useOwners(safeAddress: Address | undefined) {
+export function useOwners(safeAddress?: Address | undefined) {
   const client = useClient();
   const account = useAccount();
 

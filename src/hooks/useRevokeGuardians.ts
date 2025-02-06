@@ -5,6 +5,7 @@ import { useState } from "react";
 import { useAccount, useWalletClient, usePublicClient } from "wagmi";
 import { Address, PublicClient } from "viem";
 import { useMutation } from "@tanstack/react-query";
+import { getReadableError } from "@/utils/get-readable-error";
 
 async function buildRevokeGuardiansTxs(
   srm: SocialRecoveryModule,
@@ -87,12 +88,3 @@ export function useRevokeGuardians(
     isLoading: mutation.isPending,
   };
 }
-
-const getReadableError = (error: Error) => {
-  if (error.message.includes("User rejected transaction")) {
-    return "User rejected transaction.";
-  }
-
-  console.error(error.message);
-  return "Transaction error.";
-};

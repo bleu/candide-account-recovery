@@ -6,6 +6,7 @@ import { useState } from "react";
 import { Address } from "viem";
 import { useAccount, usePublicClient, useWalletClient } from "wagmi";
 import { useGuardians } from "./useGuardians";
+import { getReadableError } from "@/utils/get-readable-error";
 
 interface ConfirmRecoveryParams {
   safeAddress: Address | undefined;
@@ -73,7 +74,7 @@ export function useConfirmRecovery({
   return {
     txHash,
     confirmRecovery,
-    error: mutation?.error || undefined,
+    error: mutation?.error && getReadableError(mutation.error),
     isLoading: mutation.isPending,
   };
 }

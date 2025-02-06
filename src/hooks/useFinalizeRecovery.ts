@@ -1,3 +1,4 @@
+import { getReadableError } from "@/utils/get-readable-error";
 import { useMutation } from "@tanstack/react-query";
 import { SocialRecoveryModule } from "abstractionkit";
 import { useState } from "react";
@@ -45,7 +46,7 @@ export function useFinalizeRecovery(safeAddress: Address | undefined) {
   return {
     txHash,
     finalizeRecovery,
-    error: mutation?.error && mutation.error,
+    error: mutation?.error && getReadableError(mutation.error),
     isLoading: mutation.isPending,
   };
 }

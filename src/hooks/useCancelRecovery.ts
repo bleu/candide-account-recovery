@@ -1,3 +1,4 @@
+import { getReadableError } from "@/utils/get-readable-error";
 import { useMutation } from "@tanstack/react-query";
 import { SocialRecoveryModule } from "abstractionkit";
 import { useState } from "react";
@@ -40,7 +41,7 @@ export function useCancelRecovery() {
   return {
     txHash,
     cancelRecovery,
-    error: mutation?.error && mutation.error,
+    error: mutation?.error && getReadableError(mutation.error),
     isLoading: mutation.isPending,
   };
 }

@@ -71,6 +71,15 @@ export default function RecoveryContent({
     ? executeAfter !== 0 && Date.now() >= executeAfter
     : false;
 
+  const { guardiansApprovals } = approvalsInfo ?? {};
+  const guardians =
+    guardiansApprovals && delayPeriodEnded
+      ? guardiansApprovals.map((guardian) => ({
+          ...guardian,
+          status: "Approved",
+        }))
+      : guardiansApprovals;
+
   const handleApproveRecovery = () => {
     setIsOpen(false);
     confirmRecovery();
@@ -221,9 +230,7 @@ export default function RecoveryContent({
                 <h4 className="my-6 text-primary font-roboto-mono text-sm">
                   GUARDIANS APPROVAL
                 </h4>
-                {approvalsInfo?.guardiansApprovals && (
-                  <GuardianList guardians={approvalsInfo.guardiansApprovals} />
-                )}
+                {guardians && <GuardianList guardians={guardians} />}
                 <div className="flex justify-end mt-4 mb-2 gap-2">
                   {!delayPeriodEnded && (
                     <Button

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { NewAddress, GuardianList } from "./guardian-list";
 import { Modal } from "./modal";
 import { Button } from "./ui/button";
@@ -8,6 +8,11 @@ import ReviewStepSection from "./protect-account-steps/review";
 import { useToast } from "@/hooks/use-toast";
 import ParametersSection from "./parameters-section";
 import { ApprovalsInfo } from "@/hooks/useApprovalsInfo";
+import { useAddGuardians } from "@/hooks/useAddGuardians";
+import { Address } from "viem";
+import { storeGuardians } from "@/utils/storage";
+import { useAccount } from "wagmi";
+import LoadingModal from "./loading-modal";
 
 const buttonStyles = "rounded-xl font-roboto-mono h-7 font-bold text-xs";
 const totalSteps = 3;
@@ -35,7 +40,40 @@ export default function GuardiansContent({
 
   const currentGuardians = approvalsInfo && approvalsInfo.guardiansApprovals;
 
+  const { chainId, address } = useAccount();
+
   const { toast } = useToast();
+
+  const { txHashes, addGuardians, error, isLoading } = useAddGuardians(
+    guardians.map((guardian) => guardian.address) as Address[],
+    threshold
+  );
+
+  useEffect(() => {
+    if (txHashes.length > 0) {
+      if (chainId && address)
+        storeGuardians(
+          guardians.filter((guardian) => guardian.status === "added"),
+          chainId,
+          address
+        );
+      toast({
+        title: "Guardian added.",
+        description:
+          "Your new guardian will now be part of your account recovery setup.",
+      });
+      onChangeCurrentGuardians([...(currentGuardians ?? []), ...guardians]);
+      setIsOpen(false);
+    }
+  }, [
+    txHashes,
+    chainId,
+    address,
+    guardians,
+    onChangeCurrentGuardians,
+    currentGuardians,
+    toast,
+  ]);
 
   const handleOnOpenGuardianModal = () => {
     setIsOpen(true);
@@ -58,13 +96,7 @@ export default function GuardiansContent({
     if (currentStep < totalSteps) {
       setCurrentStep((prev) => prev + 1);
     } else {
-      toast({
-        title: "NewAddress added",
-        description:
-          "Your new guardian will now be part of your account recovery setup.",
-      });
-      onChangeCurrentGuardians([...currentGuardians, ...guardians]);
-      setIsOpen(false);
+      addGuardians();
     }
   };
 
@@ -127,6 +159,11 @@ export default function GuardiansContent({
                 />
               </div>
               <ReviewStepSection threshold={threshold} />
+              {error && (
+                <p className="text-alert font-roboto-mono font-medium text-sm mt-2">
+                  {error}
+                </p>
+              )}
             </>
           </div>
         );
@@ -143,8 +180,6 @@ export default function GuardiansContent({
         return "Define New Threshold";
       case 3:
         return "Review and Confirm Addition";
-      case 4:
-        return "Review Account Recovery Setup";
       default:
         return "";
     }
@@ -218,6 +253,10 @@ export default function GuardiansContent({
       >
         {getStepContent()}
       </Modal>
+      <LoadingModal
+        loading={isLoading}
+        loadingText={"Waiting for the transaction signature..."}
+      />
     </div>
   );
 }

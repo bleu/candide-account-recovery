@@ -249,7 +249,10 @@ export default function GuardiansContent({
             ? "Add Guardian"
             : "Next"
         }
-        isNextDisabled={currentStep === 1 && guardians.length === 0}
+        isNextDisabled={
+          (currentStep === 1 && guardians.length === 0) ||
+          (currentStep === 3 && isLoading)
+        }
       >
         {getStepContent()}
       </Modal>

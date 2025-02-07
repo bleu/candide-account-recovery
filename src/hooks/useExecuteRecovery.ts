@@ -64,10 +64,16 @@ export function useExecuteRecovery({
     }
   };
 
+  const reset = () => {
+    setTxHash(undefined);
+    mutation.reset();
+  };
+
   return {
     txHash,
     executeRecovery,
     error: mutation?.error && getReadableError(mutation.error),
     isLoading: mutation.isPending,
+    reset,
   };
 }

@@ -71,10 +71,16 @@ export function useConfirmRecovery({
     }
   };
 
+  const reset = () => {
+    setTxHash(undefined);
+    mutation.reset();
+  };
+
   return {
     txHash,
     confirmRecovery,
     error: mutation?.error && getReadableError(mutation.error),
     isLoading: mutation.isPending,
+    reset,
   };
 }

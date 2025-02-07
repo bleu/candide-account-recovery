@@ -97,6 +97,7 @@ export default function RecoveryContent({
     txHash: confirmTxHash,
     error: confirmError,
     isLoading: confirmIsLoading,
+    reset: resetConfirmRecovery,
   } = useConfirmRecovery({
     safeAddress,
     newOwners,
@@ -109,6 +110,7 @@ export default function RecoveryContent({
     txHash: executeTxHash,
     error: executeError,
     isLoading: executeIsLoading,
+    reset: resetExecuteRecovery,
   } = useExecuteRecovery({
     safeAddress,
     newOwners,
@@ -139,6 +141,7 @@ export default function RecoveryContent({
         description:
           "Waiting for other guardians to approve before starting the delay period.",
       });
+      resetConfirmRecovery();
       return;
     }
     if (confirmTxHash && !shouldExecute) {
@@ -146,6 +149,7 @@ export default function RecoveryContent({
         title: "Recovery approved.",
         description: "The threshold was achieved. Click to start delay period.",
       });
+      resetConfirmRecovery();
       return;
     }
     if (executeTxHash || (confirmTxHash && shouldExecute)) {
@@ -153,6 +157,7 @@ export default function RecoveryContent({
         title: "Recovery executed.",
         description: "Delay Period has started.",
       });
+      resetExecuteRecovery();
     }
   }, [
     confirmTxHash,
@@ -160,6 +165,8 @@ export default function RecoveryContent({
     shouldExecute,
     isLastGuardianToConfirm,
     toast,
+    resetConfirmRecovery,
+    resetExecuteRecovery,
   ]);
 
   useEffect(() => {

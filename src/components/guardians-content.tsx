@@ -18,6 +18,7 @@ import { useAccount } from "wagmi";
 import LoadingModal from "./loading-modal";
 import { useGuardians } from "@/hooks/useGuardians";
 import { useThreshold } from "@/hooks/useThreshold";
+import Link from "next/link";
 
 const buttonStyles = "rounded-xl font-roboto-mono h-7 font-bold text-xs";
 const totalSteps = 3;
@@ -214,7 +215,7 @@ export default function GuardiansContent({
             onOpenGuardianModal={handleOnOpenGuardianModal}
           />
         ) : (
-          <EmptyGuardians onOpenGuardianModal={handleOnOpenGuardianModal} />
+          <EmptyGuardians />
         )}
         {guardiansThreshold && currentGuardians ? (
           <ParametersSection
@@ -258,20 +259,16 @@ export default function GuardiansContent({
   );
 }
 
-function EmptyGuardians({
-  onOpenGuardianModal,
-}: {
-  onOpenGuardianModal: () => void;
-}) {
+function EmptyGuardians() {
   return (
     <div className="flex flex-1 flex-col items-center justify-center text-sm font-roboto-mono text-center text-content-foreground">
       <span className="opacity-60 font-bold">No Guardians added.</span>
       <p className="mt-1 mb-5 max-w-xs opacity-60">
         Start protecting your account by adding trusted guardians.
       </p>
-      <Button className={buttonStyles} onClick={onOpenGuardianModal}>
-        Add Guardian
-      </Button>
+      <Link href="/protect-account">
+        <Button className={buttonStyles}>Add Guardian</Button>
+      </Link>
     </div>
   );
 }

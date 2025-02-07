@@ -40,8 +40,6 @@ export default function Dashboard() {
   const { data: recoveryInfo } = useOngoingRecoveryInfo();
   const { address } = useAccount();
 
-  const hasActiveRecovery = true;
-
   const [threshold, setThreshold] = useState(1);
   const [delayPeriod, setDelayPeriod] = useState(3);
 
@@ -113,14 +111,12 @@ export default function Dashboard() {
               <TabsContent value="management">
                 <div className="grid grid-cols-3 gap-6">
                   <RecoverySidebar
-                    hasActiveRecovery={hasActiveRecovery}
                     recoveryLink={recoveryLink ?? ""}
                     safeAddress={safeAddress}
                     approvalsInfo={approvalsInfo}
                     recoveryInfo={recoveryInfo}
                   />
                   <RecoveryContent
-                    hasActiveRecovery={hasActiveRecovery}
                     safeSigners={safeSigners}
                     safeAddress={safeAddress}
                     newOwners={newOwners}
@@ -136,7 +132,6 @@ export default function Dashboard() {
               <TabsContent value="settings">
                 <div className="grid grid-cols-3 gap-6">
                   <RecoverySidebar
-                    hasActiveRecovery={hasActiveRecovery}
                     recoveryLink={recoveryLink ?? ""}
                     safeAddress={safeAddress}
                     approvalsInfo={approvalsInfo}

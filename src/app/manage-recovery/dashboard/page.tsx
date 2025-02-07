@@ -12,13 +12,13 @@ import {
 } from "@/components/ui/tabs";
 import { STYLES } from "@/constants/styles";
 import { useApprovalsInfo } from "@/hooks/useApprovalsInfo";
-import { useGuardians } from "@/hooks/useGuardians";
 import useHashParams from "@/hooks/useHashParams";
 import { useOngoingRecoveryInfo } from "@/hooks/useOngoingRecoveryInfo";
 import { useOwners } from "@/hooks/useOwners";
 import { cn } from "@/lib/utils";
 import { createFinalUrl } from "@/utils/recovery-link";
-import React, { useState } from "react";
+import { redirect } from "next/navigation";
+import React, { useEffect, useState } from "react";
 import { Address } from "viem";
 import { useAccount } from "wagmi";
 
@@ -36,9 +36,8 @@ export default function Dashboard() {
     newThreshold: newThresholdFromParams,
     recoveryLink: recoveryLinkFromParams,
   } = params;
-
-  const { data: recoveryInfo } = useOngoingRecoveryInfo();
-  const { address } = useAccount();
+  const { data: recoveryInfo } = useOngoingRecoveryInfo(safeAddressFromParams);
+  const { address, isConnecting } = useAccount();
 
   const [threshold, setThreshold] = useState(1);
   const [delayPeriod, setDelayPeriod] = useState(3);
@@ -65,9 +64,9 @@ export default function Dashboard() {
       ? Number(recoveryInfo.newThreshold)
       : undefined;
 
-  const safeAddress = safeAddressFromWallet ?? safeAddressFromParams ?? address;
-  const newOwners = newOwnersFromWallet ?? newOwnersFromParams;
-  const newThreshold = newThresholdFromWallet ?? newThresholdFromParams;
+  const safeAddress = safeAddressFromParams ?? safeAddressFromWallet ?? address;
+  const newOwners = newOwnersFromParams ?? newOwnersFromWallet;
+  const newThreshold = newThresholdFromParams ?? newThresholdFromWallet;
 
   const { data: safeSigners } = useOwners(safeAddress);
 
@@ -77,10 +76,13 @@ export default function Dashboard() {
     newThreshold,
   });
 
-  const { data: userGuardians } = useGuardians();
-
   const shouldRedirectToSettings =
-    isLinkRequired && userGuardians && userGuardians.length > 0;
+    recoveryInfo && isLinkRequired && !recoveryInfo?.executeAfter;
+
+  useEffect(() => {
+    if (!address && !isConnecting && shouldRedirectToSettings === undefined)
+      redirect("/manage-recovery");
+  }, [address, shouldRedirectToSettings, isConnecting]);
 
   return (
     <>

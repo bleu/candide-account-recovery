@@ -49,11 +49,16 @@ export default function RecoveryContent({
   const { address } = useAccount();
 
   const thresholdAchieved =
-    approvalsInfo &&
-    approvalsInfo.totalGuardianApprovals >= approvalsInfo.guardiansThreshold;
+    Boolean(recoveryInfo?.guardiansApprovalCount) ??
+    Boolean(
+      approvalsInfo?.totalGuardianApprovals &&
+        approvalsInfo.guardiansThreshold &&
+        approvalsInfo.totalGuardianApprovals >= approvalsInfo.guardiansThreshold
+    );
 
   const isUserPendingGuardian =
     address &&
+    !recoveryInfo?.newThreshold &&
     approvalsInfo &&
     approvalsInfo.pendingGuardians.includes(address);
 
@@ -64,13 +69,17 @@ export default function RecoveryContent({
 
   const { executeAfter } = recoveryInfo ?? {};
 
+  const delayPeriodStarted = executeAfter
+    ? executeAfter !== 0 && Date.now() / 1000 < executeAfter
+    : false;
+
   const delayPeriodEnded = executeAfter
-    ? executeAfter !== 0 && Date.now() >= executeAfter
+    ? executeAfter !== 0 && Date.now() / 1000 >= executeAfter
     : false;
 
   const { guardiansApprovals } = approvalsInfo ?? {};
   const guardians =
-    guardiansApprovals && delayPeriodEnded
+    guardiansApprovals && delayPeriodStarted
       ? guardiansApprovals.map((guardian) => ({
           ...guardian,
           status: "Approved",
@@ -130,7 +139,6 @@ export default function RecoveryContent({
         title: "Recovery finalized.",
         description: `Check new wallet on the transaction when it has finished: ${finalizeTxHash}`,
       });
-      return;
     }
   }, [finalizeTxHash, toast]);
 
@@ -234,7 +242,7 @@ export default function RecoveryContent({
             </h4>
             {guardians && <GuardianList guardians={guardians} />}
             <div className="flex justify-end mt-4 mb-2 gap-2">
-              {!delayPeriodEnded && (
+              {!delayPeriodStarted && (
                 <Button
                   className="text-xs font-bold px-3 py-2 rounded-xl"
                   disabled={!thresholdAchieved}
@@ -244,10 +252,11 @@ export default function RecoveryContent({
                 </Button>
               )}
 
-              {delayPeriodEnded && (
+              {delayPeriodStarted && (
                 <Button
                   className="text-xs font-bold px-3 py-2 rounded-xl"
                   onClick={finalizeRecovery}
+                  disabled={!delayPeriodEnded}
                 >
                   Finalize Recovery
                 </Button>
@@ -274,7 +283,7 @@ export default function RecoveryContent({
               onClose={() => setIsOpen(false)}
               onNext={handleApproveRecovery}
               onBack={() => setIsOpen(false)}
-              nextLabel="Sign and Approve"
+              nextLabel="Approve"
               backLabel="Cancel"
             >
               {safeAddress && (

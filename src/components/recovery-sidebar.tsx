@@ -35,20 +35,23 @@ export default function RecoverySidebar({
 
   const { toast } = useToast();
 
-  const { executeAfter } = recoveryInfo ?? {};
+  const { executeAfter, guardiansApprovalCount } = recoveryInfo ?? {};
 
   const { totalGuardianApprovals, guardiansThreshold } = approvalsInfo ?? {};
 
-  const thresholdAchieved = Boolean(
-    totalGuardianApprovals &&
-      guardiansThreshold &&
-      totalGuardianApprovals >= guardiansThreshold
-  );
+  const thresholdAchieved =
+    Boolean(guardiansApprovalCount) ??
+    Boolean(
+      totalGuardianApprovals &&
+        guardiansThreshold &&
+        totalGuardianApprovals >= guardiansThreshold
+    );
   const delayPeriodStarted = executeAfter
-    ? executeAfter !== 0 && Date.now() < executeAfter
+    ? executeAfter !== 0 && Date.now() / 1000 < executeAfter
     : false;
+
   const delayPeriodEnded = executeAfter
-    ? executeAfter !== 0 && Date.now() >= executeAfter
+    ? executeAfter !== 0 && Date.now() / 1000 >= executeAfter
     : false;
   const remainingTime = executeAfter ? formatRemainingTime(executeAfter) : "";
 
@@ -71,6 +74,7 @@ export default function RecoverySidebar({
         description:
           "All approvals have been revoked, and the process is now terminated.",
       });
+      setIsOpen(false);
     }
   }, [txHash, toast]);
 

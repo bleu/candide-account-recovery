@@ -41,7 +41,7 @@ export default function Home() {
             title="CANCEL RECOVERY"
             description="Cancel a request if there's no need to recover the account."
             onClick={() => console.log("Protect account")}
-            href=""
+            href="/manage-recovery"
           />
         </div>
       </div>

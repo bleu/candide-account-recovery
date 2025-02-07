@@ -28,10 +28,10 @@ async function buildAddGuardiansTxs(
     txs.push(enableModuleTx);
   }
 
-  for (const guardian of guardians) {
+  for (const [idx, guardian] of guardians.entries()) {
     const addGuardianTx = srm.createAddGuardianWithThresholdMetaTransaction(
       guardian,
-      BigInt(threshold)
+      BigInt(idx + 1 > threshold ? threshold : idx + 1)
     );
     txs.push(addGuardianTx);
   }

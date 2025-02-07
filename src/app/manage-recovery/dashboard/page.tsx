@@ -2,6 +2,7 @@
 
 import { NewAddress } from "@/components/guardian-list";
 import GuardiansContent from "@/components/guardians-content";
+import LoadingGeneric from "@/components/loading-generic";
 import RecoveryContent from "@/components/recovery-content";
 import RecoverySidebar from "@/components/recovery-sidebar";
 import {
@@ -12,6 +13,7 @@ import {
 } from "@/components/ui/tabs";
 import { STYLES } from "@/constants/styles";
 import { useApprovalsInfo } from "@/hooks/useApprovalsInfo";
+import { useGuardians } from "@/hooks/useGuardians";
 import useHashParams from "@/hooks/useHashParams";
 import { useOngoingRecoveryInfo } from "@/hooks/useOngoingRecoveryInfo";
 import { useOwners } from "@/hooks/useOwners";
@@ -71,7 +73,7 @@ export default function Dashboard() {
       ? Number(recoveryInfo.newThreshold)
       : undefined;
 
-  const safeAddress = safeAddressFromWallet ?? safeAddressFromParams;
+  const safeAddress = safeAddressFromWallet ?? safeAddressFromParams ?? address;
   const newOwners = newOwnersFromWallet ?? newOwnersFromParams;
   const newThreshold = newThresholdFromWallet ?? newThresholdFromParams;
 
@@ -83,69 +85,85 @@ export default function Dashboard() {
     newThreshold,
   });
 
+  const { data: userGuardians } = useGuardians();
+
+  const shouldRedirectToSettings =
+    isLinkRequired && userGuardians && userGuardians.length > 0;
+
   return (
-    <div className="flex flex-col flex-1 mx-8">
-      <div className="max-w-6xl mx-auto">
-        <TabsRoot defaultValue="management" className="flex flex-col w-full">
-          <TabsList className="bg-content-background p-1 shadow-md rounded-xl mt-12 mb-3 self-end">
-            <TabsTrigger
-              value="management"
-              className={cn(STYLES.baseTab, tabState)}
+    <>
+      {shouldRedirectToSettings !== undefined ? (
+        <div className="flex flex-col flex-1 mx-8">
+          <div className="max-w-6xl mx-auto">
+            <TabsRoot
+              defaultValue={
+                shouldRedirectToSettings ? "settings" : "management"
+              }
+              className="flex flex-col w-full"
             >
-              Recovery Process
-            </TabsTrigger>
-            <TabsTrigger
-              value="settings"
-              className={cn(STYLES.baseTab, tabState)}
-            >
-              Recovery Settings
-            </TabsTrigger>
-          </TabsList>
+              <TabsList className="bg-content-background p-1 shadow-md rounded-xl mt-12 mb-3 self-end">
+                <TabsTrigger
+                  value="management"
+                  className={cn(STYLES.baseTab, tabState)}
+                >
+                  Recovery Process
+                </TabsTrigger>
+                <TabsTrigger
+                  value="settings"
+                  className={cn(STYLES.baseTab, tabState)}
+                >
+                  Recovery Settings
+                </TabsTrigger>
+              </TabsList>
 
-          <TabsContent value="management">
-            <div className="grid grid-cols-3 gap-6">
-              <RecoverySidebar
-                hasActiveRecovery={hasActiveRecovery}
-                recoveryLink={recoveryLink ?? ""}
-                safeAddress={safeAddress}
-                approvalsInfo={approvalsInfo}
-                recoveryInfo={recoveryInfo}
-              />
-              <RecoveryContent
-                hasActiveRecovery={hasActiveRecovery}
-                safeSigners={safeSigners}
-                safeAddress={safeAddress}
-                newOwners={newOwners}
-                newThreshold={newThreshold}
-                delayPeriod={delayPeriod}
-                isLinkRequired={isLinkRequired}
-                approvalsInfo={approvalsInfo}
-                recoveryInfo={recoveryInfo}
-              />
-            </div>
-          </TabsContent>
+              <TabsContent value="management">
+                <div className="grid grid-cols-3 gap-6">
+                  <RecoverySidebar
+                    hasActiveRecovery={hasActiveRecovery}
+                    recoveryLink={recoveryLink ?? ""}
+                    safeAddress={safeAddress}
+                    approvalsInfo={approvalsInfo}
+                    recoveryInfo={recoveryInfo}
+                  />
+                  <RecoveryContent
+                    hasActiveRecovery={hasActiveRecovery}
+                    safeSigners={safeSigners}
+                    safeAddress={safeAddress}
+                    newOwners={newOwners}
+                    newThreshold={newThreshold}
+                    delayPeriod={delayPeriod}
+                    isLinkRequired={isLinkRequired}
+                    approvalsInfo={approvalsInfo}
+                    recoveryInfo={recoveryInfo}
+                  />
+                </div>
+              </TabsContent>
 
-          <TabsContent value="settings">
-            <div className="grid grid-cols-3 gap-6">
-              <RecoverySidebar
-                hasActiveRecovery={hasActiveRecovery}
-                recoveryLink={recoveryLink ?? ""}
-                safeAddress={safeAddress}
-                approvalsInfo={approvalsInfo}
-                recoveryInfo={recoveryInfo}
-              />
-              <GuardiansContent
-                threshold={threshold}
-                delayPeriod={delayPeriod}
-                onThresholdChange={setThreshold}
-                onDelayPeriodChange={setDelayPeriod}
-                onChangeCurrentGuardians={handleChangeGuardians}
-                approvalsInfo={approvalsInfo}
-              />
-            </div>
-          </TabsContent>
-        </TabsRoot>
-      </div>
-    </div>
+              <TabsContent value="settings">
+                <div className="grid grid-cols-3 gap-6">
+                  <RecoverySidebar
+                    hasActiveRecovery={hasActiveRecovery}
+                    recoveryLink={recoveryLink ?? ""}
+                    safeAddress={safeAddress}
+                    approvalsInfo={approvalsInfo}
+                    recoveryInfo={recoveryInfo}
+                  />
+                  <GuardiansContent
+                    threshold={threshold}
+                    delayPeriod={delayPeriod}
+                    onThresholdChange={setThreshold}
+                    onDelayPeriodChange={setDelayPeriod}
+                    onChangeCurrentGuardians={handleChangeGuardians}
+                    // approvalsInfo={approvalsInfo}
+                  />
+                </div>
+              </TabsContent>
+            </TabsRoot>
+          </div>
+        </div>
+      ) : (
+        <LoadingGeneric />
+      )}
+    </>
   );
 }

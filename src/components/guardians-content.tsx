@@ -7,12 +7,17 @@ import ThresholdStep from "./protect-account-steps/threshold";
 import ReviewStepSection from "./protect-account-steps/review";
 import { useToast } from "@/hooks/use-toast";
 import ParametersSection from "./parameters-section";
-import { ApprovalsInfo } from "@/hooks/useApprovalsInfo";
 import { useAddGuardians } from "@/hooks/useAddGuardians";
 import { Address } from "viem";
-import { storeGuardians } from "@/utils/storage";
+import {
+  getGuardianNickname,
+  getStoredGuardians,
+  storeGuardians,
+} from "@/utils/storage";
 import { useAccount } from "wagmi";
 import LoadingModal from "./loading-modal";
+import { useGuardians } from "@/hooks/useGuardians";
+import { useThreshold } from "@/hooks/useThreshold";
 
 const buttonStyles = "rounded-xl font-roboto-mono h-7 font-bold text-xs";
 const totalSteps = 3;
@@ -23,7 +28,6 @@ interface GuardiansContentProps {
   onThresholdChange: (threshold: number) => void;
   onDelayPeriodChange: (delayPeriod: number) => void;
   onChangeCurrentGuardians: (guardians: NewAddress[]) => void;
-  approvalsInfo: ApprovalsInfo | undefined;
 }
 
 export default function GuardiansContent({
@@ -32,15 +36,30 @@ export default function GuardiansContent({
   onThresholdChange,
   onDelayPeriodChange,
   onChangeCurrentGuardians,
-  approvalsInfo,
 }: GuardiansContentProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [guardians, setGuardians] = useState<NewAddress[]>([]);
   const [currentStep, setCurrentStep] = useState(1);
 
-  const currentGuardians = approvalsInfo && approvalsInfo.guardiansApprovals;
+  const { data: guardiansWithoutNicknames } = useGuardians();
 
-  const { chainId, address } = useAccount();
+  const { address, chainId } = useAccount();
+
+  const storedGuardians =
+    chainId && address
+      ? getStoredGuardians(chainId, address.toLowerCase() as Address)
+      : undefined;
+
+  const currentGuardians =
+    guardiansWithoutNicknames &&
+    guardiansWithoutNicknames.map((guardian, idx) => ({
+      nickname:
+        getGuardianNickname(guardian as Address, storedGuardians) ??
+        `Guardian ${idx + 1}`,
+      address: guardian,
+    }));
+
+  const { data: guardiansThreshold } = useThreshold();
 
   const { toast } = useToast();
 
@@ -222,11 +241,11 @@ export default function GuardiansContent({
         ) : (
           <EmptyGuardians onOpenGuardianModal={handleOnOpenGuardianModal} />
         )}
-        {approvalsInfo && (
+        {guardiansThreshold && currentGuardians && (
           <ParametersSection
-            guardians={approvalsInfo.guardiansApprovals}
+            guardians={currentGuardians}
             delayPeriod={delayPeriod}
-            threshold={approvalsInfo.guardiansThreshold}
+            threshold={guardiansThreshold}
             onDelayPeriodChange={onDelayPeriodChange}
             onThresholdChange={onThresholdChange}
           />

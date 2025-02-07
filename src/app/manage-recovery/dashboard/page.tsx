@@ -1,6 +1,5 @@
 "use client";
 
-import { NewAddress } from "@/components/guardian-list";
 import GuardiansContent from "@/components/guardians-content";
 import LoadingGeneric from "@/components/loading-generic";
 import RecoveryContent from "@/components/recovery-content";
@@ -43,13 +42,8 @@ export default function Dashboard() {
 
   const hasActiveRecovery = true;
 
-  const [currentGuardians, setCurrentGuardians] = useState<NewAddress[]>([]);
   const [threshold, setThreshold] = useState(1);
   const [delayPeriod, setDelayPeriod] = useState(3);
-
-  const handleChangeGuardians = (guardians: NewAddress[]) => {
-    setCurrentGuardians(guardians);
-  };
 
   const recoveryLinkFromWallet =
     address && recoveryInfo && recoveryInfo.newThreshold.toString() !== "0"
@@ -153,7 +147,6 @@ export default function Dashboard() {
                     delayPeriod={delayPeriod}
                     onThresholdChange={setThreshold}
                     onDelayPeriodChange={setDelayPeriod}
-                    onChangeCurrentGuardians={handleChangeGuardians}
                   />
                 </div>
               </TabsContent>

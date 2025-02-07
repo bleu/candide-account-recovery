@@ -27,7 +27,6 @@ interface GuardiansContentProps {
   delayPeriod: number;
   onThresholdChange: (threshold: number) => void;
   onDelayPeriodChange: (delayPeriod: number) => void;
-  onChangeCurrentGuardians: (guardians: NewAddress[]) => void;
 }
 
 export default function GuardiansContent({
@@ -35,7 +34,6 @@ export default function GuardiansContent({
   delayPeriod,
   onThresholdChange,
   onDelayPeriodChange,
-  onChangeCurrentGuardians,
 }: GuardiansContentProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [guardians, setGuardians] = useState<NewAddress[]>([]);
@@ -76,18 +74,9 @@ export default function GuardiansContent({
         description:
           "Your new guardian will now be part of your account recovery setup.",
       });
-      onChangeCurrentGuardians([...(currentGuardians ?? []), ...guardians]);
       setIsOpen(false);
     }
-  }, [
-    txHashes,
-    chainId,
-    address,
-    guardians,
-    onChangeCurrentGuardians,
-    currentGuardians,
-    toast,
-  ]);
+  }, [txHashes, chainId, address, guardians, toast]);
 
   const handleOnOpenGuardianModal = () => {
     setIsOpen(true);
@@ -122,14 +111,6 @@ export default function GuardiansContent({
 
   const handleThresholdChange = (value: number) => {
     onThresholdChange(value);
-  };
-
-  const handleRemoveCurrentGuardian = (guardian: NewAddress): void => {
-    if (!currentGuardians) return;
-    const updatedGuardians = currentGuardians.filter(
-      (g) => g.address !== guardian.address || g.nickname !== guardian.nickname
-    );
-    onChangeCurrentGuardians(updatedGuardians);
   };
 
   const getStepContent = () => {
@@ -230,7 +211,6 @@ export default function GuardiansContent({
           <GuardianList
             guardians={currentGuardians}
             isNewGuardianList
-            onRemoveGuardian={handleRemoveCurrentGuardian}
             onOpenGuardianModal={handleOnOpenGuardianModal}
           />
         ) : (

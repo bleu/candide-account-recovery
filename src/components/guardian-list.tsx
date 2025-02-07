@@ -13,6 +13,7 @@ import { Address } from "viem";
 import { storeGuardians } from "@/utils/storage";
 import { useAccount } from "wagmi";
 import { useToast } from "@/hooks/use-toast";
+import LoadingModal from "./loading-modal";
 
 export interface NewAddress {
   nickname: string;
@@ -224,6 +225,7 @@ export function GuardianList({
         isProgress
         onNext={handleNext}
         onBack={handleBack}
+        isNextDisabled={isLoading}
         nextLabel={
           currentStep === 2
             ? "Finish and review"
@@ -245,6 +247,7 @@ export function GuardianList({
         onBack={handleConfirmRemove}
         nextLabel="Add Guardians"
         backLabel="Confirm Removal"
+        isNextDisabled={isLoading}
       >
         <div className="space-y-5">
           <p className="text-base font-bold font-roboto-mono">
@@ -258,12 +261,6 @@ export function GuardianList({
               handleExternalLink(guardianToRemove.address)
             }
           />
-          {isLoading && (
-            <p className="font-roboto-mono font-medium text-sm mt-2">
-              Please, handle the signature process on your smart wallet
-              manager...
-            </p>
-          )}
           {error && (
             <p className="text-alert font-roboto-mono font-medium text-sm mt-2">
               {error}
@@ -271,6 +268,10 @@ export function GuardianList({
           )}
         </div>
       </Modal>
+      <LoadingModal
+        loading={isLoading}
+        loadingText={"Waiting for the transaction signature..."}
+      />
     </>
   );
 }

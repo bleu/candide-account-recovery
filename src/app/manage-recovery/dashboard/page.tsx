@@ -154,7 +154,6 @@ export default function Dashboard() {
                     onThresholdChange={setThreshold}
                     onDelayPeriodChange={setDelayPeriod}
                     onChangeCurrentGuardians={handleChangeGuardians}
-                    // approvalsInfo={approvalsInfo}
                   />
                 </div>
               </TabsContent>

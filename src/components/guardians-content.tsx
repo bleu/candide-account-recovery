@@ -236,7 +236,7 @@ export default function GuardiansContent({
         ) : (
           <EmptyGuardians onOpenGuardianModal={handleOnOpenGuardianModal} />
         )}
-        {guardiansThreshold && undefined && currentGuardians ? (
+        {guardiansThreshold && currentGuardians ? (
           <ParametersSection
             guardians={currentGuardians}
             delayPeriod={delayPeriod}

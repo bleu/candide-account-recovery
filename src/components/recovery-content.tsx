@@ -20,7 +20,6 @@ import { RecoveryInfo } from "@/hooks/useOngoingRecoveryInfo";
 import { useFinalizeRecovery } from "@/hooks/useFinalizeRecovery";
 
 interface RecoveryContentProps {
-  hasActiveRecovery: boolean;
   safeSigners: string[] | undefined;
   safeAddress: Address | undefined;
   newOwners: Address[] | undefined;
@@ -32,7 +31,6 @@ interface RecoveryContentProps {
 }
 
 export default function RecoveryContent({
-  hasActiveRecovery,
   safeSigners,
   safeAddress,
   newOwners,
@@ -69,6 +67,10 @@ export default function RecoveryContent({
 
   const delayPeriodEnded = executeAfter
     ? executeAfter !== 0 && Date.now() >= executeAfter
+    : false;
+
+  const delayPeriodStarted = executeAfter
+    ? executeAfter !== 0 && Date.now() < executeAfter
     : false;
 
   const { guardiansApprovals } = approvalsInfo ?? {};
@@ -204,7 +206,7 @@ export default function RecoveryContent({
                 </span>
               </div>
             </div>
-            {hasActiveRecovery ? (
+            {delayPeriodStarted ? (
               <>
                 <div className="flex-col gap-1 inline-flex">
                   <p className={STYLES.label}>SAFE SIGNERS</p>

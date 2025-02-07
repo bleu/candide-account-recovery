@@ -17,7 +17,6 @@ import { useAccount } from "wagmi";
 import { useCancelRecovery } from "@/hooks/useCancelRecovery";
 
 interface RecoverySideBarProps {
-  hasActiveRecovery: boolean;
   recoveryLink: string;
   safeAddress: Address | undefined;
   approvalsInfo: ApprovalsInfo | undefined;
@@ -25,7 +24,6 @@ interface RecoverySideBarProps {
 }
 
 export default function RecoverySidebar({
-  hasActiveRecovery,
   recoveryLink,
   safeAddress,
   approvalsInfo,
@@ -78,14 +76,12 @@ export default function RecoverySidebar({
 
   return (
     <div className="col-span-1">
-      {hasActiveRecovery && (
-        <RecoveryStatus
-          delayPeriodEnded={delayPeriodEnded}
-          thresholdAchieved={thresholdAchieved}
-          delayPeriodStarted={delayPeriodStarted}
-          remainingTime={remainingTime}
-        />
-      )}
+      <RecoveryStatus
+        delayPeriodEnded={delayPeriodEnded}
+        thresholdAchieved={thresholdAchieved}
+        delayPeriodStarted={delayPeriodStarted}
+        remainingTime={remainingTime}
+      />
       <h3 className="mb-2 font-bold text-sm font-roboto-mono">SAFE ACCOUNT</h3>
       <div
         style={STYLES.textWithBorderOpacity}
@@ -96,7 +92,7 @@ export default function RecoverySidebar({
         </p>
         <PressableIcon icon={ExternalLink} onClick={() => {}} size={18} />
       </div>
-      {hasActiveRecovery && (
+      {delayPeriodStarted && (
         <>
           <RecoveryLinkSection link={recoveryLink} />
           <h4 className="text-xs font-medium font-roboto-mono">

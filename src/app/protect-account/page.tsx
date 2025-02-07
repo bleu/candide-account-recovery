@@ -47,12 +47,9 @@ export default function ProtectAccount() {
 
   useEffect(() => {
     if (txHashes.length > 0) {
-      if (chainId && address)
-        storeGuardians(
-          guardians.filter((guardian) => guardian.status === "added"),
-          chainId,
-          address
-        );
+      if (chainId && address) {
+        storeGuardians(guardians, chainId, address);
+      }
       toast({
         title: "Guardian added.",
         description:

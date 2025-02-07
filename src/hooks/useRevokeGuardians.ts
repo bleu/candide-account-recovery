@@ -81,10 +81,16 @@ export function useRevokeGuardians(
     }
   };
 
+  const reset = () => {
+    setTxHashes([]);
+    mutation.reset();
+  };
+
   return {
     txHashes,
     revokeGuardians,
     error: mutation?.error && getReadableError(mutation.error),
     isLoading: mutation.isPending,
+    reset,
   };
 }

@@ -41,9 +41,15 @@ export function GuardianList({
   const [currentStep, setCurrentStep] = useState(1);
   const [threshold, setThreshold] = useState(1);
 
-  const { txHashes, revokeGuardians, error, isLoading } = useRevokeGuardians(
+  const {
+    txHashes,
+    revokeGuardians,
+    error,
+    isLoading,
+    reset: resetRevoke,
+  } = useRevokeGuardians(
     [guardianToRemove?.address as Address],
-    threshold
+    isLastGuardianModalOpen ? 0 : threshold
   );
 
   const handleNext = () => {
@@ -89,12 +95,7 @@ export function GuardianList({
 
   useEffect(() => {
     if (txHashes.length > 0) {
-      if (chainId && address)
-        storeGuardians(
-          guardians.filter((guardian) => guardian.status === "added"),
-          chainId,
-          address
-        );
+      if (chainId && address) storeGuardians(guardians, chainId, address);
       toast({
         title: "Guardian removed.",
         description:
@@ -104,8 +105,9 @@ export function GuardianList({
       setIsLastGuardianModalOpen(false);
       setGuardianToRemove({ nickname: "", address: "" });
       setCurrentStep(1);
+      resetRevoke();
     }
-  }, [txHashes, chainId, address, guardians, toast]);
+  }, [txHashes, chainId, address, guardians, toast, resetRevoke]);
 
   const getStepContent = () => {
     switch (currentStep) {
@@ -126,7 +128,7 @@ export function GuardianList({
       case 2:
         return (
           <ThresholdStep
-            totalGuardians={guardians.length}
+            totalGuardians={guardians.length - 1}
             currentThreshold={threshold}
             onThresholdChange={handleThresholdChange}
             isNewThreshold

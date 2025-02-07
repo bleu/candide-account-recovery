@@ -70,12 +70,7 @@ export default function GuardiansContent({
 
   useEffect(() => {
     if (txHashes.length > 0) {
-      if (chainId && address)
-        storeGuardians(
-          guardians.filter((guardian) => guardian.status === "added"),
-          chainId,
-          address
-        );
+      if (chainId && address) storeGuardians(guardians, chainId, address);
       toast({
         title: "Guardian added.",
         description:
@@ -241,7 +236,7 @@ export default function GuardiansContent({
         ) : (
           <EmptyGuardians onOpenGuardianModal={handleOnOpenGuardianModal} />
         )}
-        {guardiansThreshold && currentGuardians && (
+        {guardiansThreshold && undefined && currentGuardians ? (
           <ParametersSection
             guardians={currentGuardians}
             delayPeriod={delayPeriod}
@@ -249,7 +244,7 @@ export default function GuardiansContent({
             onDelayPeriodChange={onDelayPeriodChange}
             onThresholdChange={onThresholdChange}
           />
-        )}
+        ) : undefined}
       </div>
       <Modal
         isOpen={isOpen}

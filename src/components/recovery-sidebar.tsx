@@ -92,24 +92,27 @@ export default function RecoverySidebar({
         </p>
         <PressableIcon icon={ExternalLink} onClick={() => {}} size={18} />
       </div>
-      {delayPeriodStarted && (
-        <>
-          <RecoveryLinkSection link={recoveryLink} />
-          <h4 className="text-xs font-medium font-roboto-mono">
-            Cancel Request
-          </h4>
-          <p className="text-xs font-medium opacity-60 my-2">
-            Account owners can cancel this request at any time.
-          </p>
-          <Button
-            className="font-bold text-xs rounded-xl"
-            onClick={() => setIsOpen(true)}
-            disabled={address !== safeAddress}
-          >
-            Cancel
-          </Button>
-        </>
-      )}
+
+      <>
+        <RecoveryLinkSection link={recoveryLink} />
+        {delayPeriodStarted && (
+          <>
+            <h4 className="text-xs font-medium font-roboto-mono">
+              Cancel Request
+            </h4>
+            <p className="text-xs font-medium opacity-60 my-2">
+              Account owners can cancel this request at any time.
+            </p>
+            <Button
+              className="font-bold text-xs rounded-xl"
+              onClick={() => setIsOpen(true)}
+              disabled={address !== safeAddress}
+            >
+              Cancel
+            </Button>
+          </>
+        )}
+      </>
       <Modal
         isOpen={isOpen}
         onClose={() => setIsOpen(false)}

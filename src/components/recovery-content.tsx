@@ -4,7 +4,6 @@ import { GuardianList } from "./guardian-list";
 import PressableIcon from "./pressable-icon";
 import { ExternalLink } from "lucide-react";
 import { cn } from "@/lib/utils";
-import EmptyActiveRecovery from "./empty-active-recovery";
 import { Button } from "./ui/button";
 import { Modal } from "./modal";
 import LoadingModal from "./loading-modal";
@@ -67,10 +66,6 @@ export default function RecoveryContent({
 
   const delayPeriodEnded = executeAfter
     ? executeAfter !== 0 && Date.now() >= executeAfter
-    : false;
-
-  const delayPeriodStarted = executeAfter
-    ? executeAfter !== 0 && Date.now() < executeAfter
     : false;
 
   const { guardiansApprovals } = approvalsInfo ?? {};
@@ -206,98 +201,92 @@ export default function RecoveryContent({
                 </span>
               </div>
             </div>
-            {delayPeriodStarted ? (
-              <>
-                <div className="flex-col gap-1 inline-flex">
-                  <p className={STYLES.label}>SAFE SIGNERS</p>
-                  {safeSigners &&
-                    safeSigners.map((address) => (
-                      <div
-                        key={address}
-                        className={cn(
-                          STYLES.textWithBorder,
-                          "inline-flex items-center gap-2"
-                        )}
-                        style={STYLES.textWithBorderOpacity}
-                      >
-                        <span>{address}</span>
-                        <PressableIcon
-                          icon={ExternalLink}
-                          onClick={() => {}}
-                          size={12}
-                        />
-                      </div>
-                    ))}
-                </div>
-                <h4 className="my-6 text-primary font-roboto-mono text-sm">
-                  GUARDIANS APPROVAL
-                </h4>
-                {guardians && <GuardianList guardians={guardians} />}
-                <div className="flex justify-end mt-4 mb-2 gap-2">
-                  {!delayPeriodEnded && (
-                    <Button
-                      className="text-xs font-bold px-3 py-2 rounded-xl"
-                      disabled={!thresholdAchieved}
-                      onClick={executeRecovery}
-                    >
-                      Start Delay Period
-                    </Button>
-                  )}
-
-                  {delayPeriodEnded && (
-                    <Button
-                      className="text-xs font-bold px-3 py-2 rounded-xl"
-                      onClick={finalizeRecovery}
-                    >
-                      Finalize Recovery
-                    </Button>
-                  )}
-                  <Button
-                    className="text-xs font-bold px-3 py-2 rounded-xl"
-                    onClick={() => setIsOpen(true)}
-                    disabled={!isUserPendingGuardian}
+            <div className="flex-col gap-1 inline-flex">
+              <p className={STYLES.label}>SAFE SIGNERS</p>
+              {safeSigners &&
+                safeSigners.map((address) => (
+                  <div
+                    key={address}
+                    className={cn(
+                      STYLES.textWithBorder,
+                      "inline-flex items-center gap-2"
+                    )}
+                    style={STYLES.textWithBorderOpacity}
                   >
-                    Approve Recovery
-                  </Button>
-                </div>
-                <span className="text-xs flex justify-end text-[10px] opacity-60">
-                  {delayPeriodEnded
-                    ? "Anyone can finalize the reocvery request."
-                    : "Only pending Guardians can approve this recovery request."}
-                </span>
-                <Modal
-                  title="Approve Recovery Request"
-                  description="A recovery request has been started and your approval is required to proceed with the recovery. Review the details below and confirm if you approve."
-                  currentStep={2}
-                  isOpen={isOpen}
-                  totalSteps={1}
-                  onClose={() => setIsOpen(false)}
-                  onNext={handleApproveRecovery}
-                  onBack={() => setIsOpen(false)}
-                  nextLabel="Sign and Approve"
-                  backLabel="Cancel"
-                >
-                  {safeAddress && (
-                    <ApproveRecoveryModalContent
-                      handleCheckToggle={handleCheckToggle}
-                      delayPeriod={3}
-                      isChecked={shouldExecute}
-                      safeAccount={safeAddress}
-                      safeSigners={safeSigners}
-                      isLastGuardianToConfirm={Boolean(isLastGuardianToConfirm)}
+                    <span>{address}</span>
+                    <PressableIcon
+                      icon={ExternalLink}
+                      onClick={() => {}}
+                      size={12}
                     />
-                  )}
-                </Modal>
-                <LoadingModal
-                  loading={
-                    confirmIsLoading || executeIsLoading || finalizeIsLoading
-                  }
-                  loadingText={"Waiting for the transaction signature..."}
+                  </div>
+                ))}
+            </div>
+            <h4 className="my-6 text-primary font-roboto-mono text-sm">
+              GUARDIANS APPROVAL
+            </h4>
+            {guardians && <GuardianList guardians={guardians} />}
+            <div className="flex justify-end mt-4 mb-2 gap-2">
+              {!delayPeriodEnded && (
+                <Button
+                  className="text-xs font-bold px-3 py-2 rounded-xl"
+                  disabled={!thresholdAchieved}
+                  onClick={executeRecovery}
+                >
+                  Start Delay Period
+                </Button>
+              )}
+
+              {delayPeriodEnded && (
+                <Button
+                  className="text-xs font-bold px-3 py-2 rounded-xl"
+                  onClick={finalizeRecovery}
+                >
+                  Finalize Recovery
+                </Button>
+              )}
+              <Button
+                className="text-xs font-bold px-3 py-2 rounded-xl"
+                onClick={() => setIsOpen(true)}
+                disabled={!isUserPendingGuardian}
+              >
+                Approve Recovery
+              </Button>
+            </div>
+            <span className="text-xs flex justify-end text-[10px] opacity-60">
+              {delayPeriodEnded
+                ? "Anyone can finalize the reocvery request."
+                : "Only pending Guardians can approve this recovery request."}
+            </span>
+            <Modal
+              title="Approve Recovery Request"
+              description="A recovery request has been started and your approval is required to proceed with the recovery. Review the details below and confirm if you approve."
+              currentStep={2}
+              isOpen={isOpen}
+              totalSteps={1}
+              onClose={() => setIsOpen(false)}
+              onNext={handleApproveRecovery}
+              onBack={() => setIsOpen(false)}
+              nextLabel="Sign and Approve"
+              backLabel="Cancel"
+            >
+              {safeAddress && (
+                <ApproveRecoveryModalContent
+                  handleCheckToggle={handleCheckToggle}
+                  delayPeriod={3}
+                  isChecked={shouldExecute}
+                  safeAccount={safeAddress}
+                  safeSigners={safeSigners}
+                  isLastGuardianToConfirm={Boolean(isLastGuardianToConfirm)}
                 />
-              </>
-            ) : (
-              <EmptyActiveRecovery />
-            )}
+              )}
+            </Modal>
+            <LoadingModal
+              loading={
+                confirmIsLoading || executeIsLoading || finalizeIsLoading
+              }
+              loadingText={"Waiting for the transaction signature..."}
+            />
           </>
         ) : (
           <RecoveryLinkInput

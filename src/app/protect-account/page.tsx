@@ -1,5 +1,6 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
+import { useRouter } from "next/navigation";
 
 import { Modal } from "@/components/modal";
 import GuardiansStep from "@/components/protect-account-steps/guardians";
@@ -11,13 +12,14 @@ import { useAccount } from "wagmi";
 import { useAddGuardians } from "@/hooks/useAddGuardians";
 import { Address } from "viem";
 import { storeGuardians } from "@/utils/storage";
-import { redirect } from "next/navigation";
 import { useToast } from "@/hooks/use-toast";
 import { NewAddress } from "@/components/guardian-list";
 import LoadingModal from "@/components/loading-modal";
 import { getTransactionLoadingText } from "@/utils/transaction";
 
 const totalSteps = 4;
+
+const isBrowser = typeof window !== "undefined";
 
 export default function ProtectAccount() {
   const [currentStep, setCurrentStep] = useState(1);
@@ -46,6 +48,7 @@ export default function ProtectAccount() {
   );
 
   const { toast } = useToast();
+  const router = useRouter();
 
   useEffect(() => {
     if (txHashes.length > 0) {
@@ -63,7 +66,7 @@ export default function ProtectAccount() {
             "Your new guardian will now be part of your account recovery setup.",
         });
         setIsOpen(false);
-        redirect("/manage-recovery/dashboard");
+        router.push("/manage-recovery/dashboard");
       } else if (state === "reverted") {
         toast({
           title: "Adding guardian failed.",
@@ -77,7 +80,7 @@ export default function ProtectAccount() {
         });
       }
     }
-  }, [txHashes, state, chainId, address, guardians, toast]);
+  }, [txHashes, state, chainId, address, guardians, toast, router]);
 
   const handleAddGuardian = (newGuardian: NewAddress): void => {
     setGuardians((prev) => [...prev, newGuardian]);
@@ -87,9 +90,11 @@ export default function ProtectAccount() {
     setGuardians((prev) => prev.filter((_, i) => i !== index));
   };
 
-  const handleExternalLink = (address: string): void => {
-    window.open(`https://etherscan.io/address/${address}`);
-  };
+  const handleExternalLink = useCallback((address: string): void => {
+    if (isBrowser) {
+      window.open(`https://etherscan.io/address/${address}`);
+    }
+  }, []);
 
   const handleNext = () => {
     if (currentStep < totalSteps) {

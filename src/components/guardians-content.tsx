@@ -1,3 +1,5 @@
+"use client";
+
 import { useEffect, useState } from "react";
 import { NewAddress, GuardianList } from "./guardian-list";
 import { Modal } from "./modal";

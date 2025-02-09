@@ -1,46 +1,40 @@
 "use client";
 
 import { useCallback } from "react";
-import { isAddress } from "viem";
 import { useGuardians } from "./useGuardians";
 import { useOwners } from "./useOwners";
+import { validateNewGuardian } from "@/services/validation";
+import { Result } from "@/utils/result";
 
-export function useValidateNewGuardian() {
-  const { data: guardians } = useGuardians();
+/**
+ * Hook that provides guardian validation with current state from the blockchain
+ * Returns a validation function in the format expected by NewAddressList
+ *
+ * @returns A validation function that checks if an address can be added as a guardian
+ * @example
+ * ```tsx
+ * const validateAddress = useValidateNewGuardian(currentGuardians);
+ * const result = validateAddress("0x...");
+ * if (!result.success) {
+ *   console.error(result.error);
+ * }
+ * ```
+ */
+export function useValidateNewGuardian(guardians: string[]) {
+  const { data: existingGuardians } = useGuardians();
   const { data: owners } = useOwners();
 
-  const validateNewGuardian = useCallback(
-    (newGuardian: string, currentGuardians: string[]) => {
-      // 1. Must be a valid address
-      if (!isAddress(newGuardian))
-        return { isValid: false, reason: "Invalid address." };
-
-      // 2. Can't be already included
-      if (currentGuardians.includes(newGuardian))
+  return useCallback(
+    (address: string): Result<true> => {
+      if (!owners || !existingGuardians) {
         return {
-          isValid: false,
-          reason: "Repeated guardians are not allowed.",
+          success: false,
+          error: "Cannot validate guardian: missing blockchain state",
         };
+      }
 
-      // 3. Can't be an owner
-      if (owners === undefined)
-        throw new Error("[validateNewGuardian] missing owners");
-      if (owners.includes(newGuardian))
-        return { isValid: false, reason: "Owners can't be guardians." };
-
-      // 4. Can't be a guardian
-      if (guardians === undefined)
-        throw new Error("[validateNewGuardian] missing guardians");
-      if (guardians.includes(newGuardian))
-        return {
-          isValid: false,
-          reason: "This address is already a guardian.",
-        };
-
-      return { isValid: true, reason: "" };
+      return validateNewGuardian(address, guardians, owners, existingGuardians);
     },
-    [owners, guardians]
+    [owners, existingGuardians, guardians]
   );
-
-  return validateNewGuardian;
 }

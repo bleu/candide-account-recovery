@@ -19,6 +19,7 @@ import LoadingModal from "./loading-modal";
 import { useGuardians } from "@/hooks/useGuardians";
 import { useThreshold } from "@/hooks/useThreshold";
 import Link from "next/link";
+import { getTransactionLoadingText } from "@/utils/transaction";
 
 const buttonStyles = "rounded-xl font-roboto-mono h-7 font-bold text-xs";
 const totalSteps = 3;
@@ -62,22 +63,48 @@ export default function GuardiansContent({
 
   const { toast } = useToast();
 
-  const { txHashes, addGuardians, error, isLoading } = useAddGuardians(
-    guardians.map((guardian) => guardian.address) as Address[],
+  const {
+    txHashes,
+    addGuardians: addGuardiansToSafe,
+    error,
+    isLoading,
+    state,
+  } = useAddGuardians(
+    guardians
+      .filter((guardian) => guardian.status === "added")
+      .map((guardian) => guardian.address as Address),
     threshold
   );
 
   useEffect(() => {
     if (txHashes.length > 0) {
-      if (chainId && address) storeGuardians(guardians, chainId, address);
-      toast({
-        title: "Guardian added.",
-        description:
-          "Your new guardian will now be part of your account recovery setup.",
-      });
-      setIsOpen(false);
+      if (state === "success") {
+        if (chainId && address)
+          storeGuardians(
+            guardians.filter((guardian) => guardian.status === "added"),
+            chainId,
+            address
+          );
+        toast({
+          title: "Guardian added.",
+          description:
+            "Your new guardian will now be part of your account recovery setup.",
+        });
+        setIsOpen(false);
+      } else if (state === "reverted") {
+        toast({
+          title: "Adding guardian failed.",
+          description: "The transaction was reverted. Please try again.",
+          isWarning: true,
+        });
+      } else if (state === "executing") {
+        toast({
+          title: "Adding guardian initiated.",
+          description: "Please wait while the transaction is being processed.",
+        });
+      }
     }
-  }, [txHashes, chainId, address, guardians, toast]);
+  }, [txHashes, chainId, address, guardians, toast, state]);
 
   const handleOnOpenGuardianModal = () => {
     setIsOpen(true);
@@ -100,7 +127,7 @@ export default function GuardiansContent({
     if (currentStep < totalSteps) {
       setCurrentStep((prev) => prev + 1);
     } else {
-      addGuardians();
+      addGuardiansToSafe();
     }
   };
 
@@ -184,7 +211,7 @@ export default function GuardiansContent({
   const getStepDescription = () => {
     switch (currentStep) {
       case 1:
-        return "You’re about to add a new guardian to your account recovery setup. This guardian will be able to help recover your account in case of credential loss.";
+        return "You're about to add a new guardian to your account recovery setup. This guardian will be able to help recover your account in case of credential loss.";
       case 2:
         return "Set a new threshold for recover approvals. The threshold determines how many guardians are required to approve recover actions.";
       default:
@@ -253,7 +280,7 @@ export default function GuardiansContent({
       </Modal>
       <LoadingModal
         loading={isLoading}
-        loadingText={"Waiting for the transaction signature..."}
+        loadingText={getTransactionLoadingText(state, "Adding guardian")}
       />
     </div>
   );

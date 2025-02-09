@@ -1,96 +1,86 @@
 "use client";
 
-import { SocialRecoveryModule } from "abstractionkit";
-import { useState } from "react";
-import { useAccount, useWalletClient, usePublicClient } from "wagmi";
-import { Address, PublicClient } from "viem";
-import { useMutation } from "@tanstack/react-query";
-import { getReadableError } from "@/utils/get-readable-error";
+import { Address } from "viem";
+import { useAccount } from "wagmi";
+import { useSrmStore } from "@/stores/useSrmStore";
+import { useTransactionExecution } from "./useTransactionExecution";
+import { ok } from "@/utils/result";
+import { buildRevokeGuardiansTransaction } from "@/services/transactions";
+import { useQueryClient } from "@tanstack/react-query";
+import { queryKeys } from "@/utils/queryKeys";
+import React from "react";
 
-async function buildRevokeGuardiansTxs(
-  srm: SocialRecoveryModule,
-  publicClient: PublicClient,
-  signer: Address,
-  guardians: Address[],
-  threshold: number
-) {
-  const txs = [];
-
-  for (const guardian of guardians) {
-    const revokeGuardianTx =
-      await srm.createRevokeGuardianWithThresholdMetaTransaction(
-        publicClient?.transport.url,
-        signer,
-        guardian,
-        BigInt(threshold)
-      );
-    txs.push(revokeGuardianTx);
-  }
-
-  return txs.map((tx) => ({
-    to: tx.to as Address,
-    data: tx.data as `0x${string}`,
-    value: tx.value,
-  }));
+interface RevokeGuardiansParams {
+  /** The address of the safe to revoke guardians for */
+  safeAddress: Address | undefined;
+  /** The addresses of the guardians to revoke */
+  guardians: Address[] | undefined;
 }
 
-export function useRevokeGuardians(
-  guardians: Address[] | undefined,
-  threshold: number = 1
-) {
-  const { address: signer } = useAccount();
-  const { data: walletClient } = useWalletClient();
-  const publicClient = usePublicClient();
-  const [txHashes, setTxHashes] = useState<string[]>([]);
+/**
+ * Hook for revoking guardians from a safe
+ *
+ * @param params - The parameters for revoking guardians
+ * @returns Object containing:
+ * - revokeGuardians: Function to trigger the revocation
+ * - txHash: Transaction hash if available
+ * - error: Error message if any
+ * - isLoading: Whether the transaction is in progress
+ * - state: Current transaction state (EOA or Safe specific)
+ */
+export function useRevokeGuardians({
+  safeAddress,
+  guardians,
+}: RevokeGuardiansParams) {
+  const { address: account } = useAccount();
+  const { srm } = useSrmStore();
+  const queryClient = useQueryClient();
 
-  const mutation = useMutation({
-    mutationFn: async () => {
-      if (!signer || !walletClient || !publicClient || !guardians) {
-        throw new Error("Missing signer, client or guardians");
-      }
+  // Validation function that returns Result<true>
+  const validate = () => {
+    if (!safeAddress) return ok(false);
+    if (!guardians?.length) return ok(false);
+    return ok(true as const);
+  };
 
-      const srm = new SocialRecoveryModule();
-      const txs = await buildRevokeGuardiansTxs(
+  const { txHash, error, isLoading, mutation, state } = useTransactionExecution(
+    async () => {
+      if (!account) throw new Error("Wallet not connected");
+      if (!safeAddress) throw new Error("Missing safe address");
+      if (!guardians?.length) throw new Error("No guardians to revoke");
+
+      // Build transaction using our service
+      const result = await buildRevokeGuardiansTransaction(
         srm,
-        publicClient,
-        signer,
+        safeAddress,
         guardians,
-        threshold
+        1, // Default threshold after revocation
+        "0x" // Empty calldata since we're not executing
       );
-
-      if (txs.length < 1) throw new Error("No transaction to call");
-
-      const newTxHashes = [];
-      for (const tx of txs) {
-        const txHash = await walletClient.sendTransaction(tx);
-        newTxHashes.push(txHash);
+      if (!result.success) {
+        throw new Error(result.error);
       }
-      setTxHashes(newTxHashes);
-    },
-  });
-
-  const revokeGuardians = () => {
-    if (
-      guardians &&
-      guardians.length > 0 &&
-      signer &&
-      walletClient &&
-      publicClient
-    ) {
-      mutation.mutate();
+      return result.value;
     }
-  };
+  );
 
-  const reset = () => {
-    setTxHashes([]);
-    mutation.reset();
-  };
+  // Invalidate queries after successful transaction
+  React.useEffect(() => {
+    if (state === "success" && account) {
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.guardians(safeAddress),
+      });
+    }
+  }, [state, account, queryClient, safeAddress]);
 
   return {
-    txHashes,
-    revokeGuardians,
-    error: mutation?.error && getReadableError(mutation.error),
-    isLoading: mutation.isPending,
-    reset,
+    revokeGuardians: () => {
+      if (!validate().success) return;
+      mutation.mutate();
+    },
+    txHash,
+    error,
+    isLoading,
+    state,
   };
 }

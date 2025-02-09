@@ -7,10 +7,10 @@ import NewThreshold from "@/components/ask-recovery-steps/new-threshold";
 import ShareLink from "@/components/ask-recovery-steps/share-link";
 import { Modal } from "@/components/modal";
 import { redirect } from "next/navigation";
-import React, { useCallback, useState } from "react";
+import { useState } from "react";
 import { isAddress } from "viem";
 import { createFinalUrl } from "@/utils/recovery-link";
-import { useGuardians } from "@/hooks/useGuardians";
+import { useValidateNewOwner } from "@/hooks/useValidateNewOwner";
 
 const totalSteps = 4;
 
@@ -22,6 +22,8 @@ export default function AskRecovery() {
   const [threshold, setThreshold] = useState(1);
   const [safeAddressError, setSafeAddressError] = useState<string>("");
 
+  const validateNewOwner = useValidateNewOwner(safeAddress);
+
   const isNextDisabled =
     (currentStep === 1 && !safeAddress) ||
     (currentStep === 2 && newOwners.length === 0);
@@ -31,8 +33,6 @@ export default function AskRecovery() {
     newThreshold: threshold,
     newOwners: newOwners.map((guardian) => guardian.address),
   });
-
-  const { data: guardians } = useGuardians(safeAddress as `0x${string}`);
 
   const handleNext = () => {
     switch (currentStep) {
@@ -83,30 +83,6 @@ export default function AskRecovery() {
   const handleThresholdChange = (value: number) => {
     setThreshold(value);
   };
-
-  const validateNewOwner = useCallback(
-    (address: string) => {
-      if (!isAddress(address))
-        return { isValid: false, reason: "Insert a valid address." };
-      if (address === safeAddress)
-        return {
-          isValid: false,
-          reason: "This safe address can't be an owner.",
-        };
-      if (!guardians)
-        return {
-          isValid: false,
-          reason: "Couldn't fetch guardians.",
-        };
-      if (guardians.includes(address))
-        return {
-          isValid: false,
-          reason: "Guardians can't be new owners.",
-        };
-      return { isValid: true, reason: "" };
-    },
-    [safeAddress, guardians]
-  );
 
   const getStepContent = () => {
     switch (currentStep) {

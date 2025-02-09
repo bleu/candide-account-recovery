@@ -17,6 +17,8 @@ import { useExecuteRecovery } from "@/hooks/useExecuteRecovery";
 import { ApprovalsInfo } from "@/hooks/useApprovalsInfo";
 import { RecoveryInfo } from "@/hooks/useOngoingRecoveryInfo";
 import { useFinalizeRecovery } from "@/hooks/useFinalizeRecovery";
+import { TransactionState } from "@/hooks/useTransactionExecution";
+import { getTransactionLoadingText } from "@/utils/transaction";
 
 interface RecoveryContentProps {
   safeSigners: string[] | undefined;
@@ -101,12 +103,42 @@ export default function RecoveryContent({
     if (linkError) setLinkError("");
   };
 
+  const getActionText = (isLoading: boolean, state: TransactionState) => {
+    if (!isLoading) return "";
+
+    switch (state) {
+      case "idle":
+      case "preparing":
+      case "awaitingSignature":
+      case "proposingToSafe":
+      case "awaitingConfirmations":
+        return confirmIsLoading
+          ? "Confirming recovery"
+          : executeIsLoading
+          ? "Executing recovery"
+          : "Finalizing recovery";
+      case "executing":
+      case "success":
+      case "reverted":
+      case "failed":
+        return state === "executing"
+          ? confirmIsLoading
+            ? "Confirming recovery"
+            : executeIsLoading
+            ? "Executing recovery"
+            : "Finalizing recovery"
+          : "";
+      default:
+        return "";
+    }
+  };
+
   const {
     confirmRecovery,
     txHash: confirmTxHash,
     error: confirmError,
     isLoading: confirmIsLoading,
-    reset: resetConfirmRecovery,
+    state: confirmState,
   } = useConfirmRecovery({
     safeAddress,
     newOwners,
@@ -119,7 +151,7 @@ export default function RecoveryContent({
     txHash: executeTxHash,
     error: executeError,
     isLoading: executeIsLoading,
-    reset: resetExecuteRecovery,
+    state: executeState,
   } = useExecuteRecovery({
     safeAddress,
     newOwners,
@@ -131,50 +163,88 @@ export default function RecoveryContent({
     txHash: finalizeTxHash,
     error: finalizeError,
     isLoading: finalizeIsLoading,
+    state: finalizeState,
   } = useFinalizeRecovery(safeAddress);
 
   useEffect(() => {
     if (finalizeTxHash) {
-      toast({
-        title: "Recovery finalized.",
-        description: `Check new wallet on the transaction when it has finished: ${finalizeTxHash}`,
-      });
+      if (finalizeState === "success") {
+        toast({
+          title: "Recovery finalized successfully.",
+          description: "The recovery process is now complete.",
+        });
+      } else if (finalizeState === "reverted") {
+        toast({
+          title: "Recovery finalization failed.",
+          description: "The transaction was reverted. Please try again.",
+          isWarning: true,
+        });
+      } else if (finalizeState === "executing") {
+        toast({
+          title: "Recovery finalization initiated.",
+          description: "Please wait while the transaction is being processed.",
+        });
+      }
     }
-  }, [finalizeTxHash, toast]);
+  }, [finalizeTxHash, finalizeState, toast]);
 
   useEffect(() => {
-    if (confirmTxHash && !isLastGuardianToConfirm) {
-      toast({
-        title: "Recovery approved.",
-        description:
-          "Waiting for other guardians to approve before starting the delay period.",
-      });
-      resetConfirmRecovery();
-      return;
+    if (executeTxHash) {
+      if (executeState === "success") {
+        toast({
+          title: "Recovery executed successfully.",
+          description: "The delay period has started.",
+        });
+      } else if (executeState === "reverted") {
+        toast({
+          title: "Recovery execution failed.",
+          description: "The transaction was reverted. Please try again.",
+          isWarning: true,
+        });
+      } else if (executeState === "executing") {
+        toast({
+          title: "Recovery execution initiated.",
+          description: "Please wait while the transaction is being processed.",
+        });
+      }
     }
-    if (confirmTxHash && !shouldExecute) {
-      toast({
-        title: "Recovery approved.",
-        description: "The threshold was achieved. Click to start delay period.",
-      });
-      resetConfirmRecovery();
-      return;
-    }
-    if (executeTxHash || (confirmTxHash && shouldExecute)) {
-      toast({
-        title: "Recovery executed.",
-        description: "Delay Period has started.",
-      });
-      resetExecuteRecovery();
+  }, [executeTxHash, executeState, toast]);
+
+  useEffect(() => {
+    if (confirmTxHash) {
+      if (confirmState === "success") {
+        if (!isLastGuardianToConfirm) {
+          toast({
+            title: "Recovery approved.",
+            description:
+              "Waiting for other guardians to approve before starting the delay period.",
+          });
+        } else if (!shouldExecute) {
+          toast({
+            title: "Recovery approved.",
+            description:
+              "The threshold was achieved. You can now start the delay period.",
+          });
+        }
+      } else if (confirmState === "reverted") {
+        toast({
+          title: "Recovery approval failed.",
+          description: "The transaction was reverted. Please try again.",
+          isWarning: true,
+        });
+      } else if (confirmState === "executing") {
+        toast({
+          title: "Recovery approval initiated.",
+          description: "Please wait while the transaction is being processed.",
+        });
+      }
     }
   }, [
     confirmTxHash,
-    executeTxHash,
-    shouldExecute,
+    confirmState,
     isLastGuardianToConfirm,
+    shouldExecute,
     toast,
-    resetConfirmRecovery,
-    resetExecuteRecovery,
   ]);
 
   useEffect(() => {
@@ -301,7 +371,21 @@ export default function RecoveryContent({
               loading={
                 confirmIsLoading || executeIsLoading || finalizeIsLoading
               }
-              loadingText={"Waiting for the transaction signature..."}
+              loadingText={getTransactionLoadingText(
+                confirmIsLoading
+                  ? confirmState
+                  : executeIsLoading
+                  ? executeState
+                  : finalizeState,
+                getActionText(
+                  confirmIsLoading || executeIsLoading || finalizeIsLoading,
+                  confirmIsLoading
+                    ? confirmState
+                    : executeIsLoading
+                    ? executeState
+                    : finalizeState
+                )
+              )}
             />
           </>
         ) : (

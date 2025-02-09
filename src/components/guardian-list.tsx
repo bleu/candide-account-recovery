@@ -42,16 +42,16 @@ export function GuardianList({
   const [currentStep, setCurrentStep] = useState(1);
   const [threshold, setThreshold] = useState(1);
 
-  const {
-    txHashes,
-    revokeGuardians,
-    error,
-    isLoading,
-    reset: resetRevoke,
-  } = useRevokeGuardians(
-    [guardianToRemove?.address as Address],
-    isLastGuardianModalOpen ? 0 : threshold
-  );
+  const { chainId, address } = useAccount();
+  const { toast } = useToast();
+
+  const { txHash, revokeGuardians, error, isLoading, state } =
+    useRevokeGuardians({
+      safeAddress: address,
+      guardians: guardianToRemove?.address
+        ? [guardianToRemove.address as Address]
+        : undefined,
+    });
 
   const handleNext = () => {
     if (currentStep < totalSteps) {
@@ -91,24 +91,38 @@ export function GuardianList({
     window.open(`https://etherscan.io/address/${address}`);
   };
 
-  const { chainId, address } = useAccount();
-  const { toast } = useToast();
-
   useEffect(() => {
-    if (txHashes.length > 0) {
-      if (chainId && address) storeGuardians(guardians, chainId, address);
-      toast({
-        title: "Guardian removed.",
-        description:
-          "This guardian will no longer have permission recover your account.",
-      });
-      setIsRemoveModalOpen(false);
-      setIsLastGuardianModalOpen(false);
-      setGuardianToRemove({ nickname: "", address: "" });
-      setCurrentStep(1);
-      resetRevoke();
+    if (txHash) {
+      if (state === "success") {
+        if (chainId && address)
+          storeGuardians(
+            guardians.filter((guardian) => guardian.status === "added"),
+            chainId,
+            address
+          );
+        toast({
+          title: "Guardian removed.",
+          description:
+            "This guardian will no longer have permission recover your account.",
+        });
+        setIsRemoveModalOpen(false);
+        setIsLastGuardianModalOpen(false);
+        setGuardianToRemove({ nickname: "", address: "" });
+        setCurrentStep(1);
+      } else if (state === "reverted") {
+        toast({
+          title: "Removing guardian failed.",
+          description: "The transaction was reverted. Please try again.",
+          isWarning: true,
+        });
+      } else if (state === "executing") {
+        toast({
+          title: "Removing guardian initiated.",
+          description: "Please wait while the transaction is being processed.",
+        });
+      }
     }
-  }, [txHashes, chainId, address, guardians, toast, resetRevoke]);
+  }, [txHash, chainId, address, guardians, toast, state]);
 
   const getStepContent = () => {
     switch (currentStep) {

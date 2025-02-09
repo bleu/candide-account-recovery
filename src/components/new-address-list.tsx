@@ -5,17 +5,19 @@ import { cn } from "@/lib/utils";
 import { Button } from "./ui/button";
 import { ExternalLink, X } from "lucide-react";
 import { NewAddress } from "./guardian-list";
+import { Result } from "@/utils/result";
 
 interface NewAddressListProps {
   addresses: NewAddress[];
   onAdd: (address: NewAddress) => void;
   onRemove: (index: number) => void;
   onExternalLink: (address: string) => void;
-  validationFn: (address: string) => { isValid: boolean; reason: string };
+  validationFn: (address: string) => Result<true>;
   withNicknames?: boolean;
   isReview?: boolean;
   className?: string;
 }
+
 interface NewAddressState {
   address: string;
   nickname: string;
@@ -26,10 +28,10 @@ export default function NewAddressList({
   onAdd,
   onRemove,
   onExternalLink,
+  validationFn,
   withNicknames = false,
   isReview = false,
   className,
-  validationFn,
 }: NewAddressListProps) {
   const [newAddress, setNewAddress] = useState<NewAddressState>({
     address: "",
@@ -49,9 +51,9 @@ export default function NewAddressList({
     if (withNicknames && !newAddress.nickname) return;
     if (!newAddress.address) return;
 
-    const { isValid, reason } = validationFn(newAddress.address);
-    if (!isValid) {
-      setAddressError(reason);
+    const result = validationFn(newAddress.address);
+    if (!result.success) {
+      setAddressError(result.error);
       return;
     }
 

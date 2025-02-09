@@ -15,6 +15,7 @@ import { redirect } from "next/navigation";
 import { useToast } from "@/hooks/use-toast";
 import { NewAddress } from "@/components/guardian-list";
 import LoadingModal from "@/components/loading-modal";
+import { getTransactionLoadingText } from "@/utils/transaction";
 
 const totalSteps = 4;
 
@@ -36,8 +37,9 @@ export default function ProtectAccount() {
   const {
     txHashes,
     addGuardians: postGuardians,
-    error: errorPostGuradians,
+    error: errorPostGuardians,
     isLoading: isLoadingPostGuardians,
+    state,
   } = useAddGuardians(
     guardians.map((guardian) => guardian.address) as Address[],
     threshold
@@ -47,18 +49,35 @@ export default function ProtectAccount() {
 
   useEffect(() => {
     if (txHashes.length > 0) {
-      if (chainId && address) {
-        storeGuardians(guardians, chainId, address);
+      if (state === "success") {
+        if (chainId && address) {
+          storeGuardians(
+            guardians.filter((guardian) => guardian.status === "added"),
+            chainId,
+            address
+          );
+        }
+        toast({
+          title: "Guardian added.",
+          description:
+            "Your new guardian will now be part of your account recovery setup.",
+        });
+        setIsOpen(false);
+        redirect("/manage-recovery/dashboard");
+      } else if (state === "reverted") {
+        toast({
+          title: "Adding guardian failed.",
+          description: "The transaction was reverted. Please try again.",
+          isWarning: true,
+        });
+      } else if (state === "executing") {
+        toast({
+          title: "Adding guardian initiated.",
+          description: "Please wait while the transaction is being processed.",
+        });
       }
-      toast({
-        title: "Guardian added.",
-        description:
-          "Your new guardian will now be part of your account recovery setup.",
-      });
-      setIsOpen(false);
-      redirect("/manage-recovery/dashboard");
     }
-  }, [txHashes, chainId, address, guardians, toast]);
+  }, [txHashes, state, chainId, address, guardians, toast]);
 
   const handleAddGuardian = (newGuardian: NewAddress): void => {
     setGuardians((prev) => [...prev, newGuardian]);
@@ -142,9 +161,9 @@ export default function ProtectAccount() {
                 delayPeriod={delayPeriod}
               />
               <br />
-              {errorPostGuradians && (
+              {errorPostGuardians && (
                 <p className="text-alert font-roboto-mono font-medium text-sm mt-2">
-                  {errorPostGuradians}
+                  {errorPostGuardians}
                 </p>
               )}
             </>
@@ -216,7 +235,10 @@ export default function ProtectAccount() {
           </Modal>
           <LoadingModal
             loading={isLoadingPostGuardians}
-            loadingText={"Waiting for the transaction signature..."}
+            loadingText={getTransactionLoadingText(
+              state,
+              "Setting up account recovery"
+            )}
           />
         </>
       ) : (

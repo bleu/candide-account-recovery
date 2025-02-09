@@ -15,6 +15,7 @@ import { RecoveryInfo } from "@/hooks/useOngoingRecoveryInfo";
 import { formatRemainingTime } from "@/utils/format-remaining-time";
 import { useAccount } from "wagmi";
 import { useCancelRecovery } from "@/hooks/useCancelRecovery";
+import { getTransactionLoadingText } from "@/utils/transaction";
 
 interface RecoverySideBarProps {
   recoveryLink: string;
@@ -55,13 +56,14 @@ export default function RecoverySidebar({
     : false;
   const remainingTime = executeAfter ? formatRemainingTime(executeAfter) : "";
 
-  const { txHash, cancelRecovery, error, isLoading } = useCancelRecovery();
+  const { txHash, cancelRecovery, error, isLoading, state } =
+    useCancelRecovery();
 
   useEffect(() => {
     if (error) {
       toast({
         title: "Error canceling recovery.",
-        description: error,
+        description: "The transaction failed. Please try again.",
         isWarning: true,
       });
     }
@@ -69,14 +71,27 @@ export default function RecoverySidebar({
 
   useEffect(() => {
     if (txHash) {
-      toast({
-        title: "Recovery Request canceled.",
-        description:
-          "All approvals have been revoked, and the process is now terminated.",
-      });
-      setIsOpen(false);
+      if (state === "success") {
+        toast({
+          title: "Recovery request canceled.",
+          description:
+            "All approvals have been revoked, and the process is now terminated.",
+        });
+        setIsOpen(false);
+      } else if (state === "reverted") {
+        toast({
+          title: "Cancellation failed.",
+          description: "The transaction was reverted. Please try again.",
+          isWarning: true,
+        });
+      } else if (state === "executing") {
+        toast({
+          title: "Cancellation initiated.",
+          description: "Please wait while the transaction is being processed.",
+        });
+      }
     }
-  }, [txHash, toast]);
+  }, [txHash, state, toast]);
 
   return (
     <div className="col-span-1">
@@ -127,7 +142,10 @@ export default function RecoverySidebar({
         title="Cancel Recovery Request?"
         description="By canceling this recovery request, the process will be stopped immediately. Guardians will no longer be able to approve it, and the request cannot be executed. Are you sure you want to cancel?"
       />
-      <LoadingModal loading={isLoading} loadingText="Canceling recovery..." />
+      <LoadingModal
+        loading={isLoading}
+        loadingText={getTransactionLoadingText(state, "Canceling recovery")}
+      />
     </div>
   );
 }

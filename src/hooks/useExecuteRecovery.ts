@@ -1,79 +1,103 @@
-import { getReadableError } from "@/utils/get-readable-error";
-import { useMutation } from "@tanstack/react-query";
-import { SocialRecoveryModule } from "abstractionkit";
-import { useState } from "react";
+"use client";
+
 import { Address } from "viem";
-import { useAccount, usePublicClient, useWalletClient } from "wagmi";
+import { useAccount } from "wagmi";
+import { useSrmStore } from "@/stores/useSrmStore";
+import { useTransactionExecution } from "./useTransactionExecution";
+import { validateRecoveryParams } from "@/utils/validation";
+import { ok } from "@/utils/result";
+import { buildExecuteRecoveryTransaction } from "@/services/transactions";
+import { useQueryClient } from "@tanstack/react-query";
+import { queryKeys } from "@/utils/queryKeys";
+import React from "react";
 
 interface ExecuteRecoveryParams {
+  /** The address of the safe to recover */
   safeAddress: Address | undefined;
+  /** The new owners to set for the safe */
   newOwners: Address[] | undefined;
+  /** The new threshold for the safe */
   newThreshold: number | undefined;
 }
 
+/**
+ * Hook for executing a recovery operation on a safe
+ *
+ * @param params - The parameters for the recovery operation
+ * @returns Object containing:
+ * - executeRecovery: Function to trigger the recovery
+ * - txHash: Transaction hash if available
+ * - error: Error message if any
+ * - isLoading: Whether the transaction is in progress
+ * - state: Current transaction state (EOA or Safe specific)
+ *
+ * @example
+ * ```tsx
+ * const { executeRecovery, isLoading, error, state } = useExecuteRecovery({
+ *   safeAddress: "0x...",
+ *   newOwners: ["0x...", "0x..."],
+ *   newThreshold: 2
+ * });
+ * ```
+ */
 export function useExecuteRecovery({
   safeAddress,
   newOwners,
   newThreshold,
 }: ExecuteRecoveryParams) {
-  const { address: signer } = useAccount();
-  const { data: walletClient } = useWalletClient();
-  const publicClient = usePublicClient();
-  const [txHash, setTxHash] = useState<`0x${string}` | undefined>(undefined);
+  const { address: account } = useAccount();
+  const { srm } = useSrmStore();
+  const queryClient = useQueryClient();
 
-  const mutation = useMutation({
-    mutationFn: async () => {
-      if (!signer || !walletClient || !publicClient) {
-        throw new Error("Missing signer or client");
-      }
+  // Validation function that returns Result<true>
+  const validate = () => {
+    const result = validateRecoveryParams(safeAddress, newOwners, newThreshold);
+    if (!result.success) return result;
+    return ok(true as const);
+  };
 
-      if (!safeAddress || !newOwners || !newThreshold) {
-        throw new Error("Missing executeRecovery params");
-      }
+  const { txHash, error, isLoading, mutation, state } = useTransactionExecution(
+    async () => {
+      if (!account) throw new Error("Wallet not connected");
 
-      const srm = new SocialRecoveryModule();
-
-      const tx = srm.createExecuteRecoveryMetaTransaction(
-        safeAddress,
-        newOwners,
-        newThreshold
+      // Build transaction using our service
+      const result = await buildExecuteRecoveryTransaction(
+        srm,
+        safeAddress as Address,
+        newOwners as Address[],
+        newThreshold as number
       );
-
-      const newTx = {
-        to: tx.to as Address,
-        data: tx.data as `0x${string}`,
-        value: tx.value,
-      };
-
-      const newTxHash = await walletClient.sendTransaction(newTx);
-
-      setTxHash(newTxHash);
-    },
-  });
-
-  const executeRecovery = () => {
-    if (
-      signer &&
-      walletClient &&
-      publicClient &&
-      safeAddress &&
-      newOwners &&
-      newThreshold
-    ) {
-      mutation.mutate();
+      if (!result.success) {
+        throw new Error(result.error);
+      }
+      return result.value;
     }
-  };
+  );
 
-  const reset = () => {
-    setTxHash(undefined);
-    mutation.reset();
-  };
+  // Invalidate queries after successful transaction
+  React.useEffect(() => {
+    if (state === "success" && account) {
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.recoveryInfo(safeAddress),
+      });
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.approvalsInfo({
+          safeAddress,
+          newOwners,
+          newThreshold,
+        }),
+      });
+    }
+  }, [state, account, queryClient, safeAddress, newOwners, newThreshold]);
 
   return {
+    executeRecovery: () => {
+      if (!validate().success) return;
+      mutation.mutate();
+    },
     txHash,
-    executeRecovery,
-    error: mutation?.error && getReadableError(mutation.error),
-    isLoading: mutation.isPending,
-    reset,
+    error,
+    isLoading,
+    state,
   };
 }

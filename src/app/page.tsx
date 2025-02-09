@@ -5,8 +5,8 @@ import HomeButton from "@/components/home-button";
 export default function Home() {
   return (
     <main className="flex flex-1 items-center justify-center">
-      <div className="flex mx-12">
-        <div className="flex flex-col justify-center  gap-3 flex-1 ">
+      <div className="flex flex-col lg:flex-row mx-12 gap-4 mb-8 md:mb-0">
+        <div className="flex flex-col justify-center gap-3 flex-1 ">
           <h2 className="text-3xl font-bold text-primary font-roboto-mono">
             Welcome to Safe <br /> Account Recovery
           </h2>
@@ -14,7 +14,7 @@ export default function Home() {
             Choose how you want to proceed.
           </p>
         </div>
-        <div className="flex-1 grid grid-cols-2 gap-12">
+        <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-12">
           <HomeButton
             label="OWNERS"
             title="PROTECT MY ACCOUNT"

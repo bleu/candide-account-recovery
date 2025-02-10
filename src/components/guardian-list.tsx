@@ -1,7 +1,7 @@
 import { cn } from "@/lib/utils";
 import { GuardianRow } from "./guardian-row";
 import { STYLES } from "@/constants/styles";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Modal } from "./modal";
 import ThresholdStep from "./protect-account-steps/threshold";
 import { Input } from "./ui/input";
@@ -12,7 +12,6 @@ import { useRevokeGuardians } from "@/hooks/useRevokeGuardians";
 import { Address } from "viem";
 import { storeGuardians } from "@/utils/storage";
 import { useAccount } from "wagmi";
-import { useToast } from "@/hooks/use-toast";
 import LoadingModal from "./loading-modal";
 
 export interface NewAddress {
@@ -43,15 +42,20 @@ export function GuardianList({
   const [threshold, setThreshold] = useState(1);
 
   const {
-    txHashes,
-    revokeGuardians,
-    error,
+    trigger: revokeGuardians,
     isLoading,
-    reset: resetRevoke,
-  } = useRevokeGuardians(
-    [guardianToRemove?.address as Address],
-    isLastGuardianModalOpen ? 0 : threshold
-  );
+    loadingMessage,
+  } = useRevokeGuardians({
+    guardians: [guardianToRemove?.address as Address],
+    threshold: isLastGuardianModalOpen ? 0 : threshold,
+    onSuccess: () => {
+      if (chainId && address) storeGuardians(guardians, chainId, address);
+      setIsRemoveModalOpen(false);
+      setIsLastGuardianModalOpen(false);
+      setGuardianToRemove({ nickname: "", address: "" });
+      setCurrentStep(1);
+    },
+  });
 
   const handleNext = () => {
     if (currentStep < totalSteps) {
@@ -92,23 +96,6 @@ export function GuardianList({
   };
 
   const { chainId, address } = useAccount();
-  const { toast } = useToast();
-
-  useEffect(() => {
-    if (txHashes.length > 0) {
-      if (chainId && address) storeGuardians(guardians, chainId, address);
-      toast({
-        title: "Guardian removed.",
-        description:
-          "This guardian will no longer have permission recover your account.",
-      });
-      setIsRemoveModalOpen(false);
-      setIsLastGuardianModalOpen(false);
-      setGuardianToRemove({ nickname: "", address: "" });
-      setCurrentStep(1);
-      resetRevoke();
-    }
-  }, [txHashes, chainId, address, guardians, toast, resetRevoke]);
 
   const getStepContent = () => {
     switch (currentStep) {
@@ -152,17 +139,6 @@ export function GuardianList({
               />
             </div>
             <ReviewStepSection threshold={threshold} />
-            {isLoading && (
-              <p className="font-roboto-mono font-medium text-sm mt-2">
-                Please, handle the signature process on your smart wallet
-                manager...
-              </p>
-            )}
-            {error && (
-              <p className="text-alert font-roboto-mono font-medium text-sm mt-2">
-                {error}
-              </p>
-            )}
           </div>
         );
       default:
@@ -261,17 +237,9 @@ export function GuardianList({
               handleExternalLink(guardianToRemove.address)
             }
           />
-          {error && (
-            <p className="text-alert font-roboto-mono font-medium text-sm mt-2">
-              {error}
-            </p>
-          )}
         </div>
       </Modal>
-      <LoadingModal
-        loading={isLoading}
-        loadingText={"Waiting for the transaction signature..."}
-      />
+      <LoadingModal loading={isLoading} loadingText={loadingMessage} />
     </>
   );
 }

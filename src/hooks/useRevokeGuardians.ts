@@ -1,11 +1,10 @@
 "use client";
 
 import { SocialRecoveryModule } from "abstractionkit";
-import { useState } from "react";
 import { useAccount, useWalletClient, usePublicClient } from "wagmi";
 import { Address, PublicClient } from "viem";
-import { useMutation } from "@tanstack/react-query";
-import { getReadableError } from "@/utils/get-readable-error";
+import { toast } from "./use-toast";
+import { useExecuteTransaction } from "./useExecuteTransaction";
 
 async function buildRevokeGuardiansTxs(
   srm: SocialRecoveryModule,
@@ -19,7 +18,7 @@ async function buildRevokeGuardiansTxs(
   for (const guardian of guardians) {
     const revokeGuardianTx =
       await srm.createRevokeGuardianWithThresholdMetaTransaction(
-        publicClient?.transport.url,
+        publicClient.transport.url,
         signer,
         guardian,
         BigInt(threshold)
@@ -34,63 +33,60 @@ async function buildRevokeGuardiansTxs(
   }));
 }
 
-export function useRevokeGuardians(
-  guardians: Address[] | undefined,
-  threshold: number = 1
-) {
+export function useRevokeGuardians({
+  guardians,
+  threshold,
+  onSuccess,
+  onError,
+}: {
+  guardians: Address[] | undefined;
+  threshold: number | undefined;
+  onSuccess?: () => void;
+  onError?: () => void;
+}) {
   const { address: signer } = useAccount();
   const { data: walletClient } = useWalletClient();
   const publicClient = usePublicClient();
-  const [txHashes, setTxHashes] = useState<string[]>([]);
 
-  const mutation = useMutation({
-    mutationFn: async () => {
-      if (!signer || !walletClient || !publicClient || !guardians) {
-        throw new Error("Missing signer, client or guardians");
-      }
+  const buildTxFn = async () => {
+    if (!signer) throw new Error("Missing signer");
+    if (!walletClient) throw new Error("Missing wallet client");
+    if (!publicClient) throw new Error("Missing public client");
+    if (!guardians) throw new Error("Missing guardians");
+    if (threshold === undefined) throw new Error("Missing threshold");
 
-      const srm = new SocialRecoveryModule();
-      const txs = await buildRevokeGuardiansTxs(
-        srm,
-        publicClient,
-        signer,
-        guardians,
-        threshold
-      );
+    const srm = new SocialRecoveryModule();
 
-      if (txs.length < 1) throw new Error("No transaction to call");
+    const txs = await buildRevokeGuardiansTxs(
+      srm,
+      publicClient,
+      signer,
+      guardians,
+      threshold
+    );
+    return txs;
+  };
 
-      const newTxHashes = [];
-      for (const tx of txs) {
-        const txHash = await walletClient.sendTransaction(tx);
-        newTxHashes.push(txHash);
-      }
-      setTxHashes(newTxHashes);
-    },
+  const onSuccess_ = () => {
+    toast({
+      title: "success",
+      description: "Revoked guardian",
+    });
+    if (onSuccess) onSuccess();
+  };
+
+  const onError_ = () => {
+    toast({
+      title: "error",
+      description: "Error revoking guardian",
+      isWarning: true,
+    });
+    if (onError) onError();
+  };
+
+  return useExecuteTransaction({
+    buildTxFn,
+    onSuccess: onSuccess_,
+    onError: onError_,
   });
-
-  const revokeGuardians = () => {
-    if (
-      guardians &&
-      guardians.length > 0 &&
-      signer &&
-      walletClient &&
-      publicClient
-    ) {
-      mutation.mutate();
-    }
-  };
-
-  const reset = () => {
-    setTxHashes([]);
-    mutation.reset();
-  };
-
-  return {
-    txHashes,
-    revokeGuardians,
-    error: mutation?.error && getReadableError(mutation.error),
-    isLoading: mutation.isPending,
-    reset,
-  };
 }

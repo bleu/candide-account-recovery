@@ -22,7 +22,7 @@ const SearchInput = () => {
 
       try {
         await handleSearch(value);
-      } catch (error) {
+      } catch {
         toast({
           title: "Search failed",
           description:

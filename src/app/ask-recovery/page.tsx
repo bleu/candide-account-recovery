@@ -6,15 +6,18 @@ import NewOwners from "@/components/ask-recovery-steps/new-owners";
 import NewThreshold from "@/components/ask-recovery-steps/new-threshold";
 import ShareLink from "@/components/ask-recovery-steps/share-link";
 import { Modal } from "@/components/modal";
-import { redirect } from "next/navigation";
-import React, { useCallback, useState } from "react";
+import { useRouter } from "next/navigation";
+import { useCallback, useState } from "react";
 import { isAddress } from "viem";
 import { createFinalUrl } from "@/utils/recovery-link";
+
+const isBrowser = typeof window !== "undefined";
 import { useGuardians } from "@/hooks/useGuardians";
 
 const totalSteps = 4;
 
 export default function AskRecovery() {
+  const router = useRouter();
   const [isOpen, setIsOpen] = useState(true);
   const [currentStep, setCurrentStep] = useState(1);
   const [safeAddress, setSafeAddress] = useState("");
@@ -51,17 +54,19 @@ export default function AskRecovery() {
         setCurrentStep((prev) => prev + 1);
         break;
       case 4:
-        navigator.clipboard.writeText(link);
+        if (isBrowser) {
+          navigator.clipboard.writeText(link);
+        }
       default:
         break;
     }
   };
 
-  const handleBack =
+  const handleBack = () =>
     currentStep > 1
       ? () => {
           if (currentStep === 4) {
-            redirect(link);
+            router.push(link);
           } else {
             setCurrentStep((prev) => prev - 1);
           }
@@ -77,7 +82,9 @@ export default function AskRecovery() {
   };
 
   const handleExternalLink = (address: string): void => {
-    window.open(`https://etherscan.io/address/${address}`);
+    if (isBrowser) {
+      window.open(`https://etherscan.io/address/${address}`);
+    }
   };
 
   const handleThresholdChange = (value: number) => {

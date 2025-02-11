@@ -12,11 +12,20 @@ export type LinkParams = {
   newThreshold?: string;
 };
 
+const isBrowser = typeof window !== "undefined";
+
 export const createFinalUrl = (params: RecoveryQueryParams): string => {
-  const baseUrl = window !== undefined && window.location.host;
+  let baseUrl = "";
+  if (isBrowser) {
+    const protocol = window.location.protocol;
+    const host = window.location.host;
+    baseUrl = `${protocol}//${host}`;
+  }
+
   const hashParams = new URLSearchParams();
   hashParams.append("safeAddress", params.safeAddress);
   hashParams.append("newOwners", params.newOwners.join(","));
   hashParams.append("newThreshold", params.newThreshold.toString());
+
   return `${baseUrl}#${hashParams.toString()}`;
 };

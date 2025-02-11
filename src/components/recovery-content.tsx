@@ -1,10 +1,9 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { STYLES } from "@/constants/styles";
 import { GuardianList } from "./guardian-list";
 import PressableIcon from "./pressable-icon";
 import { ExternalLink } from "lucide-react";
 import { cn } from "@/lib/utils";
-import EmptyActiveRecovery from "./empty-active-recovery";
 import { Button } from "./ui/button";
 import { Modal } from "./modal";
 import LoadingModal from "./loading-modal";
@@ -20,7 +19,6 @@ import { RecoveryInfo } from "@/hooks/useOngoingRecoveryInfo";
 import { useFinalizeRecovery } from "@/hooks/useFinalizeRecovery";
 
 interface RecoveryContentProps {
-  hasActiveRecovery: boolean;
   safeSigners: string[] | undefined;
   safeAddress: Address | undefined;
   newOwners: Address[] | undefined;
@@ -32,7 +30,6 @@ interface RecoveryContentProps {
 }
 
 export default function RecoveryContent({
-  hasActiveRecovery,
   safeSigners,
   safeAddress,
   newOwners,
@@ -52,11 +49,16 @@ export default function RecoveryContent({
   const { address } = useAccount();
 
   const thresholdAchieved =
-    approvalsInfo &&
-    approvalsInfo.totalGuardianApprovals >= approvalsInfo.guardiansThreshold;
+    Boolean(recoveryInfo?.guardiansApprovalCount) ||
+    Boolean(
+      approvalsInfo?.totalGuardianApprovals &&
+        approvalsInfo.guardiansThreshold &&
+        approvalsInfo.totalGuardianApprovals >= approvalsInfo.guardiansThreshold
+    );
 
   const isUserPendingGuardian =
     address &&
+    !recoveryInfo?.newThreshold &&
     approvalsInfo &&
     approvalsInfo.pendingGuardians.includes(address);
 
@@ -67,13 +69,17 @@ export default function RecoveryContent({
 
   const { executeAfter } = recoveryInfo ?? {};
 
+  const delayPeriodStarted = executeAfter
+    ? executeAfter !== 0 && Date.now() / 1000 < executeAfter
+    : false;
+
   const delayPeriodEnded = executeAfter
-    ? executeAfter !== 0 && Date.now() >= executeAfter
+    ? executeAfter !== 0 && Date.now() / 1000 >= executeAfter
     : false;
 
   const { guardiansApprovals } = approvalsInfo ?? {};
   const guardians =
-    guardiansApprovals && delayPeriodEnded
+    guardiansApprovals && delayPeriodStarted
       ? guardiansApprovals.map((guardian) => ({
           ...guardian,
           status: "Approved",
@@ -95,48 +101,8 @@ export default function RecoveryContent({
     if (linkError) setLinkError("");
   };
 
-  const {
-    confirmRecovery,
-    txHash: confirmTxHash,
-    error: confirmError,
-    isLoading: confirmIsLoading,
-  } = useConfirmRecovery({
-    safeAddress,
-    newOwners,
-    newThreshold,
-    shouldExecute,
-  });
-
-  const {
-    executeRecovery,
-    txHash: executeTxHash,
-    error: executeError,
-    isLoading: executeIsLoading,
-  } = useExecuteRecovery({
-    safeAddress,
-    newOwners,
-    newThreshold,
-  });
-
-  const {
-    finalizeRecovery,
-    txHash: finalizeTxHash,
-    error: finalizeError,
-    isLoading: finalizeIsLoading,
-  } = useFinalizeRecovery(safeAddress);
-
-  useEffect(() => {
-    if (finalizeTxHash) {
-      toast({
-        title: "Recovery finalized.",
-        description: `Check new wallet on the transaction when it has finished: ${finalizeTxHash}`,
-      });
-      return;
-    }
-  }, [finalizeTxHash, toast]);
-
-  useEffect(() => {
-    if (confirmTxHash && !isLastGuardianToConfirm) {
+  const onSuccessConfirm = () => {
+    if (!isLastGuardianToConfirm) {
       toast({
         title: "Recovery approved.",
         description:
@@ -144,36 +110,48 @@ export default function RecoveryContent({
       });
       return;
     }
-    if (confirmTxHash && !shouldExecute) {
+    if (!shouldExecute) {
       toast({
         title: "Recovery approved.",
         description: "The threshold was achieved. Click to start delay period.",
       });
       return;
     }
-    if (executeTxHash || (confirmTxHash && shouldExecute)) {
-      toast({
-        title: "Recovery executed.",
-        description: "Delay Period has started.",
-      });
-    }
-  }, [
-    confirmTxHash,
-    executeTxHash,
-    shouldExecute,
-    isLastGuardianToConfirm,
-    toast,
-  ]);
+  };
 
-  useEffect(() => {
-    if (confirmError || executeError || finalizeError) {
-      toast({
-        title: "Error executing transaction.",
-        description: confirmError ?? executeError ?? finalizeError,
-        isWarning: true,
-      });
-    }
-  }, [confirmError, executeError, finalizeError, toast]);
+  const { trigger: confirmRecovery, isLoading: confirmIsLoading } =
+    useConfirmRecovery({
+      safeAddress,
+      newOwners,
+      newThreshold,
+      shouldExecute,
+      onSuccess: onSuccessConfirm,
+    });
+
+  const onSuccessExecute = () => {
+    toast({
+      title: "Recovery executed.",
+      description: "Delay Period has started.",
+    });
+  };
+
+  const { trigger: executeRecovery, isLoading: executeIsLoading } =
+    useExecuteRecovery({
+      safeAddress,
+      newOwners,
+      newThreshold,
+      onSuccess: onSuccessExecute,
+    });
+
+  const onSuccessFinalize = () => {
+    toast({
+      title: "Recovery finalized.",
+      description: "Signers to this Safe account has changed to: ",
+    });
+  };
+
+  const { trigger: finalizeRecovery, isLoading: finalizeIsLoading } =
+    useFinalizeRecovery({ safeAddress, onSuccess: onSuccessFinalize });
 
   return (
     <div className="col-span-2">
@@ -190,7 +168,7 @@ export default function RecoveryContent({
                   style={STYLES.textWithBorderOpacity}
                   className={STYLES.textWithBorder}
                 >
-                  {delayPeriod}-day period not started.
+                  {delayPeriod}-day period.
                 </span>
               </div>
               <div className="flex flex-col gap-1">
@@ -204,98 +182,93 @@ export default function RecoveryContent({
                 </span>
               </div>
             </div>
-            {hasActiveRecovery ? (
-              <>
-                <div className="flex-col gap-1 inline-flex">
-                  <p className={STYLES.label}>SAFE SIGNERS</p>
-                  {safeSigners &&
-                    safeSigners.map((address) => (
-                      <div
-                        key={address}
-                        className={cn(
-                          STYLES.textWithBorder,
-                          "inline-flex items-center gap-2"
-                        )}
-                        style={STYLES.textWithBorderOpacity}
-                      >
-                        <span>{address}</span>
-                        <PressableIcon
-                          icon={ExternalLink}
-                          onClick={() => {}}
-                          size={12}
-                        />
-                      </div>
-                    ))}
-                </div>
-                <h4 className="my-6 text-primary font-roboto-mono text-sm">
-                  GUARDIANS APPROVAL
-                </h4>
-                {guardians && <GuardianList guardians={guardians} />}
-                <div className="flex justify-end mt-4 mb-2 gap-2">
-                  {!delayPeriodEnded && (
-                    <Button
-                      className="text-xs font-bold px-3 py-2 rounded-xl"
-                      disabled={!thresholdAchieved}
-                      onClick={executeRecovery}
-                    >
-                      Start Delay Period
-                    </Button>
-                  )}
-
-                  {delayPeriodEnded && (
-                    <Button
-                      className="text-xs font-bold px-3 py-2 rounded-xl"
-                      onClick={finalizeRecovery}
-                    >
-                      Finalize Recovery
-                    </Button>
-                  )}
-                  <Button
-                    className="text-xs font-bold px-3 py-2 rounded-xl"
-                    onClick={() => setIsOpen(true)}
-                    disabled={!isUserPendingGuardian}
+            <div className="flex-col gap-1 inline-flex">
+              <p className={STYLES.label}>SAFE SIGNERS</p>
+              {safeSigners &&
+                safeSigners.map((address) => (
+                  <div
+                    key={address}
+                    className={cn(
+                      STYLES.textWithBorder,
+                      "inline-flex items-center gap-2"
+                    )}
+                    style={STYLES.textWithBorderOpacity}
                   >
-                    Approve Recovery
-                  </Button>
-                </div>
-                <span className="text-xs flex justify-end text-[10px] opacity-60">
-                  {delayPeriodEnded
-                    ? "Anyone can finalize the reocvery request."
-                    : "Only pending Guardians can approve this recovery request."}
-                </span>
-                <Modal
-                  title="Approve Recovery Request"
-                  description="A recovery request has been started and your approval is required to proceed with the recovery. Review the details below and confirm if you approve."
-                  currentStep={2}
-                  isOpen={isOpen}
-                  totalSteps={1}
-                  onClose={() => setIsOpen(false)}
-                  onNext={handleApproveRecovery}
-                  onBack={() => setIsOpen(false)}
-                  nextLabel="Sign and Approve"
-                  backLabel="Cancel"
-                >
-                  {safeAddress && (
-                    <ApproveRecoveryModalContent
-                      handleCheckToggle={handleCheckToggle}
-                      delayPeriod={3}
-                      isChecked={shouldExecute}
-                      safeAccount={safeAddress}
-                      safeSigners={safeSigners}
-                      isLastGuardianToConfirm={Boolean(isLastGuardianToConfirm)}
+                    <span>{address}</span>
+                    <PressableIcon
+                      icon={ExternalLink}
+                      onClick={() => {}}
+                      size={12}
                     />
-                  )}
-                </Modal>
-                <LoadingModal
-                  loading={
-                    confirmIsLoading || executeIsLoading || finalizeIsLoading
-                  }
-                  loadingText={"Waiting for the transaction signature..."}
+                  </div>
+                ))}
+            </div>
+            <h4 className="my-6 text-primary font-roboto-mono text-sm">
+              GUARDIANS APPROVAL
+            </h4>
+            {guardians && <GuardianList guardians={guardians} />}
+            <div className="flex justify-end mt-4 mb-2 gap-2">
+              {!delayPeriodStarted && (
+                <Button
+                  className="text-xs font-bold px-3 py-2 rounded-xl"
+                  disabled={!thresholdAchieved}
+                  onClick={executeRecovery}
+                >
+                  Start Delay Period
+                </Button>
+              )}
+
+              {delayPeriodStarted && (
+                <Button
+                  className="text-xs font-bold px-3 py-2 rounded-xl"
+                  onClick={finalizeRecovery}
+                  disabled={!delayPeriodEnded}
+                >
+                  Finalize Recovery
+                </Button>
+              )}
+              <Button
+                className="text-xs font-bold px-3 py-2 rounded-xl"
+                onClick={() => setIsOpen(true)}
+                disabled={!isUserPendingGuardian}
+              >
+                Approve Recovery
+              </Button>
+            </div>
+            <span className="text-xs flex justify-end text-[10px] opacity-60">
+              {delayPeriodEnded
+                ? "Anyone can finalize the reocvery request."
+                : "Only pending Guardians can approve this recovery request."}
+            </span>
+            <Modal
+              title="Approve Recovery Request"
+              description="A recovery request has been started and your approval is required to proceed with the recovery. Review the details below and confirm if you approve."
+              currentStep={2}
+              isOpen={isOpen}
+              totalSteps={1}
+              onClose={() => setIsOpen(false)}
+              onNext={handleApproveRecovery}
+              onBack={() => setIsOpen(false)}
+              nextLabel="Approve"
+              backLabel="Cancel"
+            >
+              {safeAddress && (
+                <ApproveRecoveryModalContent
+                  handleCheckToggle={handleCheckToggle}
+                  delayPeriod={3}
+                  isChecked={shouldExecute}
+                  safeAccount={safeAddress}
+                  safeSigners={safeSigners}
+                  isLastGuardianToConfirm={Boolean(isLastGuardianToConfirm)}
                 />
-              </>
-            ) : (
-              <EmptyActiveRecovery />
-            )}
+              )}
+            </Modal>
+            <LoadingModal
+              loading={
+                confirmIsLoading || executeIsLoading || finalizeIsLoading
+              }
+              loadingText={"Waiting for the transaction signature..."}
+            />
           </>
         ) : (
           <RecoveryLinkInput

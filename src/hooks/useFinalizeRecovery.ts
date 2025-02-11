@@ -1,52 +1,50 @@
-import { getReadableError } from "@/utils/get-readable-error";
-import { useMutation } from "@tanstack/react-query";
+"use client";
+
 import { SocialRecoveryModule } from "abstractionkit";
-import { useState } from "react";
+import { useCallback } from "react";
 import { Address } from "viem";
 import { useAccount, usePublicClient, useWalletClient } from "wagmi";
+import { useExecuteTransaction } from "./useExecuteTransaction";
 
-export function useFinalizeRecovery(safeAddress: Address | undefined) {
+interface FinalizeRecoveryParams {
+  safeAddress: Address | undefined;
+  onSuccess?: () => void;
+  onError?: (error: Error) => void;
+}
+
+export function useFinalizeRecovery({
+  safeAddress,
+  onSuccess,
+  onError,
+}: FinalizeRecoveryParams) {
   const { address: signer } = useAccount();
   const { data: walletClient } = useWalletClient();
   const publicClient = usePublicClient();
-  const [txHash, setTxHash] = useState<`0x${string}` | undefined>(undefined);
 
-  const mutation = useMutation({
-    mutationFn: async () => {
-      if (!signer || !walletClient || !publicClient) {
-        throw new Error("Missing signer or client");
-      }
+  const buildTxFn = useCallback(async () => {
+    if (!safeAddress) {
+      throw new Error("Safe address is required");
+    }
+    if (!signer || !walletClient || !publicClient) {
+      throw new Error("Missing signer or client");
+    }
 
-      if (!safeAddress) {
-        throw new Error("Missing safe address");
-      }
+    const srm = new SocialRecoveryModule();
 
-      const srm = new SocialRecoveryModule();
+    const tx = srm.createFinalizeRecoveryMetaTransaction(safeAddress);
 
-      const tx = srm.createFinalizeRecoveryMetaTransaction(safeAddress);
-
-      const newTx = {
+    return [
+      {
         to: tx.to as Address,
         data: tx.data as `0x${string}`,
         value: tx.value,
-      };
+      },
+    ];
+  }, [safeAddress, signer, walletClient, publicClient]);
 
-      const newTxHash = await walletClient.sendTransaction(newTx);
-
-      setTxHash(newTxHash);
-    },
+  return useExecuteTransaction({
+    buildTxFn,
+    onSuccess,
+    onError,
   });
-
-  const finalizeRecovery = () => {
-    if (signer && walletClient && publicClient && safeAddress) {
-      mutation.mutate();
-    }
-  };
-
-  return {
-    txHash,
-    finalizeRecovery,
-    error: mutation?.error && getReadableError(mutation.error),
-    isLoading: mutation.isPending,
-  };
 }

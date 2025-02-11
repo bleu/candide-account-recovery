@@ -5,7 +5,7 @@ import { RecoveryLinkSection } from "./recovery-link-section";
 import PressableIcon from "./pressable-icon";
 import { Button } from "./ui/button";
 import { Modal } from "./modal";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import LoadingModal from "./loading-modal";
 import { Address } from "viem";
@@ -17,7 +17,6 @@ import { useAccount } from "wagmi";
 import { useCancelRecovery } from "@/hooks/useCancelRecovery";
 
 interface RecoverySideBarProps {
-  hasActiveRecovery: boolean;
   recoveryLink: string;
   safeAddress: Address | undefined;
   approvalsInfo: ApprovalsInfo | undefined;
@@ -25,7 +24,6 @@ interface RecoverySideBarProps {
 }
 
 export default function RecoverySidebar({
-  hasActiveRecovery,
   recoveryLink,
   safeAddress,
   approvalsInfo,
@@ -37,55 +35,47 @@ export default function RecoverySidebar({
 
   const { toast } = useToast();
 
-  const { executeAfter } = recoveryInfo ?? {};
+  const { executeAfter, guardiansApprovalCount } = recoveryInfo ?? {};
 
   const { totalGuardianApprovals, guardiansThreshold } = approvalsInfo ?? {};
 
-  const thresholdAchieved = Boolean(
-    totalGuardianApprovals &&
-      guardiansThreshold &&
-      totalGuardianApprovals >= guardiansThreshold
-  );
+  const thresholdAchieved =
+    Boolean(guardiansApprovalCount) ||
+    Boolean(
+      totalGuardianApprovals &&
+        guardiansThreshold &&
+        totalGuardianApprovals >= guardiansThreshold
+    );
   const delayPeriodStarted = executeAfter
-    ? executeAfter !== 0 && Date.now() < executeAfter
+    ? executeAfter !== 0 && Date.now() / 1000 < executeAfter
     : false;
+
   const delayPeriodEnded = executeAfter
-    ? executeAfter !== 0 && Date.now() >= executeAfter
+    ? executeAfter !== 0 && Date.now() / 1000 >= executeAfter
     : false;
   const remainingTime = executeAfter ? formatRemainingTime(executeAfter) : "";
 
-  const { txHash, cancelRecovery, error, isLoading } = useCancelRecovery();
+  const onSuccess = () => {
+    toast({
+      title: "Recovery Request canceled.",
+      description:
+        "All approvals have been revoked, and the process is now terminated.",
+    });
+    setIsOpen(false);
+  };
 
-  useEffect(() => {
-    if (error) {
-      toast({
-        title: "Error canceling recovery.",
-        description: error,
-        isWarning: true,
-      });
-    }
-  }, [error, toast]);
-
-  useEffect(() => {
-    if (txHash) {
-      toast({
-        title: "Recovery Request canceled.",
-        description:
-          "All approvals have been revoked, and the process is now terminated.",
-      });
-    }
-  }, [txHash, toast]);
+  const { trigger: cancelRecovery, isLoading } = useCancelRecovery({
+    onSuccess,
+  });
 
   return (
     <div className="col-span-1">
-      {hasActiveRecovery && (
-        <RecoveryStatus
-          delayPeriodEnded={delayPeriodEnded}
-          thresholdAchieved={thresholdAchieved}
-          delayPeriodStarted={delayPeriodStarted}
-          remainingTime={remainingTime}
-        />
-      )}
+      <RecoveryStatus
+        delayPeriodEnded={delayPeriodEnded}
+        thresholdAchieved={thresholdAchieved}
+        delayPeriodStarted={delayPeriodStarted}
+        remainingTime={remainingTime}
+      />
       <h3 className="mb-2 font-bold text-sm font-roboto-mono">SAFE ACCOUNT</h3>
       <div
         style={STYLES.textWithBorderOpacity}
@@ -96,24 +86,27 @@ export default function RecoverySidebar({
         </p>
         <PressableIcon icon={ExternalLink} onClick={() => {}} size={18} />
       </div>
-      {hasActiveRecovery && (
-        <>
-          <RecoveryLinkSection link={recoveryLink} />
-          <h4 className="text-xs font-medium font-roboto-mono">
-            Cancel Request
-          </h4>
-          <p className="text-xs font-medium opacity-60 my-2">
-            Account owners can cancel this request at any time.
-          </p>
-          <Button
-            className="font-bold text-xs rounded-xl"
-            onClick={() => setIsOpen(true)}
-            disabled={address !== safeAddress}
-          >
-            Cancel
-          </Button>
-        </>
-      )}
+
+      <>
+        <RecoveryLinkSection link={recoveryLink} />
+        {delayPeriodStarted && (
+          <>
+            <h4 className="text-xs font-medium font-roboto-mono">
+              Cancel Request
+            </h4>
+            <p className="text-xs font-medium opacity-60 my-2">
+              Account owners can cancel this request at any time.
+            </p>
+            <Button
+              className="font-bold text-xs rounded-xl"
+              onClick={() => setIsOpen(true)}
+              disabled={address !== safeAddress}
+            >
+              Cancel
+            </Button>
+          </>
+        )}
+      </>
       <Modal
         isOpen={isOpen}
         onClose={() => setIsOpen(false)}

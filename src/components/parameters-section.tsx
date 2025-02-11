@@ -106,7 +106,7 @@ export default function ParametersSection({
             style={STYLES.textWithBorderOpacity}
             className={STYLES.textWithBorder}
           >
-            {delayPeriod}-day period not started.
+            {delayPeriod}-day period.
           </span>
         </div>
         <div className="flex flex-col gap-1">

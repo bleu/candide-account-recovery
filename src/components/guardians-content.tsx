@@ -82,9 +82,7 @@ export default function GuardiansContent({
     isLoading,
     loadingMessage,
   } = useAddGuardians({
-    guardians: currentGuardians?.map(
-      (guardian) => guardian.address
-    ) as Address[],
+    guardians: guardians.map((guardian) => guardian.address) as Address[],
     threshold,
     onSuccess,
   });

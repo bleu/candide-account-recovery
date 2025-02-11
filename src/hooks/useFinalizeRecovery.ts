@@ -9,7 +9,7 @@ import { useExecuteTransaction } from "./useExecuteTransaction";
 interface FinalizeRecoveryParams {
   safeAddress: Address | undefined;
   onSuccess?: () => void;
-  onError?: () => void;
+  onError?: (error: Error) => void;
 }
 
 export function useFinalizeRecovery({

@@ -11,7 +11,7 @@ interface ExecuteRecoveryParams {
   newOwners: Address[] | undefined;
   newThreshold: number | undefined;
   onSuccess?: () => void;
-  onError?: () => void;
+  onError?: (error: Error) => void;
 }
 
 export function useExecuteRecovery({

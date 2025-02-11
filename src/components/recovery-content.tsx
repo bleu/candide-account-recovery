@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { STYLES } from "@/constants/styles";
 import { GuardianList } from "./guardian-list";
 import PressableIcon from "./pressable-icon";
@@ -17,6 +17,7 @@ import { useExecuteRecovery } from "@/hooks/useExecuteRecovery";
 import { ApprovalsInfo } from "@/hooks/useApprovalsInfo";
 import { RecoveryInfo } from "@/hooks/useOngoingRecoveryInfo";
 import { useFinalizeRecovery } from "@/hooks/useFinalizeRecovery";
+import { getReadableError } from "@/utils/get-readable-error";
 
 interface RecoveryContentProps {
   safeSigners: string[] | undefined;
@@ -101,91 +102,67 @@ export default function RecoveryContent({
     if (linkError) setLinkError("");
   };
 
-  const {
-    confirmRecovery,
-    txHash: confirmTxHash,
-    error: confirmError,
-    isLoading: confirmIsLoading,
-    reset: resetConfirmRecovery,
-  } = useConfirmRecovery({
-    safeAddress,
-    newOwners,
-    newThreshold,
-    shouldExecute,
-  });
+  const onError = (error: Error) => {
+    toast({
+      title: "Error executing transaction.",
+      description: getReadableError(error),
+      isWarning: true,
+    });
+  };
 
-  const {
-    executeRecovery,
-    txHash: executeTxHash,
-    error: executeError,
-    isLoading: executeIsLoading,
-    reset: resetExecuteRecovery,
-  } = useExecuteRecovery({
-    safeAddress,
-    newOwners,
-    newThreshold,
-  });
-
-  const {
-    finalizeRecovery,
-    txHash: finalizeTxHash,
-    error: finalizeError,
-    isLoading: finalizeIsLoading,
-  } = useFinalizeRecovery(safeAddress);
-
-  useEffect(() => {
-    if (finalizeTxHash) {
-      toast({
-        title: "Recovery finalized.",
-        description: `Check new wallet on the transaction when it has finished: ${finalizeTxHash}`,
-      });
-    }
-  }, [finalizeTxHash, toast]);
-
-  useEffect(() => {
-    if (confirmTxHash && !isLastGuardianToConfirm) {
+  const onSuccessConfirm = () => {
+    if (!isLastGuardianToConfirm) {
       toast({
         title: "Recovery approved.",
         description:
           "Waiting for other guardians to approve before starting the delay period.",
       });
-      resetConfirmRecovery();
       return;
     }
-    if (confirmTxHash && !shouldExecute) {
+    if (!shouldExecute) {
       toast({
         title: "Recovery approved.",
         description: "The threshold was achieved. Click to start delay period.",
       });
-      resetConfirmRecovery();
       return;
     }
-    if (executeTxHash || (confirmTxHash && shouldExecute)) {
-      toast({
-        title: "Recovery executed.",
-        description: "Delay Period has started.",
-      });
-      resetExecuteRecovery();
-    }
-  }, [
-    confirmTxHash,
-    executeTxHash,
-    shouldExecute,
-    isLastGuardianToConfirm,
-    toast,
-    resetConfirmRecovery,
-    resetExecuteRecovery,
-  ]);
+  };
 
-  useEffect(() => {
-    if (confirmError || executeError || finalizeError) {
-      toast({
-        title: "Error executing transaction.",
-        description: confirmError ?? executeError ?? finalizeError,
-        isWarning: true,
-      });
-    }
-  }, [confirmError, executeError, finalizeError, toast]);
+  const { trigger: confirmRecovery, isLoading: confirmIsLoading } =
+    useConfirmRecovery({
+      safeAddress,
+      newOwners,
+      newThreshold,
+      shouldExecute,
+      onSuccess: onSuccessConfirm,
+      onError,
+    });
+
+  const onSuccessExecute = () => {
+    toast({
+      title: "Recovery executed.",
+      description: "Delay Period has started.",
+    });
+  };
+
+  const { trigger: executeRecovery, isLoading: executeIsLoading } =
+    useExecuteRecovery({
+      safeAddress,
+      newOwners,
+      newThreshold,
+      onSuccess: onSuccessExecute,
+      onError,
+    });
+
+  const onSuccessFinalize = () => {
+    toast({
+      title: "Recovery finalized.",
+      description: "Signers to this Safe account has changed to: ",
+    });
+  };
+
+  const { trigger: finalizeRecovery, isLoading: finalizeIsLoading } =
+    useFinalizeRecovery({ safeAddress, onSuccess: onSuccessFinalize, onError });
 
   return (
     <div className="col-span-2">

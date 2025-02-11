@@ -18,7 +18,7 @@ export function useExecuteTransaction({
 }: {
   buildTxFn: () => BaseTx[] | Promise<BaseTx[]>;
   onSuccess?: () => void;
-  onError?: () => void;
+  onError?: (error: Error) => void;
 }) {
   const { address: signer } = useAccount();
   const { data: walletClient } = useWalletClient();
@@ -51,7 +51,7 @@ export function useExecuteTransaction({
   }, [txHashes, onSuccess, mutation]);
 
   useEffect(() => {
-    if (onError && mutation?.error) onError();
+    if (onError && mutation?.error) onError(mutation?.error);
   }, [mutation?.error, onError]);
 
   const trigger = () => {

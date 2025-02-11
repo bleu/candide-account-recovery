@@ -9,7 +9,7 @@ export function useCancelRecovery({
   onError,
 }: {
   onSuccess?: () => void;
-  onError?: () => void;
+  onError?: (error: Error) => void;
 }) {
   const { address: signer } = useAccount();
   const { data: walletClient } = useWalletClient();

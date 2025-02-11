@@ -13,7 +13,7 @@ interface ConfirmRecoveryParams {
   newThreshold: number | undefined;
   shouldExecute: boolean;
   onSuccess?: () => void;
-  onError?: () => void;
+  onError?: (error: Error) => void;
 }
 
 export function useConfirmRecovery({

@@ -42,7 +42,7 @@ export function useRevokeGuardians({
   guardians: Address[] | undefined;
   threshold: number | undefined;
   onSuccess?: () => void;
-  onError?: () => void;
+  onError?: (error: Error) => void;
 }) {
   const { address: signer } = useAccount();
   const { data: walletClient } = useWalletClient();

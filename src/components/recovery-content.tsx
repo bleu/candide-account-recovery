@@ -49,7 +49,7 @@ export default function RecoveryContent({
   const { address } = useAccount();
 
   const thresholdAchieved =
-    Boolean(recoveryInfo?.guardiansApprovalCount) ??
+    Boolean(recoveryInfo?.guardiansApprovalCount) ||
     Boolean(
       approvalsInfo?.totalGuardianApprovals &&
         approvalsInfo.guardiansThreshold &&

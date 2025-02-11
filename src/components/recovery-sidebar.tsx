@@ -40,7 +40,7 @@ export default function RecoverySidebar({
   const { totalGuardianApprovals, guardiansThreshold } = approvalsInfo ?? {};
 
   const thresholdAchieved =
-    Boolean(guardiansApprovalCount) ??
+    Boolean(guardiansApprovalCount) ||
     Boolean(
       totalGuardianApprovals &&
         guardiansThreshold &&

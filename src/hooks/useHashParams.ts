@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react";
 import type { Address } from "viem";
 
+const isBrowser = typeof window !== "undefined";
+
 type RecoveryParams = {
   safeAddress: Address | undefined;
   newOwners: Address[] | undefined;
@@ -19,6 +21,8 @@ function useHashParams(): RecoveryParams {
   });
 
   useEffect(() => {
+    if (!isBrowser) return;
+
     const hash = window.location.hash.substring(1);
     const result: RecoveryParams = {
       safeAddress: undefined,

@@ -6,13 +6,20 @@ import { Address } from "viem";
 import { useQuery } from "@tanstack/react-query";
 import { socialRecoveryModuleAbi } from "@/utils/abis/socialRecoveryModuleAbi";
 
+export interface RecoveryInfo {
+  guardiansApprovalCount: number;
+  newThreshold: number;
+  executeAfter: number;
+  newOwners: readonly Address[];
+}
+
 export function useOngoingRecoveryInfo(safeAddress?: Address) {
   const publicClient = usePublicClient();
   const account = useAccount();
 
   const addressToFetch = safeAddress ?? account?.address;
 
-  return useQuery({
+  return useQuery<RecoveryInfo>({
     queryKey: ["recoveryInfo", addressToFetch, publicClient?.transport.url],
     queryFn: async () => {
       if (!addressToFetch || !publicClient?.transport.url) {
@@ -26,7 +33,12 @@ export function useOngoingRecoveryInfo(safeAddress?: Address) {
           functionName: "getRecoveryRequest",
           args: [addressToFetch],
         });
-        return data;
+        return {
+          guardiansApprovalCount: Number(data.guardiansApprovalCount),
+          newThreshold: Number(data.guardiansApprovalCount),
+          executeAfter: Number(data.executeAfter),
+          newOwners: data.newOwners,
+        };
       } catch (e) {
         console.error(e);
         throw e;

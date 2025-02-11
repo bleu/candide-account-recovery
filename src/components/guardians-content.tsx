@@ -7,7 +7,18 @@ import ThresholdStep from "./protect-account-steps/threshold";
 import ReviewStepSection from "./protect-account-steps/review";
 import { useToast } from "@/hooks/use-toast";
 import ParametersSection from "./parameters-section";
-import { ApprovalsInfo } from "@/hooks/useApprovalsInfo";
+import { useAddGuardians } from "@/hooks/useAddGuardians";
+import { Address } from "viem";
+import {
+  getGuardianNickname,
+  getStoredGuardians,
+  storeGuardians,
+} from "@/utils/storage";
+import { useAccount } from "wagmi";
+import LoadingModal from "./loading-modal";
+import { useGuardians } from "@/hooks/useGuardians";
+import { useThreshold } from "@/hooks/useThreshold";
+import Link from "next/link";
 
 const buttonStyles = "rounded-xl font-roboto-mono h-7 font-bold text-xs";
 const totalSteps = 3;
@@ -17,8 +28,6 @@ interface GuardiansContentProps {
   delayPeriod: number;
   onThresholdChange: (threshold: number) => void;
   onDelayPeriodChange: (delayPeriod: number) => void;
-  onChangeCurrentGuardians: (guardians: NewAddress[]) => void;
-  approvalsInfo: ApprovalsInfo | undefined;
 }
 
 export default function GuardiansContent({
@@ -26,16 +35,57 @@ export default function GuardiansContent({
   delayPeriod,
   onThresholdChange,
   onDelayPeriodChange,
-  onChangeCurrentGuardians,
-  approvalsInfo,
 }: GuardiansContentProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [guardians, setGuardians] = useState<NewAddress[]>([]);
   const [currentStep, setCurrentStep] = useState(1);
 
-  const currentGuardians = approvalsInfo && approvalsInfo.guardiansApprovals;
+  const { data: guardiansWithoutNicknames } = useGuardians();
+
+  const { address, chainId } = useAccount();
+
+  const storedGuardians =
+    chainId && address
+      ? getStoredGuardians(chainId, address.toLowerCase() as Address)
+      : undefined;
+
+  const currentGuardians =
+    guardiansWithoutNicknames &&
+    guardiansWithoutNicknames.map((guardian, idx) => ({
+      nickname:
+        getGuardianNickname(guardian as Address, storedGuardians) ??
+        `Guardian ${idx + 1}`,
+      address: guardian,
+    }));
+
+  const { data: guardiansThreshold } = useThreshold();
 
   const { toast } = useToast();
+
+  const onSuccess = () => {
+    if (chainId && address)
+      storeGuardians(
+        [...(currentGuardians ?? []), ...guardians],
+        chainId,
+        address
+      );
+    toast({
+      title: "Guardian added.",
+      description:
+        "Your new guardian will now be part of your account recovery setup.",
+    });
+    setIsOpen(false);
+  };
+
+  const {
+    trigger: addGuardians,
+    isLoading,
+    loadingMessage,
+  } = useAddGuardians({
+    guardians: guardians.map((guardian) => guardian.address) as Address[],
+    threshold,
+    onSuccess,
+  });
 
   const handleOnOpenGuardianModal = () => {
     setIsOpen(true);
@@ -58,13 +108,7 @@ export default function GuardiansContent({
     if (currentStep < totalSteps) {
       setCurrentStep((prev) => prev + 1);
     } else {
-      toast({
-        title: "NewAddress added",
-        description:
-          "Your new guardian will now be part of your account recovery setup.",
-      });
-      onChangeCurrentGuardians([...currentGuardians, ...guardians]);
-      setIsOpen(false);
+      addGuardians();
     }
   };
 
@@ -76,14 +120,6 @@ export default function GuardiansContent({
 
   const handleThresholdChange = (value: number) => {
     onThresholdChange(value);
-  };
-
-  const handleRemoveCurrentGuardian = (guardian: NewAddress): void => {
-    if (!currentGuardians) return;
-    const updatedGuardians = currentGuardians.filter(
-      (g) => g.address !== guardian.address || g.nickname !== guardian.nickname
-    );
-    onChangeCurrentGuardians(updatedGuardians);
   };
 
   const getStepContent = () => {
@@ -143,8 +179,6 @@ export default function GuardiansContent({
         return "Define New Threshold";
       case 3:
         return "Review and Confirm Addition";
-      case 4:
-        return "Review Account Recovery Setup";
       default:
         return "";
     }
@@ -181,21 +215,20 @@ export default function GuardiansContent({
           <GuardianList
             guardians={currentGuardians}
             isNewGuardianList
-            onRemoveGuardian={handleRemoveCurrentGuardian}
             onOpenGuardianModal={handleOnOpenGuardianModal}
           />
         ) : (
-          <EmptyGuardians onOpenGuardianModal={handleOnOpenGuardianModal} />
+          <EmptyGuardians />
         )}
-        {approvalsInfo && (
+        {guardiansThreshold && currentGuardians ? (
           <ParametersSection
-            guardians={approvalsInfo.guardiansApprovals}
+            guardians={currentGuardians}
             delayPeriod={delayPeriod}
-            threshold={approvalsInfo.guardiansThreshold}
+            threshold={guardiansThreshold}
             onDelayPeriodChange={onDelayPeriodChange}
             onThresholdChange={onThresholdChange}
           />
-        )}
+        ) : undefined}
       </div>
       <Modal
         isOpen={isOpen}
@@ -214,28 +247,28 @@ export default function GuardiansContent({
             ? "Add Guardian"
             : "Next"
         }
-        isNextDisabled={currentStep === 1 && guardians.length === 0}
+        isNextDisabled={
+          (currentStep === 1 && guardians.length === 0) ||
+          (currentStep === 3 && isLoading)
+        }
       >
         {getStepContent()}
       </Modal>
+      <LoadingModal loading={isLoading} loadingText={loadingMessage} />
     </div>
   );
 }
 
-function EmptyGuardians({
-  onOpenGuardianModal,
-}: {
-  onOpenGuardianModal: () => void;
-}) {
+function EmptyGuardians() {
   return (
     <div className="flex flex-1 flex-col items-center justify-center text-sm font-roboto-mono text-center text-content-foreground">
       <span className="opacity-60 font-bold">No Guardians added.</span>
       <p className="mt-1 mb-5 max-w-xs opacity-60">
         Start protecting your account by adding trusted guardians.
       </p>
-      <Button className={buttonStyles} onClick={onOpenGuardianModal}>
-        Add Guardian
-      </Button>
+      <Link href="/protect-account">
+        <Button className={buttonStyles}>Add Guardian</Button>
+      </Link>
     </div>
   );
 }

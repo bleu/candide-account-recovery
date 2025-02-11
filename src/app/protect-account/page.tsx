@@ -1,5 +1,6 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useState, useCallback } from "react";
+import { useRouter } from "next/navigation";
 
 import { Modal } from "@/components/modal";
 import GuardiansStep from "@/components/protect-account-steps/guardians";
@@ -11,11 +12,13 @@ import { useAccount } from "wagmi";
 import { useAddGuardians } from "@/hooks/useAddGuardians";
 import { Address } from "viem";
 import { storeGuardians } from "@/utils/storage";
-import { redirect } from "next/navigation";
 import { useToast } from "@/hooks/use-toast";
 import { NewAddress } from "@/components/guardian-list";
+import LoadingModal from "@/components/loading-modal";
 
 const totalSteps = 4;
+
+const isBrowser = typeof window !== "undefined";
 
 export default function ProtectAccount() {
   const [currentStep, setCurrentStep] = useState(1);
@@ -32,35 +35,31 @@ export default function ProtectAccount() {
     isConnecting: isWalletConnecting,
   } = useAccount();
 
-  const {
-    txHashes,
-    addGuardians: postGuardians,
-    error: errorPostGuradians,
-    isLoading: isLoadingPostGuardians,
-  } = useAddGuardians(
-    guardians.map((guardian) => guardian.address) as Address[],
-    threshold
-  );
-
   const { toast } = useToast();
+  const router = useRouter();
 
-  useEffect(() => {
-    if (txHashes.length > 0) {
-      if (chainId && address)
-        storeGuardians(
-          guardians.filter((guardian) => guardian.status === "added"),
-          chainId,
-          address
-        );
-      toast({
-        title: "Guardian added.",
-        description:
-          "Your new guardian will now be part of your account recovery setup.",
-      });
-      setIsOpen(false);
-      redirect("/manage-recovery/dashboard");
+  const onSuccess = () => {
+    if (chainId && address) {
+      storeGuardians(guardians, chainId, address);
     }
-  }, [txHashes, chainId, address, guardians, toast]);
+    toast({
+      title: "Guardian added.",
+      description:
+        "Your new guardian will now be part of your account recovery setup.",
+    });
+    setIsOpen(false);
+    router.push("/manage-recovery/dashboard");
+  };
+
+  const {
+    trigger: postGuardians,
+    isLoading: isLoadingPostGuardians,
+    loadingMessage,
+  } = useAddGuardians({
+    guardians: guardians.map((guardian) => guardian.address) as Address[],
+    threshold,
+    onSuccess,
+  });
 
   const handleAddGuardian = (newGuardian: NewAddress): void => {
     setGuardians((prev) => [...prev, newGuardian]);
@@ -70,9 +69,11 @@ export default function ProtectAccount() {
     setGuardians((prev) => prev.filter((_, i) => i !== index));
   };
 
-  const handleExternalLink = (address: string): void => {
-    window.open(`https://etherscan.io/address/${address}`);
-  };
+  const handleExternalLink = useCallback((address: string): void => {
+    if (isBrowser) {
+      window.open(`https://etherscan.io/address/${address}`);
+    }
+  }, []);
 
   const handleNext = () => {
     if (currentStep < totalSteps) {
@@ -144,17 +145,6 @@ export default function ProtectAccount() {
                 delayPeriod={delayPeriod}
               />
               <br />
-              {isLoadingPostGuardians && (
-                <p className="font-roboto-mono font-medium text-sm mt-2">
-                  Please, handle the signature process on your smart wallet
-                  manager...
-                </p>
-              )}
-              {errorPostGuradians && (
-                <p className="text-alert font-roboto-mono font-medium text-sm mt-2">
-                  {errorPostGuradians}
-                </p>
-              )}
             </>
           </div>
         );
@@ -195,32 +185,38 @@ export default function ProtectAccount() {
   return (
     <div className="flex flex-1 items-center justify-center mx-8">
       {isWalletConnected ? (
-        <Modal
-          isOpen={isOpen}
-          onClose={() => setIsOpen(false)}
-          title={getStepTitle()}
-          description={getStepDescription()}
-          currentStep={currentStep}
-          totalSteps={totalSteps}
-          onNext={handleNext}
-          onBack={handleBack}
-          isNextDisabled={
-            (currentStep === 1 && guardians.length === 0) ||
-            (currentStep === 4 && isLoadingPostGuardians)
-          }
-          nextLabel={
-            currentStep === 3
-              ? "Finish and Review"
-              : currentStep === 4
-              ? isLoadingPostGuardians
-                ? "Loading..."
-                : "Setup Recovery"
-              : "Next"
-          }
-          isProgress
-        >
-          {getStepContent()}
-        </Modal>
+        <>
+          <Modal
+            isOpen={isOpen}
+            onClose={() => setIsOpen(false)}
+            title={getStepTitle()}
+            description={getStepDescription()}
+            currentStep={currentStep}
+            totalSteps={totalSteps}
+            onNext={handleNext}
+            onBack={handleBack}
+            isNextDisabled={
+              (currentStep === 1 && guardians.length === 0) ||
+              (currentStep === 4 && isLoadingPostGuardians)
+            }
+            nextLabel={
+              currentStep === 3
+                ? "Finish and Review"
+                : currentStep === 4
+                ? isLoadingPostGuardians
+                  ? "Loading..."
+                  : "Setup Recovery"
+                : "Next"
+            }
+            isProgress
+          >
+            {getStepContent()}
+          </Modal>
+          <LoadingModal
+            loading={isLoadingPostGuardians}
+            loadingText={loadingMessage}
+          />
+        </>
       ) : (
         <WalletNotConnected />
       )}

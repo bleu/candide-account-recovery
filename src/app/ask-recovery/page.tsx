@@ -62,16 +62,15 @@ export default function AskRecovery() {
     }
   };
 
-  const handleBack = () =>
-    currentStep > 1
-      ? () => {
-          if (currentStep === 4) {
-            router.push(link);
-          } else {
-            setCurrentStep((prev) => prev - 1);
-          }
-        }
-      : undefined;
+  const handleBack = () => {
+    if (currentStep > 1) {
+      if (currentStep === 4) {
+        router.push(link);
+      } else {
+        setCurrentStep((prev) => prev - 1);
+      }
+    }
+  };
 
   const handleAdd = (newOwner: NewAddress): void => {
     setOwners((prev) => [...prev, newOwner]);

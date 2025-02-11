@@ -17,7 +17,6 @@ import { useExecuteRecovery } from "@/hooks/useExecuteRecovery";
 import { ApprovalsInfo } from "@/hooks/useApprovalsInfo";
 import { RecoveryInfo } from "@/hooks/useOngoingRecoveryInfo";
 import { useFinalizeRecovery } from "@/hooks/useFinalizeRecovery";
-import { getReadableError } from "@/utils/get-readable-error";
 
 interface RecoveryContentProps {
   safeSigners: string[] | undefined;
@@ -102,14 +101,6 @@ export default function RecoveryContent({
     if (linkError) setLinkError("");
   };
 
-  const onError = (error: Error) => {
-    toast({
-      title: "Error executing transaction.",
-      description: getReadableError(error),
-      isWarning: true,
-    });
-  };
-
   const onSuccessConfirm = () => {
     if (!isLastGuardianToConfirm) {
       toast({
@@ -135,7 +126,6 @@ export default function RecoveryContent({
       newThreshold,
       shouldExecute,
       onSuccess: onSuccessConfirm,
-      onError,
     });
 
   const onSuccessExecute = () => {
@@ -151,7 +141,6 @@ export default function RecoveryContent({
       newOwners,
       newThreshold,
       onSuccess: onSuccessExecute,
-      onError,
     });
 
   const onSuccessFinalize = () => {
@@ -162,7 +151,7 @@ export default function RecoveryContent({
   };
 
   const { trigger: finalizeRecovery, isLoading: finalizeIsLoading } =
-    useFinalizeRecovery({ safeAddress, onSuccess: onSuccessFinalize, onError });
+    useFinalizeRecovery({ safeAddress, onSuccess: onSuccessFinalize });
 
   return (
     <div className="col-span-2">

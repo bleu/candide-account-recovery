@@ -13,6 +13,7 @@ import { Address } from "viem";
 import { storeGuardians } from "@/utils/storage";
 import { useAccount } from "wagmi";
 import LoadingModal from "./loading-modal";
+import { toast } from "@/hooks/use-toast";
 
 export interface NewAddress {
   nickname: string;
@@ -50,6 +51,11 @@ export function GuardianList({
     threshold: isLastGuardianModalOpen ? 0 : threshold,
     onSuccess: () => {
       if (chainId && address) storeGuardians(guardians, chainId, address);
+      toast({
+        title: "Guardian added.",
+        description:
+          "Your new guardian will now be part of your account recovery setup.",
+      });
       setIsRemoveModalOpen(false);
       setIsLastGuardianModalOpen(false);
       setGuardianToRemove({ nickname: "", address: "" });

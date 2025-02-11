@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import { useAccount, useWalletClient } from "wagmi";
 import { Address } from "viem";
 import { useMutation } from "@tanstack/react-query";
+import { toast } from "./use-toast";
+import { getReadableError } from "@/utils/get-readable-error";
 
 interface BaseTx {
   to: Address;
@@ -51,6 +53,12 @@ export function useExecuteTransaction({
   }, [txHashes, onSuccess, mutation]);
 
   useEffect(() => {
+    if (mutation?.error)
+      toast({
+        title: "Error executing transaction.",
+        description: getReadableError(mutation?.error),
+        isWarning: true,
+      });
     if (onError && mutation?.error) onError(mutation?.error);
   }, [mutation?.error, onError]);
 

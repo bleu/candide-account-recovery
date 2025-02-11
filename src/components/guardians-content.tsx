@@ -63,7 +63,12 @@ export default function GuardiansContent({
   const { toast } = useToast();
 
   const onSuccess = () => {
-    if (chainId && address) storeGuardians(guardians, chainId, address);
+    if (chainId && address)
+      storeGuardians(
+        [...(currentGuardians ?? []), ...guardians],
+        chainId,
+        address
+      );
     toast({
       title: "Guardian added.",
       description:

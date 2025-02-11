@@ -10,8 +10,6 @@ import { ExternalLink } from "lucide-react";
 import ReviewStepSection from "./protect-account-steps/review";
 import { useRevokeGuardians } from "@/hooks/useRevokeGuardians";
 import { Address } from "viem";
-import { storeGuardians } from "@/utils/storage";
-import { useAccount } from "wagmi";
 import LoadingModal from "./loading-modal";
 import { toast } from "@/hooks/use-toast";
 
@@ -50,7 +48,6 @@ export function GuardianList({
     guardians: [guardianToRemove?.address as Address],
     threshold: isLastGuardianModalOpen ? 0 : threshold,
     onSuccess: () => {
-      if (chainId && address) storeGuardians(guardians, chainId, address);
       toast({
         title: "Guardian added.",
         description:
@@ -100,8 +97,6 @@ export function GuardianList({
   const handleExternalLink = (address: string): void => {
     window.open(`https://etherscan.io/address/${address}`);
   };
-
-  const { chainId, address } = useAccount();
 
   const getStepContent = () => {
     switch (currentStep) {

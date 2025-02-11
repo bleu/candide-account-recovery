@@ -3,8 +3,8 @@
 import { SocialRecoveryModule } from "abstractionkit";
 import { useAccount, useWalletClient, usePublicClient } from "wagmi";
 import { Address, PublicClient } from "viem";
-import { toast } from "./use-toast";
 import { useExecuteTransaction } from "./useExecuteTransaction";
+import { useCallback } from "react";
 
 async function buildRevokeGuardiansTxs(
   srm: SocialRecoveryModule,
@@ -48,7 +48,7 @@ export function useRevokeGuardians({
   const { data: walletClient } = useWalletClient();
   const publicClient = usePublicClient();
 
-  const buildTxFn = async () => {
+  const buildTxFn = useCallback(async () => {
     if (!signer) throw new Error("Missing signer");
     if (!walletClient) throw new Error("Missing wallet client");
     if (!publicClient) throw new Error("Missing public client");
@@ -65,28 +65,11 @@ export function useRevokeGuardians({
       threshold
     );
     return txs;
-  };
-
-  const onSuccess_ = () => {
-    toast({
-      title: "success",
-      description: "Revoked guardian",
-    });
-    if (onSuccess) onSuccess();
-  };
-
-  const onError_ = () => {
-    toast({
-      title: "error",
-      description: "Error revoking guardian",
-      isWarning: true,
-    });
-    if (onError) onError();
-  };
+  }, [signer, walletClient, publicClient, guardians, threshold]);
 
   return useExecuteTransaction({
     buildTxFn,
-    onSuccess: onSuccess_,
-    onError: onError_,
+    onSuccess,
+    onError,
   });
 }

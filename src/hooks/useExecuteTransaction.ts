@@ -1,10 +1,9 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useAccount, useWalletClient } from "wagmi";
 import { Address } from "viem";
 import { useMutation } from "@tanstack/react-query";
-import { useWaitTxReceipt } from "./useWaitTxReceipt";
 
 interface BaseTx {
   to: Address;
@@ -25,9 +24,6 @@ export function useExecuteTransaction({
   const { data: walletClient } = useWalletClient();
   const [txHashes, setTxHashes] = useState<string[]>([]);
 
-  const { isLoading: isWaitingForReceipt, error: errorWaitingReceipt } =
-    useWaitTxReceipt(txHashes);
-
   const mutation = useMutation({
     mutationFn: async () => {
       if (!signer) throw new Error("Missing signer");
@@ -37,7 +33,7 @@ export function useExecuteTransaction({
 
       if (txs.length < 1) throw new Error("No transaction to call");
 
-      const newTxHashes = [];
+      const newTxHashes = [] as `0x${string}`[];
       for (const tx of txs) {
         const txHash = await walletClient.sendTransaction(tx);
         newTxHashes.push(txHash);
@@ -46,21 +42,17 @@ export function useExecuteTransaction({
     },
   });
 
-  const reset = useCallback(() => {
-    setTxHashes([]);
-    mutation.reset();
-  }, [mutation]);
-
   useEffect(() => {
-    if (!isWaitingForReceipt && txHashes) {
-      reset();
+    if (txHashes.length > 0) {
       if (onSuccess) onSuccess();
+      setTxHashes([]);
+      mutation.reset();
     }
-  }, [isWaitingForReceipt, txHashes, onSuccess, reset]);
+  }, [txHashes, onSuccess, mutation]);
 
   useEffect(() => {
-    if (onError && (errorWaitingReceipt || mutation?.error)) onError();
-  }, [errorWaitingReceipt, mutation?.error, onError]);
+    if (onError && mutation?.error) onError();
+  }, [mutation?.error, onError]);
 
   const trigger = () => {
     if (signer && walletClient) {
@@ -68,15 +60,9 @@ export function useExecuteTransaction({
     }
   };
 
-  const getLoadingMessage = () => {
-    if (mutation.isPending) return "Waiting for signatures";
-    if (isWaitingForReceipt) return "Waiting for order execution";
-    return "";
-  };
-
   return {
     trigger,
-    isLoading: mutation.isPending || isWaitingForReceipt,
-    loadingMessage: getLoadingMessage(),
+    isLoading: mutation.isPending,
+    loadingMessage: "Waiting for transaction approval...",
   };
 }

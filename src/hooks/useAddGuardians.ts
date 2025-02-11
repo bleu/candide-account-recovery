@@ -1,12 +1,11 @@
 "use client";
 
 import { SocialRecoveryModule } from "abstractionkit";
-import { useState } from "react";
+import { useCallback } from "react";
 import { useAccount, useWalletClient, usePublicClient } from "wagmi";
 import { Address, PublicClient } from "viem";
-import { useMutation } from "@tanstack/react-query";
 import { getIsModuleEnabled } from "@/utils/getIsModuleEnabled";
-import { getReadableError } from "@/utils/get-readable-error";
+import { useExecuteTransaction } from "./useExecuteTransaction";
 
 async function buildAddGuardiansTxs(
   srm: SocialRecoveryModule,
@@ -43,48 +42,41 @@ async function buildAddGuardiansTxs(
   }));
 }
 
-export function useAddGuardians(guardians: Address[], threshold: number = 1) {
+export function useAddGuardians({
+  guardians,
+  threshold,
+  onSuccess,
+  onError,
+}: {
+  guardians: Address[] | undefined;
+  threshold: number | undefined;
+  onSuccess?: () => void;
+  onError?: () => void;
+}) {
   const { address: signer } = useAccount();
   const { data: walletClient } = useWalletClient();
   const publicClient = usePublicClient();
-  const [txHashes, setTxHashes] = useState<string[]>([]);
 
-  const mutation = useMutation({
-    mutationFn: async () => {
-      if (!signer || !walletClient || !publicClient) {
-        throw new Error("Missing signer or client");
-      }
-
-      const srm = new SocialRecoveryModule();
-      const txs = await buildAddGuardiansTxs(
-        srm,
-        publicClient,
-        signer,
-        guardians,
-        threshold
-      );
-
-      if (txs.length < 1) throw new Error("No transaction to call");
-
-      const newTxHashes = [];
-      for (const tx of txs) {
-        const txHash = await walletClient.sendTransaction(tx);
-        newTxHashes.push(txHash);
-      }
-      setTxHashes(newTxHashes);
-    },
-  });
-
-  const addGuardians = () => {
-    if (guardians.length > 0 && signer && walletClient && publicClient) {
-      mutation.mutate();
+  const buildTxFn = useCallback(async () => {
+    if (!signer || !walletClient || !publicClient || !guardians || !threshold) {
+      throw new Error("Missing params");
     }
-  };
 
-  return {
-    txHashes,
-    addGuardians,
-    error: mutation?.error && getReadableError(mutation.error),
-    isLoading: mutation.isPending,
-  };
+    const srm = new SocialRecoveryModule();
+    const txs = await buildAddGuardiansTxs(
+      srm,
+      publicClient,
+      signer,
+      guardians,
+      threshold
+    );
+
+    return txs;
+  }, [signer, publicClient, walletClient, guardians, threshold]);
+
+  return useExecuteTransaction({
+    buildTxFn,
+    onSuccess,
+    onError,
+  });
 }

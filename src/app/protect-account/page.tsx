@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 import { Modal } from "@/components/modal";
 import GuardiansStep from "@/components/protect-account-steps/guardians";
@@ -33,32 +33,30 @@ export default function ProtectAccount() {
     isConnecting: isWalletConnecting,
   } = useAccount();
 
-  const {
-    txHashes,
-    addGuardians: postGuardians,
-    error: errorPostGuradians,
-    isLoading: isLoadingPostGuardians,
-  } = useAddGuardians(
-    guardians.map((guardian) => guardian.address) as Address[],
-    threshold
-  );
-
   const { toast } = useToast();
 
-  useEffect(() => {
-    if (txHashes.length > 0) {
-      if (chainId && address) {
-        storeGuardians(guardians, chainId, address);
-      }
-      toast({
-        title: "Guardian added.",
-        description:
-          "Your new guardian will now be part of your account recovery setup.",
-      });
-      setIsOpen(false);
-      redirect("/manage-recovery/dashboard");
+  const onSuccess = () => {
+    if (chainId && address) {
+      storeGuardians(guardians, chainId, address);
     }
-  }, [txHashes, chainId, address, guardians, toast]);
+    toast({
+      title: "Guardian added.",
+      description:
+        "Your new guardian will now be part of your account recovery setup.",
+    });
+    setIsOpen(false);
+    redirect("/manage-recovery/dashboard");
+  };
+
+  const {
+    trigger: postGuardians,
+    isLoading: isLoadingPostGuardians,
+    loadingMessage,
+  } = useAddGuardians({
+    guardians: guardians.map((guardian) => guardian.address) as Address[],
+    threshold,
+    onSuccess,
+  });
 
   const handleAddGuardian = (newGuardian: NewAddress): void => {
     setGuardians((prev) => [...prev, newGuardian]);
@@ -142,11 +140,6 @@ export default function ProtectAccount() {
                 delayPeriod={delayPeriod}
               />
               <br />
-              {errorPostGuradians && (
-                <p className="text-alert font-roboto-mono font-medium text-sm mt-2">
-                  {errorPostGuradians}
-                </p>
-              )}
             </>
           </div>
         );
@@ -216,7 +209,7 @@ export default function ProtectAccount() {
           </Modal>
           <LoadingModal
             loading={isLoadingPostGuardians}
-            loadingText={"Waiting for the transaction signature..."}
+            loadingText={loadingMessage}
           />
         </>
       ) : (

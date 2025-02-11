@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { NewAddress, GuardianList } from "./guardian-list";
 import { Modal } from "./modal";
 import { Button } from "./ui/button";
@@ -62,22 +62,27 @@ export default function GuardiansContent({
 
   const { toast } = useToast();
 
-  const { txHashes, addGuardians, error, isLoading } = useAddGuardians(
-    guardians.map((guardian) => guardian.address) as Address[],
-    threshold
-  );
+  const onSuccess = () => {
+    if (chainId && address) storeGuardians(guardians, chainId, address);
+    toast({
+      title: "Guardian added.",
+      description:
+        "Your new guardian will now be part of your account recovery setup.",
+    });
+    setIsOpen(false);
+  };
 
-  useEffect(() => {
-    if (txHashes.length > 0) {
-      if (chainId && address) storeGuardians(guardians, chainId, address);
-      toast({
-        title: "Guardian added.",
-        description:
-          "Your new guardian will now be part of your account recovery setup.",
-      });
-      setIsOpen(false);
-    }
-  }, [txHashes, chainId, address, guardians, toast]);
+  const {
+    trigger: addGuardians,
+    isLoading,
+    loadingMessage,
+  } = useAddGuardians({
+    guardians: currentGuardians?.map(
+      (guardian) => guardian.address
+    ) as Address[],
+    threshold,
+    onSuccess,
+  });
 
   const handleOnOpenGuardianModal = () => {
     setIsOpen(true);
@@ -155,11 +160,6 @@ export default function GuardiansContent({
                 />
               </div>
               <ReviewStepSection threshold={threshold} />
-              {error && (
-                <p className="text-alert font-roboto-mono font-medium text-sm mt-2">
-                  {error}
-                </p>
-              )}
             </>
           </div>
         );
@@ -251,10 +251,7 @@ export default function GuardiansContent({
       >
         {getStepContent()}
       </Modal>
-      <LoadingModal
-        loading={isLoading}
-        loadingText={"Waiting for the transaction signature..."}
-      />
+      <LoadingModal loading={isLoading} loadingText={loadingMessage} />
     </div>
   );
 }

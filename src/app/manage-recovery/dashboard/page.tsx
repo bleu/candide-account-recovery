@@ -17,7 +17,7 @@ import { useOngoingRecoveryInfo } from "@/hooks/useOngoingRecoveryInfo";
 import { useOwners } from "@/hooks/useOwners";
 import { cn } from "@/lib/utils";
 import { createFinalUrl } from "@/utils/recovery-link";
-import { redirect } from "next/navigation";
+import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import { Address } from "viem";
 import { useAccount } from "wagmi";
@@ -29,6 +29,7 @@ const tabState = cn(
 );
 
 export default function Dashboard() {
+  const router = useRouter();
   const params = useHashParams();
   const {
     safeAddress: safeAddressFromParams,
@@ -81,8 +82,8 @@ export default function Dashboard() {
 
   useEffect(() => {
     if (!address && !isConnecting && shouldRedirectToSettings === undefined)
-      redirect("/manage-recovery");
-  }, [address, shouldRedirectToSettings, isConnecting]);
+      router.push("/manage-recovery");
+  }, [address, shouldRedirectToSettings, isConnecting, router]);
 
   return (
     <>

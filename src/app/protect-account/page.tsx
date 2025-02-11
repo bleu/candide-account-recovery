@@ -1,5 +1,6 @@
 "use client";
-import { useState } from "react";
+import { useState, useCallback } from "react";
+import { useRouter } from "next/navigation";
 
 import { Modal } from "@/components/modal";
 import GuardiansStep from "@/components/protect-account-steps/guardians";
@@ -11,12 +12,13 @@ import { useAccount } from "wagmi";
 import { useAddGuardians } from "@/hooks/useAddGuardians";
 import { Address } from "viem";
 import { storeGuardians } from "@/utils/storage";
-import { redirect } from "next/navigation";
 import { useToast } from "@/hooks/use-toast";
 import { NewAddress } from "@/components/guardian-list";
 import LoadingModal from "@/components/loading-modal";
 
 const totalSteps = 4;
+
+const isBrowser = typeof window !== "undefined";
 
 export default function ProtectAccount() {
   const [currentStep, setCurrentStep] = useState(1);
@@ -34,6 +36,7 @@ export default function ProtectAccount() {
   } = useAccount();
 
   const { toast } = useToast();
+  const router = useRouter();
 
   const onSuccess = () => {
     if (chainId && address) {
@@ -45,7 +48,7 @@ export default function ProtectAccount() {
         "Your new guardian will now be part of your account recovery setup.",
     });
     setIsOpen(false);
-    redirect("/manage-recovery/dashboard");
+    router.push("/manage-recovery/dashboard");
   };
 
   const {
@@ -66,9 +69,11 @@ export default function ProtectAccount() {
     setGuardians((prev) => prev.filter((_, i) => i !== index));
   };
 
-  const handleExternalLink = (address: string): void => {
-    window.open(`https://etherscan.io/address/${address}`);
-  };
+  const handleExternalLink = useCallback((address: string): void => {
+    if (isBrowser) {
+      window.open(`https://etherscan.io/address/${address}`);
+    }
+  }, []);
 
   const handleNext = () => {
     if (currentStep < totalSteps) {

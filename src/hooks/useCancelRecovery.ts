@@ -1,47 +1,39 @@
-import { getReadableError } from "@/utils/get-readable-error";
-import { useMutation } from "@tanstack/react-query";
 import { SocialRecoveryModule } from "abstractionkit";
-import { useState } from "react";
+import { useCallback } from "react";
 import { Address } from "viem";
 import { useAccount, useWalletClient } from "wagmi";
+import { useExecuteTransaction } from "./useExecuteTransaction";
 
-export function useCancelRecovery() {
+export function useCancelRecovery({
+  onSuccess,
+  onError,
+}: {
+  onSuccess?: () => void;
+  onError?: () => void;
+}) {
   const { address: signer } = useAccount();
   const { data: walletClient } = useWalletClient();
-  const [txHash, setTxHash] = useState<`0x${string}` | undefined>(undefined);
 
-  const mutation = useMutation({
-    mutationFn: async () => {
-      if (!signer || !walletClient) {
-        throw new Error("Missing signer or client");
-      }
+  const buildTxFn = useCallback(async () => {
+    if (!signer || !walletClient) {
+      throw new Error("Missing signer or client");
+    }
 
-      const srm = new SocialRecoveryModule();
+    const srm = new SocialRecoveryModule();
+    const tx = srm.createCancelRecoveryMetaTransaction();
 
-      const tx = srm.createCancelRecoveryMetaTransaction();
-
-      const newTx = {
+    return [
+      {
         to: tx.to as Address,
         data: tx.data as `0x${string}`,
         value: tx.value,
-      };
+      },
+    ];
+  }, [signer, walletClient]);
 
-      const newTxHash = await walletClient.sendTransaction(newTx);
-
-      setTxHash(newTxHash);
-    },
+  return useExecuteTransaction({
+    buildTxFn,
+    onSuccess,
+    onError,
   });
-
-  const cancelRecovery = () => {
-    if (signer && walletClient) {
-      mutation.mutate();
-    }
-  };
-
-  return {
-    txHash,
-    cancelRecovery,
-    error: mutation?.error && getReadableError(mutation.error),
-    isLoading: mutation.isPending,
-  };
 }

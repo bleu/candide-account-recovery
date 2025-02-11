@@ -1,6 +1,5 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { useAccount, useWalletClient } from "wagmi";
 import { Address } from "viem";
 import { useMutation } from "@tanstack/react-query";
@@ -24,7 +23,6 @@ export function useExecuteTransaction({
 }) {
   const { address: signer } = useAccount();
   const { data: walletClient } = useWalletClient();
-  const [txHashes, setTxHashes] = useState<string[]>([]);
 
   const mutation = useMutation({
     mutationFn: async () => {
@@ -40,27 +38,21 @@ export function useExecuteTransaction({
         const txHash = await walletClient.sendTransaction(tx);
         newTxHashes.push(txHash);
       }
-      setTxHashes(newTxHashes);
+      return newTxHashes;
     },
-  });
-
-  useEffect(() => {
-    if (txHashes.length > 0) {
+    onSuccess: () => {
       if (onSuccess) onSuccess();
-      setTxHashes([]);
       mutation.reset();
-    }
-  }, [txHashes, onSuccess, mutation]);
-
-  useEffect(() => {
-    if (mutation?.error)
+    },
+    onError: (error: Error) => {
       toast({
         title: "Error executing transaction.",
-        description: getReadableError(mutation?.error),
+        description: getReadableError(error),
         isWarning: true,
       });
-    if (onError && mutation?.error) onError(mutation?.error);
-  }, [mutation?.error, onError]);
+      if (onError) onError(error);
+    },
+  });
 
   const trigger = () => {
     if (signer && walletClient) {

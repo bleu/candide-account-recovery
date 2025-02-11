@@ -38,3 +38,15 @@ export const getStoredGuardians = (
     return [];
   }
 };
+
+export const getGuardianNickname = (
+  address: Address,
+  storedGuardians: { address: string; nickname: string }[] | undefined
+) => {
+  if (!storedGuardians) return;
+  const relativeStoredGuardian = storedGuardians.find(
+    (guardian) => guardian.address === address
+  );
+  if (!relativeStoredGuardian) return;
+  return relativeStoredGuardian.nickname;
+};

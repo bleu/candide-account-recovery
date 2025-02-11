@@ -6,14 +6,18 @@ import NewOwners from "@/components/ask-recovery-steps/new-owners";
 import NewThreshold from "@/components/ask-recovery-steps/new-threshold";
 import ShareLink from "@/components/ask-recovery-steps/share-link";
 import { Modal } from "@/components/modal";
-import { redirect } from "next/navigation";
-import React, { useCallback, useState } from "react";
+import { useRouter } from "next/navigation";
+import { useCallback, useState } from "react";
 import { isAddress } from "viem";
 import { createFinalUrl } from "@/utils/recovery-link";
+
+const isBrowser = typeof window !== "undefined";
+import { useGuardians } from "@/hooks/useGuardians";
 
 const totalSteps = 4;
 
 export default function AskRecovery() {
+  const router = useRouter();
   const [isOpen, setIsOpen] = useState(true);
   const [currentStep, setCurrentStep] = useState(1);
   const [safeAddress, setSafeAddress] = useState("");
@@ -30,6 +34,8 @@ export default function AskRecovery() {
     newThreshold: threshold,
     newOwners: newOwners.map((guardian) => guardian.address),
   });
+
+  const { data: guardians } = useGuardians(safeAddress as `0x${string}`);
 
   const handleNext = () => {
     switch (currentStep) {
@@ -48,17 +54,19 @@ export default function AskRecovery() {
         setCurrentStep((prev) => prev + 1);
         break;
       case 4:
-        navigator.clipboard.writeText(link);
+        if (isBrowser) {
+          navigator.clipboard.writeText(link);
+        }
       default:
         break;
     }
   };
 
-  const handleBack =
+  const handleBack = () =>
     currentStep > 1
       ? () => {
           if (currentStep === 4) {
-            redirect(link);
+            router.push(link);
           } else {
             setCurrentStep((prev) => prev - 1);
           }
@@ -74,7 +82,9 @@ export default function AskRecovery() {
   };
 
   const handleExternalLink = (address: string): void => {
-    window.open(`https://etherscan.io/address/${address}`);
+    if (isBrowser) {
+      window.open(`https://etherscan.io/address/${address}`);
+    }
   };
 
   const handleThresholdChange = (value: number) => {
@@ -90,9 +100,19 @@ export default function AskRecovery() {
           isValid: false,
           reason: "This safe address can't be an owner.",
         };
+      if (!guardians)
+        return {
+          isValid: false,
+          reason: "Couldn't fetch guardians.",
+        };
+      if (guardians.includes(address))
+        return {
+          isValid: false,
+          reason: "Guardians can't be new owners.",
+        };
       return { isValid: true, reason: "" };
     },
-    [safeAddress]
+    [safeAddress, guardians]
   );
 
   const getStepContent = () => {

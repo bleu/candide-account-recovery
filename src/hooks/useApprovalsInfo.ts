@@ -4,7 +4,7 @@ import { SocialRecoveryModule } from "abstractionkit";
 import { useAccount, useClient } from "wagmi";
 import { Address } from "viem";
 import { useQuery } from "@tanstack/react-query";
-import { getStoredGuardians } from "@/utils/storage";
+import { getGuardianNickname, getStoredGuardians } from "@/utils/storage";
 import { useGuardians } from "./useGuardians";
 import { NewAddress } from "@/components/guardian-list";
 
@@ -14,17 +14,6 @@ export interface ApprovalsInfo {
   guardiansThreshold: number;
   pendingGuardians: Address[];
 }
-
-const getGuardianNickname = (
-  address: Address,
-  storedGuardians: { address: string; nickname: string }[]
-) => {
-  const relativeStoredGuardian = storedGuardians.find(
-    (guardian) => guardian.address === address
-  );
-  if (!relativeStoredGuardian) return;
-  return relativeStoredGuardian.nickname;
-};
 
 export function useApprovalsInfo({
   safeAddress,

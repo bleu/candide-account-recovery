@@ -1,3 +1,4 @@
+"use client";
 import { STYLES } from "@/constants/styles";
 import { ExternalLinkIcon } from "lucide-react";
 import React from "react";

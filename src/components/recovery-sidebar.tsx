@@ -5,7 +5,7 @@ import { RecoveryLinkSection } from "./recovery-link-section";
 import PressableIcon from "./pressable-icon";
 import { Button } from "./ui/button";
 import { Modal } from "./modal";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import LoadingModal from "./loading-modal";
 import { Address } from "viem";
@@ -55,28 +55,18 @@ export default function RecoverySidebar({
     : false;
   const remainingTime = executeAfter ? formatRemainingTime(executeAfter) : "";
 
-  const { txHash, cancelRecovery, error, isLoading } = useCancelRecovery();
+  const onSuccess = () => {
+    toast({
+      title: "Recovery Request canceled.",
+      description:
+        "All approvals have been revoked, and the process is now terminated.",
+    });
+    setIsOpen(false);
+  };
 
-  useEffect(() => {
-    if (error) {
-      toast({
-        title: "Error canceling recovery.",
-        description: error,
-        isWarning: true,
-      });
-    }
-  }, [error, toast]);
-
-  useEffect(() => {
-    if (txHash) {
-      toast({
-        title: "Recovery Request canceled.",
-        description:
-          "All approvals have been revoked, and the process is now terminated.",
-      });
-      setIsOpen(false);
-    }
-  }, [txHash, toast]);
+  const { trigger: cancelRecovery, isLoading } = useCancelRecovery({
+    onSuccess,
+  });
 
   return (
     <div className="col-span-1">

@@ -27,5 +27,5 @@ export const createFinalUrl = (params: RecoveryQueryParams): string => {
   hashParams.append("newOwners", params.newOwners.join(","));
   hashParams.append("newThreshold", params.newThreshold.toString());
 
-  return `${baseUrl}#${hashParams.toString()}`;
+  return `${baseUrl}/manage-recovery/dashboard#${hashParams.toString()}`;
 };

@@ -1,4 +1,11 @@
-import { Input } from "../ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface ThresholdStepProps {
   totalGuardians: number;
@@ -13,27 +20,38 @@ export default function ThresholdStep({
   currentThreshold,
   onThresholdChange,
 }: ThresholdStepProps) {
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = parseInt(e.target.value);
-    const clampedValue = Math.min(Math.max(value, 1), totalGuardians);
-    onThresholdChange(clampedValue);
-  };
+  const thresholdOptions = Array.from(
+    { length: totalGuardians },
+    (_, i) => i + 1
+  );
 
   return (
     <>
-      <Input
-        type="number"
-        min={1}
-        max={totalGuardians}
-        defaultValue={currentThreshold || 1}
-        className="w-40 border-none text-base focus:ring-primary"
-        onChange={handleChange}
-      />
+      <Select
+        value={(currentThreshold || 1).toString()}
+        onValueChange={(value) => onThresholdChange(parseInt(value))}
+      >
+        <SelectTrigger className="w-40 border-none focus:ring-primary text-foreground">
+          <SelectValue />
+        </SelectTrigger>
+        <SelectContent className="bg-background border-none">
+          <SelectGroup>
+            {thresholdOptions.map((value) => (
+              <SelectItem
+                key={value}
+                className="hover:bg-content-background hover:cursor-pointer"
+                value={value.toString()}
+              >
+                {value}
+              </SelectItem>
+            ))}
+          </SelectGroup>
+        </SelectContent>
+      </Select>
       <p className="text-xs font-roboto-mono font-medium opacity-60 mt-2">
         {isNewThreshold
           ? `You will now have ${totalGuardians} guardians. Choose a threshold between 1 and ${totalGuardians}.`
-          : `${totalGuardians} guardians added. Choose a threshold between 1 and
-        ${totalGuardians}.`}
+          : `${totalGuardians} guardians added. Choose a threshold between 1 and ${totalGuardians}.`}
       </p>
     </>
   );

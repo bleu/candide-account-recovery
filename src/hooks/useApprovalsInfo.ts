@@ -1,6 +1,9 @@
 "use client";
 
-import { SocialRecoveryModule } from "abstractionkit";
+import {
+  SocialRecoveryModule,
+  SocialRecoveryModuleGracePeriodSelector,
+} from "abstractionkit";
 import { useAccount, useClient } from "wagmi";
 import { Address } from "viem";
 import { useQuery } from "@tanstack/react-query";
@@ -42,7 +45,9 @@ export function useApprovalsInfo({
         throw new Error("A needed parameter is not available");
       }
 
-      const srm = new SocialRecoveryModule();
+      const srm = new SocialRecoveryModule(
+        SocialRecoveryModuleGracePeriodSelector.After3Minutes
+      );
       const guardiansApprovalsList = await Promise.all(
         guardians.map((guardian) =>
           srm.hasGuardianApproved(

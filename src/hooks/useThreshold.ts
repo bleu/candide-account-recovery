@@ -1,6 +1,9 @@
 "use client";
 
-import { SocialRecoveryModule } from "abstractionkit";
+import {
+  SocialRecoveryModule,
+  SocialRecoveryModuleGracePeriodSelector,
+} from "abstractionkit";
 import { useAccount, useClient } from "wagmi";
 import { Address } from "viem";
 import { useQuery } from "@tanstack/react-query";
@@ -18,7 +21,9 @@ export function useThreshold(safeAddress?: Address) {
         throw new Error("Account or client transport URL not available");
       }
 
-      const srm = new SocialRecoveryModule();
+      const srm = new SocialRecoveryModule(
+        SocialRecoveryModuleGracePeriodSelector.After3Minutes
+      );
       const threhsold = await srm.threshold(
         client.transport.url,
         addressToFetch

@@ -1,6 +1,9 @@
 "use client";
 
-import { SocialRecoveryModule } from "abstractionkit";
+import {
+  SocialRecoveryModule,
+  SocialRecoveryModuleGracePeriodSelector,
+} from "abstractionkit";
 import { useCallback } from "react";
 import { useAccount, useWalletClient, usePublicClient } from "wagmi";
 import { Address, PublicClient } from "viem";
@@ -62,7 +65,9 @@ export function useAddGuardians({
       throw new Error("Missing params");
     }
 
-    const srm = new SocialRecoveryModule();
+    const srm = new SocialRecoveryModule(
+      SocialRecoveryModuleGracePeriodSelector.After3Minutes
+    );
     const txs = await buildAddGuardiansTxs(
       srm,
       publicClient,

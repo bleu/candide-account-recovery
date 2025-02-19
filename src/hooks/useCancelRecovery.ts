@@ -1,4 +1,7 @@
-import { SocialRecoveryModule } from "abstractionkit";
+import {
+  SocialRecoveryModule,
+  SocialRecoveryModuleGracePeriodSelector,
+} from "abstractionkit";
 import { useCallback } from "react";
 import { Address } from "viem";
 import { useAccount, useWalletClient } from "wagmi";
@@ -19,7 +22,9 @@ export function useCancelRecovery({
       throw new Error("Missing signer or client");
     }
 
-    const srm = new SocialRecoveryModule();
+    const srm = new SocialRecoveryModule(
+      SocialRecoveryModuleGracePeriodSelector.After3Minutes
+    );
     const tx = srm.createCancelRecoveryMetaTransaction();
 
     return [

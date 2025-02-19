@@ -1,6 +1,9 @@
 "use client";
 
-import { SocialRecoveryModule } from "abstractionkit";
+import {
+  SocialRecoveryModule,
+  SocialRecoveryModuleGracePeriodSelector,
+} from "abstractionkit";
 import { useAccount, useWalletClient, usePublicClient } from "wagmi";
 import { Address, PublicClient } from "viem";
 import { useExecuteTransaction } from "./useExecuteTransaction";
@@ -55,7 +58,9 @@ export function useRevokeGuardians({
     if (!guardians) throw new Error("Missing guardians");
     if (threshold === undefined) throw new Error("Missing threshold");
 
-    const srm = new SocialRecoveryModule();
+    const srm = new SocialRecoveryModule(
+      SocialRecoveryModuleGracePeriodSelector.After3Minutes
+    );
 
     const txs = await buildRevokeGuardiansTxs(
       srm,

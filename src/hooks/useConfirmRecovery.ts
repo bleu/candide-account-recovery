@@ -1,6 +1,9 @@
 "use client";
 
-import { SocialRecoveryModule } from "abstractionkit";
+import {
+  SocialRecoveryModule,
+  SocialRecoveryModuleGracePeriodSelector,
+} from "abstractionkit";
 import { useCallback } from "react";
 import { Address } from "viem";
 import { useAccount, usePublicClient, useWalletClient } from "wagmi";
@@ -47,7 +50,9 @@ export function useConfirmRecovery({
       throw new Error("Caller must be a guardian");
     }
 
-    const srm = new SocialRecoveryModule();
+    const srm = new SocialRecoveryModule(
+      SocialRecoveryModuleGracePeriodSelector.After3Minutes
+    );
 
     const tx = srm.createConfirmRecoveryMetaTransaction(
       safeAddress,

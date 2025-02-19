@@ -1,6 +1,9 @@
 "use client";
 
-import { SocialRecoveryModule } from "abstractionkit";
+import {
+  SocialRecoveryModule,
+  SocialRecoveryModuleGracePeriodSelector,
+} from "abstractionkit";
 import { useAccount, usePublicClient } from "wagmi";
 import { Address } from "viem";
 import { useQuery } from "@tanstack/react-query";
@@ -26,7 +29,9 @@ export function useOngoingRecoveryInfo(safeAddress?: Address) {
         throw new Error("Account or publicClient transport URL not available");
       }
       try {
-        const srm = new SocialRecoveryModule();
+        const srm = new SocialRecoveryModule(
+          SocialRecoveryModuleGracePeriodSelector.After3Minutes
+        );
         const data = await publicClient.readContract({
           address: srm.moduleAddress as Address,
           abi: socialRecoveryModuleAbi,

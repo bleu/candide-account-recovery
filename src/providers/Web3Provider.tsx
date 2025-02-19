@@ -45,8 +45,12 @@ const config = createConfig(
 const queryClient = new QueryClient();
 
 export const Web3Provider = ({ children }: { children: ReactNode }) => {
+  const connectors = config.connectors.filter(
+    (connector) => connector.name !== "Coinbase Wallet"
+  );
+
   return (
-    <WagmiProvider config={config}>
+    <WagmiProvider config={{ ...config, connectors }}>
       <QueryClientProvider client={queryClient}>
         <ConnectKitProvider
           options={{

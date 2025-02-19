@@ -6,6 +6,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { sepolia } from "viem/chains";
+import { useAccount } from "wagmi";
 
 interface DelayPeriodStepProps {
   delayPeriod: number;
@@ -16,25 +18,35 @@ export default function DelayPeriodStep({
   delayPeriod,
   onDelayPeriodChange,
 }: DelayPeriodStepProps) {
+  const { chainId } = useAccount();
   return (
     <Select
       value={delayPeriod.toString()}
       onValueChange={(value) => onDelayPeriodChange(parseInt(value))}
+      disabled={chainId === sepolia.id}
     >
       <SelectTrigger className="w-40 border-none focus:ring-primary text-foreground">
-        <SelectValue placeholder="3 days" />
+        <SelectValue placeholder="3 minutes" />
       </SelectTrigger>
       <SelectContent className="bg-background border-none">
         <SelectGroup>
-          <SelectItem className="hover:bg-content-background" value="3">
-            3 days
-          </SelectItem>
-          <SelectItem className="hover:bg-content-background" value="7">
-            7 days
-          </SelectItem>
-          <SelectItem className="hover:bg-content-background" value="14">
-            14 days
-          </SelectItem>
+          {chainId === sepolia.id ? (
+            <SelectItem className="hover:bg-content-background" value="1">
+              3 minutes
+            </SelectItem>
+          ) : (
+            <>
+              <SelectItem className="hover:bg-content-background" value="3">
+                3 days
+              </SelectItem>
+              <SelectItem className="hover:bg-content-background" value="7">
+                7 days
+              </SelectItem>
+              <SelectItem className="hover:bg-content-background" value="14">
+                14 days
+              </SelectItem>
+            </>
+          )}
         </SelectGroup>
       </SelectContent>
     </Select>

@@ -174,7 +174,7 @@ export default function ProtectAccount() {
       case 2:
         return "Threshold determines the minimum number of guardian approvals required to recover your account.";
       case 3:
-        return "Set the time period during which you can cancel a initiated recovery request. We recommend a period of at least 3 days.";
+        return "Set the time period during which you can cancel a initiated recovery request.";
       default:
         return "";
     }

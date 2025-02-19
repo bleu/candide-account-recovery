@@ -2,7 +2,6 @@
 import { useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 
-import { Modal } from "@/components/modal";
 import GuardiansStep from "@/components/protect-account-steps/guardians";
 import ReviewStepSection from "@/components/protect-account-steps/review";
 import DelayPeriodStep from "@/components/protect-account-steps/delay-period";
@@ -16,6 +15,7 @@ import { useToast } from "@/hooks/use-toast";
 import { NewAddress } from "@/components/guardian-list";
 import LoadingModal from "@/components/loading-modal";
 import { sepolia } from "wagmi/chains";
+import { BaseForm } from "@/components/base-form";
 
 const totalSteps = 4;
 
@@ -23,7 +23,6 @@ const isBrowser = typeof window !== "undefined";
 
 export default function ProtectAccount() {
   const [currentStep, setCurrentStep] = useState(1);
-  const [isOpen, setIsOpen] = useState(true);
   const [threshold, setThreshold] = useState(1);
 
   const [guardians, setGuardians] = useState<NewAddress[]>([]);
@@ -51,7 +50,6 @@ export default function ProtectAccount() {
       description:
         "Your new guardian will now be part of your account recovery setup.",
     });
-    setIsOpen(false);
     router.push("/manage-recovery/dashboard");
   };
 
@@ -190,9 +188,7 @@ export default function ProtectAccount() {
     <div className="flex flex-1 items-center justify-center mx-8">
       {isWalletConnected ? (
         <>
-          <Modal
-            isOpen={isOpen}
-            onClose={() => setIsOpen(false)}
+          <BaseForm
             title={getStepTitle()}
             description={getStepDescription()}
             currentStep={currentStep}
@@ -215,7 +211,7 @@ export default function ProtectAccount() {
             isProgress
           >
             {getStepContent()}
-          </Modal>
+          </BaseForm>
           <LoadingModal
             loading={isLoadingPostGuardians}
             loadingText={loadingMessage}

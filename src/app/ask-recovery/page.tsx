@@ -5,7 +5,6 @@ import SafeAddress from "@/components/ask-recovery-steps/safe-address";
 import NewOwners from "@/components/ask-recovery-steps/new-owners";
 import NewThreshold from "@/components/ask-recovery-steps/new-threshold";
 import ShareLink from "@/components/ask-recovery-steps/share-link";
-import { Modal } from "@/components/modal";
 import { useRouter } from "next/navigation";
 import { useCallback, useState } from "react";
 import { isAddress } from "viem";
@@ -13,12 +12,12 @@ import { createFinalUrl } from "@/utils/recovery-link";
 
 const isBrowser = typeof window !== "undefined";
 import { useGuardians } from "@/hooks/useGuardians";
+import { BaseForm } from "@/components/base-form";
 
 const totalSteps = 4;
 
 export default function AskRecovery() {
   const router = useRouter();
-  const [isOpen, setIsOpen] = useState(true);
   const [currentStep, setCurrentStep] = useState(1);
   const [safeAddress, setSafeAddress] = useState("");
   const [newOwners, setOwners] = useState<NewAddress[]>([]);
@@ -190,13 +189,11 @@ export default function AskRecovery() {
 
   return (
     <div className="flex flex-1 items-center justify-center mx-8">
-      <Modal
+      <BaseForm
         title={getStepTitle()}
         description={getStepDescription()}
         currentStep={currentStep}
-        isOpen={isOpen}
         totalSteps={totalSteps}
-        onClose={() => setIsOpen(false)}
         onNext={handleNext}
         onBack={handleBack}
         backLabel={currentStep !== 4 ? "Back" : "Details"}
@@ -211,7 +208,7 @@ export default function AskRecovery() {
         isProgress={currentStep !== 4}
       >
         {getStepContent()}
-      </Modal>
+      </BaseForm>
     </div>
   );
 }

@@ -7,13 +7,13 @@ import { useQuery } from "@tanstack/react-query";
 
 export function useGuardians(safeAddress?: Address) {
   const client = useClient();
-  const account = useAccount();
+  const { address, chainId } = useAccount();
   const { srm } = useSocialRecoveryModule({ safeAddress });
 
-  const addressToFetch = safeAddress ?? account?.address;
+  const addressToFetch = safeAddress ?? address;
 
   return useQuery({
-    queryKey: ["guardians", addressToFetch, client?.transport.url],
+    queryKey: ["guardians", chainId, addressToFetch],
     queryFn: async () => {
       if (!addressToFetch || !client?.transport.url || !srm) {
         throw new Error("Account, srm or client transport URL not available");

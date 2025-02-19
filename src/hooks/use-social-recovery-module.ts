@@ -47,8 +47,6 @@ export function useSocialRecoveryModule(
 
   const addressToFetch = safeAddress ?? address;
 
-  console.log({ chainId });
-
   const { data: modulesWithGuardians } = useQuery({
     queryKey: ["allGuardians", chainId, addressToFetch],
     queryFn: async () => {
@@ -70,7 +68,6 @@ export function useSocialRecoveryModule(
           guardianCounts[index].status === "success" &&
           Number(guardianCounts[index].result) > 0
       );
-      console.log(output);
       return output;
     },
   });

@@ -1,6 +1,7 @@
 "use client";
 
 import { WagmiProvider, createConfig, http } from "wagmi";
+import { metaMask, walletConnect } from "wagmi/connectors";
 import {
   arbitrum,
   base,
@@ -29,6 +30,13 @@ const config = createConfig(
         ? http(process.env.NEXT_PUBLIC_SEPOLIA_RPC_URL)
         : http("https://sepolia.gateway.tenderly.co"),
     },
+    connectors: [
+      metaMask(),
+      walletConnect({
+        projectId: walletConnectProjectId,
+        showQrModal: false,
+      }),
+    ],
 
     // Required API Keys
     walletConnectProjectId,
@@ -45,12 +53,8 @@ const config = createConfig(
 const queryClient = new QueryClient();
 
 export const Web3Provider = ({ children }: { children: ReactNode }) => {
-  const connectors = config.connectors.filter(
-    (connector) => connector.name !== "Coinbase Wallet"
-  );
-
   return (
-    <WagmiProvider config={{ ...config, connectors }}>
+    <WagmiProvider config={config}>
       <QueryClientProvider client={queryClient}>
         <ConnectKitProvider
           options={{

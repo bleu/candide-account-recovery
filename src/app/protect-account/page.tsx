@@ -15,6 +15,7 @@ import { storeGuardians } from "@/utils/storage";
 import { useToast } from "@/hooks/use-toast";
 import { NewAddress } from "@/components/guardian-list";
 import LoadingModal from "@/components/loading-modal";
+import { sepolia } from "wagmi/chains";
 
 const totalSteps = 4;
 
@@ -24,7 +25,6 @@ export default function ProtectAccount() {
   const [currentStep, setCurrentStep] = useState(1);
   const [isOpen, setIsOpen] = useState(true);
   const [threshold, setThreshold] = useState(1);
-  const [delayPeriod, setDelayPeriod] = useState(3);
 
   const [guardians, setGuardians] = useState<NewAddress[]>([]);
 
@@ -34,6 +34,10 @@ export default function ProtectAccount() {
     isConnected: isWalletConnected,
     isConnecting: isWalletConnecting,
   } = useAccount();
+
+  const [delayPeriod, setDelayPeriod] = useState(
+    chainId === sepolia.id ? 1 : 3
+  );
 
   const { toast } = useToast();
   const router = useRouter();

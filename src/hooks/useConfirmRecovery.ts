@@ -1,9 +1,6 @@
 "use client";
 
-import {
-  SocialRecoveryModule,
-  SocialRecoveryModuleGracePeriodSelector,
-} from "abstractionkit";
+import { useSocialRecoveryModule } from "./use-social-recovery-module";
 import { useCallback } from "react";
 import { Address } from "viem";
 import { useAccount, usePublicClient, useWalletClient } from "wagmi";
@@ -30,6 +27,7 @@ export function useConfirmRecovery({
   const { address: signer } = useAccount();
   const { data: walletClient } = useWalletClient();
   const publicClient = usePublicClient();
+  const { srm } = useSocialRecoveryModule({ safeAddress });
 
   const { data: guardians } = useGuardians(safeAddress);
 
@@ -49,10 +47,9 @@ export function useConfirmRecovery({
     if (!guardians || !Object(guardians).includes(signer)) {
       throw new Error("Caller must be a guardian");
     }
-
-    const srm = new SocialRecoveryModule(
-      SocialRecoveryModuleGracePeriodSelector.After3Minutes
-    );
+    if (!srm) {
+      throw new Error("srm not available");
+    }
 
     const tx = srm.createConfirmRecoveryMetaTransaction(
       safeAddress,
@@ -77,6 +74,7 @@ export function useConfirmRecovery({
     guardians,
     walletClient,
     publicClient,
+    srm,
   ]);
 
   return useExecuteTransaction({

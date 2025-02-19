@@ -1,14 +1,12 @@
 "use client";
 
-import {
-  SocialRecoveryModule,
-  SocialRecoveryModuleGracePeriodSelector,
-} from "abstractionkit";
+import { useSocialRecoveryModule } from "./use-social-recovery-module";
 import { useCallback } from "react";
 import { useAccount, useWalletClient, usePublicClient } from "wagmi";
 import { Address, PublicClient } from "viem";
 import { getIsModuleEnabled } from "@/utils/getIsModuleEnabled";
 import { useExecuteTransaction } from "./useExecuteTransaction";
+import { SocialRecoveryModule } from "abstractionkit";
 
 async function buildAddGuardiansTxs(
   srm: SocialRecoveryModule,
@@ -59,15 +57,20 @@ export function useAddGuardians({
   const { address: signer } = useAccount();
   const { data: walletClient } = useWalletClient();
   const publicClient = usePublicClient();
+  const { srm } = useSocialRecoveryModule();
 
   const buildTxFn = useCallback(async () => {
-    if (!signer || !walletClient || !publicClient || !guardians || !threshold) {
+    if (
+      !signer ||
+      !walletClient ||
+      !publicClient ||
+      !guardians ||
+      !threshold ||
+      !srm
+    ) {
       throw new Error("Missing params");
     }
 
-    const srm = new SocialRecoveryModule(
-      SocialRecoveryModuleGracePeriodSelector.After3Minutes
-    );
     const txs = await buildAddGuardiansTxs(
       srm,
       publicClient,
@@ -77,7 +80,7 @@ export function useAddGuardians({
     );
 
     return txs;
-  }, [signer, publicClient, walletClient, guardians, threshold]);
+  }, [signer, publicClient, walletClient, guardians, threshold, srm]);
 
   return useExecuteTransaction({
     buildTxFn,

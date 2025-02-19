@@ -1,7 +1,4 @@
-import {
-  SocialRecoveryModule,
-  SocialRecoveryModuleGracePeriodSelector,
-} from "abstractionkit";
+import { useSocialRecoveryModule } from "./use-social-recovery-module";
 import { useCallback } from "react";
 import { Address } from "viem";
 import { useAccount, useWalletClient } from "wagmi";
@@ -16,15 +13,13 @@ export function useCancelRecovery({
 }) {
   const { address: signer } = useAccount();
   const { data: walletClient } = useWalletClient();
+  const { srm } = useSocialRecoveryModule();
 
   const buildTxFn = useCallback(async () => {
-    if (!signer || !walletClient) {
-      throw new Error("Missing signer or client");
+    if (!signer || !walletClient || !srm) {
+      throw new Error("Missing srm, signer or client");
     }
 
-    const srm = new SocialRecoveryModule(
-      SocialRecoveryModuleGracePeriodSelector.After3Minutes
-    );
     const tx = srm.createCancelRecoveryMetaTransaction();
 
     return [
@@ -34,7 +29,7 @@ export function useCancelRecovery({
         value: tx.value,
       },
     ];
-  }, [signer, walletClient]);
+  }, [signer, walletClient, srm]);
 
   return useExecuteTransaction({
     buildTxFn,

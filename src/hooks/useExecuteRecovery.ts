@@ -1,9 +1,6 @@
 "use client";
 
-import {
-  SocialRecoveryModule,
-  SocialRecoveryModuleGracePeriodSelector,
-} from "abstractionkit";
+import { useSocialRecoveryModule } from "./use-social-recovery-module";
 import { useCallback } from "react";
 import { Address } from "viem";
 import { useAccount, usePublicClient, useWalletClient } from "wagmi";
@@ -27,6 +24,7 @@ export function useExecuteRecovery({
   const { address: signer } = useAccount();
   const { data: walletClient } = useWalletClient();
   const publicClient = usePublicClient();
+  const { srm } = useSocialRecoveryModule({ safeAddress });
 
   const buildTxFn = useCallback(async () => {
     if (!safeAddress) throw new Error("Safe address is required");
@@ -34,12 +32,8 @@ export function useExecuteRecovery({
       throw new Error("New owners array is required and cannot be empty");
     if (newThreshold === undefined || newThreshold <= 0)
       throw new Error("New threshold must be greater than 0");
-    if (!signer || !walletClient || !publicClient)
-      throw new Error("Missing signer or client");
-
-    const srm = new SocialRecoveryModule(
-      SocialRecoveryModuleGracePeriodSelector.After3Minutes
-    );
+    if (!signer || !walletClient || !publicClient || !srm)
+      throw new Error("Missing signer, srm or client");
 
     const tx = srm.createExecuteRecoveryMetaTransaction(
       safeAddress,
@@ -61,6 +55,7 @@ export function useExecuteRecovery({
     signer,
     walletClient,
     publicClient,
+    srm,
   ]);
 
   return useExecuteTransaction({

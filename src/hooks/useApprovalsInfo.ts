@@ -1,9 +1,6 @@
 "use client";
 
-import {
-  SocialRecoveryModule,
-  SocialRecoveryModuleGracePeriodSelector,
-} from "abstractionkit";
+import { useSocialRecoveryModule } from "./use-social-recovery-module";
 import { useAccount, useClient } from "wagmi";
 import { Address } from "viem";
 import { useQuery } from "@tanstack/react-query";
@@ -30,6 +27,7 @@ export function useApprovalsInfo({
   const client = useClient();
   const { chainId } = useAccount();
   const { data: guardians } = useGuardians(safeAddress);
+  const { srm } = useSocialRecoveryModule({ safeAddress });
 
   return useQuery<ApprovalsInfo>({
     queryKey: ["approvalsInfo", safeAddress, newOwners, newThreshold],
@@ -40,14 +38,12 @@ export function useApprovalsInfo({
         !newThreshold ||
         !client?.transport.url ||
         !guardians ||
+        !srm ||
         !chainId
       ) {
         throw new Error("A needed parameter is not available");
       }
 
-      const srm = new SocialRecoveryModule(
-        SocialRecoveryModuleGracePeriodSelector.After3Minutes
-      );
       const guardiansApprovalsList = await Promise.all(
         guardians.map((guardian) =>
           srm.hasGuardianApproved(
@@ -98,6 +94,7 @@ export function useApprovalsInfo({
       Boolean(newThreshold) &&
       Boolean(client?.transport.url) &&
       Boolean(guardians) &&
+      Boolean(srm) &&
       Boolean(chainId),
   });
 }

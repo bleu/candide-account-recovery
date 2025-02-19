@@ -1,9 +1,6 @@
 "use client";
 
-import {
-  SocialRecoveryModule,
-  SocialRecoveryModuleGracePeriodSelector,
-} from "abstractionkit";
+import { useSocialRecoveryModule } from "./use-social-recovery-module";
 import { useAccount, usePublicClient } from "wagmi";
 import { Address } from "viem";
 import { useQuery } from "@tanstack/react-query";
@@ -19,19 +16,19 @@ export interface RecoveryInfo {
 export function useOngoingRecoveryInfo(safeAddress?: Address) {
   const publicClient = usePublicClient();
   const account = useAccount();
+  const { srm } = useSocialRecoveryModule({ safeAddress });
 
   const addressToFetch = safeAddress ?? account?.address;
 
   return useQuery<RecoveryInfo>({
     queryKey: ["recoveryInfo", addressToFetch, publicClient?.transport.url],
     queryFn: async () => {
-      if (!addressToFetch || !publicClient?.transport.url) {
-        throw new Error("Account or publicClient transport URL not available");
+      if (!addressToFetch || !publicClient?.transport.url || !srm) {
+        throw new Error(
+          "Account, srm or publicClient transport URL not available"
+        );
       }
       try {
-        const srm = new SocialRecoveryModule(
-          SocialRecoveryModuleGracePeriodSelector.After3Minutes
-        );
         const data = await publicClient.readContract({
           address: srm.moduleAddress as Address,
           abi: socialRecoveryModuleAbi,
@@ -49,7 +46,10 @@ export function useOngoingRecoveryInfo(safeAddress?: Address) {
         throw e;
       }
     },
-    enabled: Boolean(addressToFetch) && Boolean(publicClient?.transport.url),
+    enabled:
+      Boolean(addressToFetch) &&
+      Boolean(publicClient?.transport.url) &&
+      Boolean(srm),
     staleTime: 120000, // 2 minutes
     refetchOnMount: false, // Don't refetch when component mounts
     refetchOnWindowFocus: false, // Don't refetch when window regains focus

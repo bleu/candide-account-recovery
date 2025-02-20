@@ -50,9 +50,8 @@ export function GuardianList({
     threshold: isLastGuardianModalOpen ? 0 : threshold,
     onSuccess: () => {
       toast({
-        title: "Guardian added.",
-        description:
-          "Your new guardian will now be part of your account recovery setup.",
+        title: "Guardian removed.",
+        description: "This address will no longer be a guardian.",
       });
       setIsRemoveModalOpen(false);
       setIsLastGuardianModalOpen(false);

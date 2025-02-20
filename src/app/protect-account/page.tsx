@@ -16,6 +16,7 @@ import { NewAddress } from "@/components/guardian-list";
 import LoadingModal from "@/components/loading-modal";
 import { sepolia } from "wagmi/chains";
 import { BaseForm } from "@/components/base-form";
+import { useGuardians } from "@/hooks/useGuardians";
 
 const totalSteps = 4;
 
@@ -40,6 +41,8 @@ export default function ProtectAccount() {
 
   const { toast } = useToast();
   const router = useRouter();
+
+  const { data: currentGuardians } = useGuardians();
 
   const onSuccess = () => {
     if (chainId && address) {
@@ -182,6 +185,9 @@ export default function ProtectAccount() {
         return "";
     }
   };
+
+  if (currentGuardians && currentGuardians.length > 0)
+    router.push("/manage-recovery/dashboard");
 
   if (isWalletConnecting) return <LoadingScreen />;
 

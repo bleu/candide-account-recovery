@@ -21,6 +21,7 @@ interface RecoverySideBarProps {
   safeAddress: Address | undefined;
   approvalsInfo: ApprovalsInfo | undefined;
   recoveryInfo: RecoveryInfo | undefined;
+  resetQueries: () => void;
 }
 
 export default function RecoverySidebar({
@@ -28,6 +29,7 @@ export default function RecoverySidebar({
   safeAddress,
   approvalsInfo,
   recoveryInfo,
+  resetQueries,
 }: RecoverySideBarProps) {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -61,6 +63,7 @@ export default function RecoverySidebar({
       description:
         "All approvals have been revoked, and the process is now terminated.",
     });
+    resetQueries();
     setIsOpen(false);
   };
 

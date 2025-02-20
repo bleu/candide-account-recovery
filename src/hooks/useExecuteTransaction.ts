@@ -47,8 +47,11 @@ export function useExecuteTransaction({
 
       const newTxHashes = [] as `0x${string}`[];
       for (const tx of txs) {
+        setIsWaitingApproval(true);
         const txHash = await walletClient.sendTransaction(tx);
         newTxHashes.push(txHash);
+
+        setIsWaitingTx(true);
         if (isSafeAccount) {
           const successfulTx = await waitNextSafeAccountTx();
           if (!successfulTx)

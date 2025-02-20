@@ -27,6 +27,7 @@ interface RecoveryContentProps {
   isLinkRequired: boolean;
   approvalsInfo: ApprovalsInfo | undefined;
   recoveryInfo: RecoveryInfo | undefined;
+  resetQueries: () => void;
 }
 
 export default function RecoveryContent({
@@ -38,6 +39,7 @@ export default function RecoveryContent({
   isLinkRequired,
   approvalsInfo,
   recoveryInfo,
+  resetQueries,
 }: RecoveryContentProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [shouldExecute, setShouldExecute] = useState(false);
@@ -79,7 +81,7 @@ export default function RecoveryContent({
 
   const { guardiansApprovals } = approvalsInfo ?? {};
   const guardians =
-    guardiansApprovals && delayPeriodStarted
+    guardiansApprovals && (delayPeriodStarted || delayPeriodEnded)
       ? guardiansApprovals.map((guardian) => ({
           ...guardian,
           status: "Approved",
@@ -102,6 +104,7 @@ export default function RecoveryContent({
   };
 
   const onSuccessConfirm = () => {
+    resetQueries();
     if (!isLastGuardianToConfirm) {
       toast({
         title: "Recovery approved.",
@@ -132,6 +135,7 @@ export default function RecoveryContent({
   });
 
   const onSuccessExecute = () => {
+    resetQueries();
     toast({
       title: "Recovery executed.",
       description: "Delay Period has started.",
@@ -150,6 +154,7 @@ export default function RecoveryContent({
   });
 
   const onSuccessFinalize = () => {
+    resetQueries();
     toast({
       title: "Recovery finalized.",
       description: "Signers to this Safe account has changed to: ",
@@ -215,7 +220,9 @@ export default function RecoveryContent({
             <h4 className="my-6 text-primary font-roboto-mono text-sm">
               GUARDIANS APPROVAL
             </h4>
-            {guardians && <GuardianList guardians={guardians} />}
+            {guardians && (
+              <GuardianList guardians={guardians} resetQueries={resetQueries} />
+            )}
             <div className="flex justify-end mt-4 mb-2 gap-2">
               {!(delayPeriodStarted || delayPeriodEnded) && (
                 <Button
@@ -276,7 +283,7 @@ export default function RecoveryContent({
               loading={
                 confirmIsLoading || executeIsLoading || finalizeIsLoading
               }
-              loadingText={"Waiting for the transaction signature..."}
+              loadingText={"Waiting transaction..."}
               onCancel={() => {
                 if (cancelConfrim) cancelConfrim();
                 if (cancelExecute) cancelExecute();

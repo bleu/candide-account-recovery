@@ -28,6 +28,7 @@ interface GuardiansContentProps {
   delayPeriod: number;
   onThresholdChange: (threshold: number) => void;
   onDelayPeriodChange: (delayPeriod: number) => void;
+  resetQueries: () => void;
 }
 
 export default function GuardiansContent({
@@ -35,6 +36,7 @@ export default function GuardiansContent({
   delayPeriod,
   onThresholdChange,
   onDelayPeriodChange,
+  resetQueries,
 }: GuardiansContentProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [guardians, setGuardians] = useState<NewAddress[]>([]);
@@ -63,6 +65,7 @@ export default function GuardiansContent({
   const { toast } = useToast();
 
   const onSuccess = () => {
+    resetQueries();
     if (chainId && address)
       storeGuardians(
         [...(currentGuardians ?? []), ...guardians],
@@ -217,6 +220,7 @@ export default function GuardiansContent({
             guardians={currentGuardians}
             isNewGuardianList
             onOpenGuardianModal={handleOnOpenGuardianModal}
+            resetQueries={resetQueries}
           />
         ) : (
           <EmptyGuardians />

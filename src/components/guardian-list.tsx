@@ -24,6 +24,7 @@ interface GuardianListProps {
   isNewGuardianList?: boolean;
   onRemoveGuardian?: (guardian: NewAddress) => void;
   onOpenGuardianModal?: () => void;
+  resetQueries: () => void;
 }
 
 const totalSteps = 3;
@@ -33,6 +34,7 @@ export function GuardianList({
   isNewGuardianList,
   onRemoveGuardian,
   onOpenGuardianModal,
+  resetQueries,
 }: GuardianListProps) {
   const [isRemoveModalOpen, setIsRemoveModalOpen] = useState(false);
   const [isLastGuardianModalOpen, setIsLastGuardianModalOpen] = useState(false);
@@ -57,6 +59,7 @@ export function GuardianList({
       setIsLastGuardianModalOpen(false);
       setGuardianToRemove({ nickname: "", address: "" });
       setCurrentStep(1);
+      resetQueries();
     },
   });
 

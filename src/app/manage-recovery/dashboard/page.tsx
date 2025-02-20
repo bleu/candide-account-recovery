@@ -18,6 +18,7 @@ import { useOngoingRecoveryInfo } from "@/hooks/useOngoingRecoveryInfo";
 import { useOwners } from "@/hooks/useOwners";
 import { cn } from "@/lib/utils";
 import { createFinalUrl } from "@/utils/recovery-link";
+import { useQueryClient } from "@tanstack/react-query";
 import React, { useEffect, useState } from "react";
 import { Address } from "viem";
 import { useAccount, useSwitchChain } from "wagmi";
@@ -111,6 +112,20 @@ export default function Dashboard() {
     chainIdFromWallet,
   ]);
 
+  const queryClient = useQueryClient();
+
+  const resetQueries = () => {
+    queryClient.invalidateQueries({
+      queryKey: ["approvalsInfo", safeAddress, newOwners, newThreshold],
+    });
+    queryClient.invalidateQueries({
+      queryKey: ["recoveryInfo", chainId, safeAddress],
+    });
+    queryClient.invalidateQueries({
+      queryKey: ["guardians", chainId, safeAddress],
+    });
+  };
+
   return (
     <>
       {shouldRedirectToSettings !== undefined ? (
@@ -144,6 +159,7 @@ export default function Dashboard() {
                     safeAddress={safeAddress}
                     approvalsInfo={approvalsInfo}
                     recoveryInfo={recoveryInfo}
+                    resetQueries={resetQueries}
                   />
                   <RecoveryContent
                     safeSigners={safeSigners}
@@ -154,6 +170,7 @@ export default function Dashboard() {
                     isLinkRequired={isLinkRequired}
                     approvalsInfo={approvalsInfo}
                     recoveryInfo={recoveryInfo}
+                    resetQueries={resetQueries}
                   />
                 </div>
               </TabsContent>
@@ -165,12 +182,14 @@ export default function Dashboard() {
                     safeAddress={safeAddress}
                     approvalsInfo={approvalsInfo}
                     recoveryInfo={recoveryInfo}
+                    resetQueries={resetQueries}
                   />
                   <GuardiansContent
                     threshold={threshold}
                     delayPeriod={delayPeriod}
                     onThresholdChange={setThreshold}
                     onDelayPeriodChange={setDelayPeriod}
+                    resetQueries={resetQueries}
                   />
                 </div>
               </TabsContent>

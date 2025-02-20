@@ -1,10 +1,11 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Input } from "./ui/input";
 import { STYLES } from "@/constants/styles";
 import { cn } from "@/lib/utils";
 import { Button } from "./ui/button";
 import { ExternalLink, X } from "lucide-react";
 import { NewAddress } from "./guardian-list";
+import { isAddress } from "viem";
 
 interface NewAddressListProps {
   addresses: NewAddress[];
@@ -59,6 +60,12 @@ export default function NewAddressList({
     setNewAddress({ nickname: "", address: "" });
     setAddressError("");
   };
+
+  // No need to click on "Add +"
+  useEffect(() => {
+    if (isAddress(newAddress.address)) handleAddAddress();
+    //eslint-disable-next-line
+  }, [newAddress]);
 
   const isAddButtonEnabled = (): boolean => {
     if (!newAddress.address) return false;

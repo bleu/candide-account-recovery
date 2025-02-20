@@ -23,7 +23,7 @@ interface RecoveryContentProps {
   safeAddress: Address | undefined;
   newOwners: Address[] | undefined;
   newThreshold: number | undefined;
-  delayPeriod: number;
+  delayPeriod: string;
   isLinkRequired: boolean;
   approvalsInfo: ApprovalsInfo | undefined;
   recoveryInfo: RecoveryInfo | undefined;
@@ -177,7 +177,7 @@ export default function RecoveryContent({
                   style={STYLES.textWithBorderOpacity}
                   className={STYLES.textWithBorder}
                 >
-                  {delayPeriod}-day period.
+                  {delayPeriod} period.
                 </span>
               </div>
               <div className="flex flex-col gap-1">
@@ -264,7 +264,7 @@ export default function RecoveryContent({
               {safeAddress && (
                 <ApproveRecoveryModalContent
                   handleCheckToggle={handleCheckToggle}
-                  delayPeriod={3}
+                  delayPeriod={delayPeriod}
                   isChecked={shouldExecute}
                   safeAccount={safeAddress}
                   safeSigners={safeSigners}

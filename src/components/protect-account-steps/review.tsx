@@ -5,6 +5,13 @@ interface ReviewStepSectionProps {
   delayPeriod?: number;
 }
 
+const delayPeriodStringMap: Record<number, string> = {
+  [1]: "3-minute",
+  [3]: "3-day",
+  [7]: "7-day",
+  [14]: "14-day",
+};
+
 export default function ReviewStepSection({
   threshold,
   delayPeriod,
@@ -25,7 +32,8 @@ export default function ReviewStepSection({
             Delay Period
           </span>
           <p className="text-base font-roboto-mono text-content-foreground mt-3">
-            {delayPeriod}-day period to cancel a recovery request.
+            {delayPeriodStringMap[delayPeriod]} period to cancel a recovery
+            request.
           </p>
         </div>
       )}

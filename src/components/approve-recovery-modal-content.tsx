@@ -6,7 +6,7 @@ interface ApproveRecoveryModalContentProps {
   safeSigners: string[] | undefined;
   isChecked: boolean;
   isLastGuardianToConfirm: boolean;
-  delayPeriod: number;
+  delayPeriod: string;
   handleCheckToggle: () => void;
 }
 
@@ -45,7 +45,7 @@ export default function ApproveRecoveryModalContent({
             <Square size={16} className="text-primary" />
           )}
           <span className="text-content-foreground font-roboto-mono text-sm">
-            Start the {delayPeriod}-day delay period now.
+            Start the {delayPeriod} delay period now.
           </span>
         </div>
       )}

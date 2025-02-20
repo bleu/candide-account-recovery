@@ -11,6 +11,7 @@ import {
   TabsTrigger,
 } from "@/components/ui/tabs";
 import { STYLES } from "@/constants/styles";
+import { useSocialRecoveryModule } from "@/hooks/use-social-recovery-module";
 import { useApprovalsInfo } from "@/hooks/useApprovalsInfo";
 import useHashParams from "@/hooks/useHashParams";
 import { useOngoingRecoveryInfo } from "@/hooks/useOngoingRecoveryInfo";
@@ -79,6 +80,11 @@ export default function Dashboard() {
 
   const { data: safeSigners } = useOwners(safeAddress, chainId);
 
+  const { delayPeriod: delayPeriodStr } = useSocialRecoveryModule({
+    safeAddress,
+    chainId,
+  });
+
   const { data: approvalsInfo } = useApprovalsInfo({
     safeAddress,
     newOwners,
@@ -144,7 +150,7 @@ export default function Dashboard() {
                     safeAddress={safeAddress}
                     newOwners={newOwners}
                     newThreshold={newThreshold}
-                    delayPeriod={delayPeriod}
+                    delayPeriod={delayPeriodStr ?? ""}
                     isLinkRequired={isLinkRequired}
                     approvalsInfo={approvalsInfo}
                     recoveryInfo={recoveryInfo}

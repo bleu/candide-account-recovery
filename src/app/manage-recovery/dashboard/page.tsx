@@ -132,12 +132,11 @@ export default function Dashboard() {
       <div className="flex flex-1 items-center justify-center mx-8">
         <div className="max-w-2xl text-center">
           <h2 className="text-2xl text-primary font-bold font-roboto-mono text-center ">
-            Connect the Account you want to protect.{" "}
+            Connect to an Account
           </h2>
           <p className="text-lg font-roboto-mono text-center text-foreground mb-6 mt-4">
-            The recovery module helps you regain control of your account if your
-            key is lost or compromised by relying on trusted guardians you add
-            to your account.
+            You can only manage your recovery guardians, threshold and delay
+            period after connecting to an account.
           </p>
           <ConnectWalletButton />
         </div>

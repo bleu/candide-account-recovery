@@ -125,6 +125,9 @@ export default function Dashboard() {
     queryClient.invalidateQueries({
       queryKey: ["guardians", chainId, safeAddress],
     });
+    queryClient.invalidateQueries({
+      queryKey: ["threshold", safeAddress],
+    });
   };
 
   if (shouldCallReconnect)

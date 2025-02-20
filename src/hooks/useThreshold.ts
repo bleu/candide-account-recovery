@@ -13,7 +13,7 @@ export function useThreshold(safeAddress?: Address) {
   const addressToFetch = safeAddress ?? account?.address;
 
   return useQuery({
-    queryKey: ["threhsold", addressToFetch, client?.transport.url],
+    queryKey: ["threhsold", addressToFetch],
     queryFn: async () => {
       if (!addressToFetch || !client?.transport.url || !srm) {
         throw new Error("Account, srm, or client transport URL not available");

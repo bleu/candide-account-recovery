@@ -1,5 +1,6 @@
 "use client";
 
+import { ConnectWalletButton } from "@/components/connect-wallet-button";
 import GuardiansContent from "@/components/guardians-content";
 import LoadingGeneric from "@/components/loading-generic";
 import RecoveryContent from "@/components/recovery-content";
@@ -42,7 +43,7 @@ export default function Dashboard() {
     safeAddressFromParams,
     chainIdFromParams
   );
-  const { chainId: chainIdFromWallet, address } = useAccount();
+  const { chainId: chainIdFromWallet, address, isConnecting } = useAccount();
 
   const [threshold, setThreshold] = useState(1);
   const [delayPeriod, setDelayPeriod] = useState(3);
@@ -93,8 +94,8 @@ export default function Dashboard() {
     chainId,
   });
 
-  const shouldRedirectToSettings =
-    recoveryInfo && isLinkRequired && !recoveryInfo?.executeAfter;
+  const shouldRedirectToSettings = !recoveryLink && address;
+  const shouldCallReconnect = !recoveryLink && !address && !isConnecting;
 
   // Atomatically switches to link chain
   useEffect(() => {
@@ -125,6 +126,23 @@ export default function Dashboard() {
       queryKey: ["guardians", chainId, safeAddress],
     });
   };
+
+  if (shouldCallReconnect)
+    return (
+      <div className="flex flex-1 items-center justify-center mx-8">
+        <div className="max-w-2xl text-center">
+          <h2 className="text-2xl text-primary font-bold font-roboto-mono text-center ">
+            Connect the Account you want to protect.{" "}
+          </h2>
+          <p className="text-lg font-roboto-mono text-center text-foreground mb-6 mt-4">
+            The recovery module helps you regain control of your account if your
+            key is lost or compromised by relying on trusted guardians you add
+            to your account.
+          </p>
+          <ConnectWalletButton />
+        </div>
+      </div>
+    );
 
   return (
     <>

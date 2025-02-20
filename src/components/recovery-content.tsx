@@ -119,14 +119,17 @@ export default function RecoveryContent({
     }
   };
 
-  const { trigger: confirmRecovery, isLoading: confirmIsLoading } =
-    useConfirmRecovery({
-      safeAddress,
-      newOwners,
-      newThreshold,
-      shouldExecute,
-      onSuccess: onSuccessConfirm,
-    });
+  const {
+    trigger: confirmRecovery,
+    isLoading: confirmIsLoading,
+    cancel: cancelConfrim,
+  } = useConfirmRecovery({
+    safeAddress,
+    newOwners,
+    newThreshold,
+    shouldExecute,
+    onSuccess: onSuccessConfirm,
+  });
 
   const onSuccessExecute = () => {
     toast({
@@ -135,13 +138,16 @@ export default function RecoveryContent({
     });
   };
 
-  const { trigger: executeRecovery, isLoading: executeIsLoading } =
-    useExecuteRecovery({
-      safeAddress,
-      newOwners,
-      newThreshold,
-      onSuccess: onSuccessExecute,
-    });
+  const {
+    trigger: executeRecovery,
+    isLoading: executeIsLoading,
+    cancel: cancelExecute,
+  } = useExecuteRecovery({
+    safeAddress,
+    newOwners,
+    newThreshold,
+    onSuccess: onSuccessExecute,
+  });
 
   const onSuccessFinalize = () => {
     toast({
@@ -150,8 +156,11 @@ export default function RecoveryContent({
     });
   };
 
-  const { trigger: finalizeRecovery, isLoading: finalizeIsLoading } =
-    useFinalizeRecovery({ safeAddress, onSuccess: onSuccessFinalize });
+  const {
+    trigger: finalizeRecovery,
+    isLoading: finalizeIsLoading,
+    cancel: cancelFinalize,
+  } = useFinalizeRecovery({ safeAddress, onSuccess: onSuccessFinalize });
 
   return (
     <div className="col-span-2">
@@ -268,6 +277,11 @@ export default function RecoveryContent({
                 confirmIsLoading || executeIsLoading || finalizeIsLoading
               }
               loadingText={"Waiting for the transaction signature..."}
+              onCancel={() => {
+                if (cancelConfrim) cancelConfrim();
+                if (cancelExecute) cancelExecute();
+                if (cancelFinalize) cancelFinalize();
+              }}
             />
           </>
         ) : (

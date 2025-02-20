@@ -81,6 +81,7 @@ export default function GuardiansContent({
     trigger: addGuardians,
     isLoading,
     loadingMessage,
+    cancel,
   } = useAddGuardians({
     guardians: guardians.map((guardian) => guardian.address) as Address[],
     threshold,
@@ -254,7 +255,11 @@ export default function GuardiansContent({
       >
         {getStepContent()}
       </Modal>
-      <LoadingModal loading={isLoading} loadingText={loadingMessage} />
+      <LoadingModal
+        loading={isLoading}
+        loadingText={loadingMessage}
+        onCancel={cancel}
+      />
     </div>
   );
 }

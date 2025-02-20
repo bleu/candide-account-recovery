@@ -57,6 +57,7 @@ export default function ProtectAccount() {
     trigger: postGuardians,
     isLoading: isLoadingPostGuardians,
     loadingMessage,
+    cancel,
   } = useAddGuardians({
     guardians: guardians.map((guardian) => guardian.address) as Address[],
     threshold,
@@ -215,6 +216,7 @@ export default function ProtectAccount() {
           <LoadingModal
             loading={isLoadingPostGuardians}
             loadingText={loadingMessage}
+            onCancel={cancel}
           />
         </>
       ) : (

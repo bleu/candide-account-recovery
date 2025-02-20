@@ -44,6 +44,7 @@ export function GuardianList({
     trigger: revokeGuardians,
     isLoading,
     loadingMessage,
+    cancel,
   } = useRevokeGuardians({
     guardians: [guardianToRemove?.address as Address],
     threshold: isLastGuardianModalOpen ? 0 : threshold,
@@ -240,7 +241,11 @@ export function GuardianList({
           />
         </div>
       </Modal>
-      <LoadingModal loading={isLoading} loadingText={loadingMessage} />
+      <LoadingModal
+        loading={isLoading}
+        loadingText={loadingMessage}
+        onCancel={cancel}
+      />
     </>
   );
 }

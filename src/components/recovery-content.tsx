@@ -208,7 +208,7 @@ export default function RecoveryContent({
             </h4>
             {guardians && <GuardianList guardians={guardians} />}
             <div className="flex justify-end mt-4 mb-2 gap-2">
-              {!delayPeriodStarted && (
+              {!(delayPeriodStarted || delayPeriodEnded) && (
                 <Button
                   className="text-xs font-bold px-3 py-2 rounded-xl"
                   disabled={!thresholdAchieved}
@@ -218,7 +218,7 @@ export default function RecoveryContent({
                 </Button>
               )}
 
-              {delayPeriodStarted && (
+              {(delayPeriodStarted || delayPeriodEnded) && (
                 <Button
                   className="text-xs font-bold px-3 py-2 rounded-xl"
                   onClick={finalizeRecovery}

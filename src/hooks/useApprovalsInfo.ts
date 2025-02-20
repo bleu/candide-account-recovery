@@ -19,15 +19,19 @@ export function useApprovalsInfo({
   safeAddress,
   newOwners,
   newThreshold,
+  chainId,
 }: {
   safeAddress?: Address | undefined;
   newOwners: Address[] | undefined;
   newThreshold: number | undefined;
+  chainId?: number;
 }) {
-  const client = useClient();
-  const { chainId } = useAccount();
-  const { data: guardians } = useGuardians(safeAddress);
-  const { srm } = useSocialRecoveryModule({ safeAddress });
+  const { chainId: chainIdFromWallet } = useAccount();
+  const { data: guardians } = useGuardians(safeAddress, chainId);
+  const { srm } = useSocialRecoveryModule({ safeAddress, chainId });
+
+  const chainIdToFetch = chainId ?? chainIdFromWallet;
+  const client = useClient({ chainId: chainIdToFetch });
 
   return useQuery<ApprovalsInfo>({
     queryKey: ["approvalsInfo", safeAddress, newOwners, newThreshold],
@@ -39,7 +43,7 @@ export function useApprovalsInfo({
         !client?.transport.url ||
         !guardians ||
         !srm ||
-        !chainId
+        !chainIdToFetch
       ) {
         throw new Error("A needed parameter is not available");
       }
@@ -57,7 +61,7 @@ export function useApprovalsInfo({
       );
 
       const storedGuardians = getStoredGuardians(
-        chainId,
+        chainIdToFetch,
         safeAddress.toLowerCase() as Address
       );
 
@@ -95,6 +99,6 @@ export function useApprovalsInfo({
       Boolean(client?.transport.url) &&
       Boolean(guardians) &&
       Boolean(srm) &&
-      Boolean(chainId),
+      Boolean(chainIdToFetch),
   });
 }

@@ -1,7 +1,7 @@
 "use client";
 
-import { WagmiProvider, createConfig, http } from "wagmi";
-import { metaMask, walletConnect } from "wagmi/connectors";
+import { WagmiProvider, createConfig, http, injected } from "wagmi";
+import { walletConnect } from "wagmi/connectors";
 import {
   arbitrum,
   base,
@@ -31,7 +31,7 @@ const config = createConfig(
         : http("https://sepolia.gateway.tenderly.co"),
     },
     connectors: [
-      metaMask(),
+      injected(),
       walletConnect({
         projectId: walletConnectProjectId,
         showQrModal: false,

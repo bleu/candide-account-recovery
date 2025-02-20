@@ -9,27 +9,18 @@ type RecoveryParams = {
   safeAddress: Address | undefined;
   newOwners: Address[] | undefined;
   newThreshold: number | undefined;
+  chainId: number | undefined;
   recoveryLink: string | undefined;
 };
 
 function useHashParams(): RecoveryParams {
-  const [params, setParams] = useState<RecoveryParams>({
-    safeAddress: undefined,
-    newOwners: undefined,
-    newThreshold: undefined,
-    recoveryLink: undefined,
-  });
+  const [params, setParams] = useState<RecoveryParams>({} as RecoveryParams);
 
   useEffect(() => {
     if (!isBrowser) return;
 
     const hash = window.location.hash.substring(1);
-    const result: RecoveryParams = {
-      safeAddress: undefined,
-      newOwners: undefined,
-      newThreshold: undefined,
-      recoveryLink: undefined,
-    };
+    const result = {} as RecoveryParams;
 
     if (!hash) {
       setParams(result);
@@ -47,6 +38,9 @@ function useHashParams(): RecoveryParams {
       }
       if (key === "newThreshold" && value) {
         result.newThreshold = Number(value);
+      }
+      if (key === "chainId" && value) {
+        result.chainId = Number(value);
       }
     }
 

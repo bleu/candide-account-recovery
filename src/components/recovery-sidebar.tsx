@@ -89,7 +89,7 @@ export default function RecoverySidebar({
 
       <>
         <RecoveryLinkSection link={recoveryLink} />
-        {delayPeriodStarted && (
+        {(delayPeriodStarted || delayPeriodEnded) && (
           <>
             <h4 className="text-xs font-medium font-roboto-mono">
               Cancel Request

@@ -4,12 +4,14 @@ export interface RecoveryQueryParams {
   safeAddress: string;
   newOwners: string[];
   newThreshold: number;
+  chainId: string;
 }
 
 export type LinkParams = {
   safeAddress?: string;
   newOwners?: string;
   newThreshold?: string;
+  chainId: string;
 };
 
 const isBrowser = typeof window !== "undefined";
@@ -26,6 +28,7 @@ export const createFinalUrl = (params: RecoveryQueryParams): string => {
   hashParams.append("safeAddress", params.safeAddress);
   hashParams.append("newOwners", params.newOwners.join(","));
   hashParams.append("newThreshold", params.newThreshold.toString());
+  hashParams.append("chainId", params.chainId);
 
   return `${baseUrl}/manage-recovery/dashboard#${hashParams.toString()}`;
 };

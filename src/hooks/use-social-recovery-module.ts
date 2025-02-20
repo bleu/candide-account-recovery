@@ -3,7 +3,6 @@ import {
   SocialRecoveryModuleGracePeriodSelector,
 } from "abstractionkit";
 import { useMemo } from "react";
-import { Address } from "viem";
 import { useAccount, usePublicClient } from "wagmi";
 import { sepolia } from "wagmi/chains";
 import { useQuery } from "@tanstack/react-query";
@@ -24,7 +23,8 @@ const srmAddresses: SrmAddress[] = [
 
 interface UseSocialRecoveryModuleParams {
   srmAddress?: SrmAddress;
-  safeAddress?: Address;
+  safeAddress?: string;
+  chainId?: number;
 }
 
 const delayPeriodMap: Record<SrmAddress, string> = {
@@ -41,18 +41,20 @@ export function useSocialRecoveryModule(
   delayPeriod: string | undefined;
   modulesWithGuardians: SrmAddress[] | undefined;
 } {
-  const { srmAddress, safeAddress } = params ?? {};
-  const { address, chainId } = useAccount();
-  const publicClient = usePublicClient();
+  const { srmAddress, safeAddress, chainId } = params ?? {};
+  const { address, chainId: accountChainId } = useAccount();
 
+  const chainIdToFetch = chainId ?? accountChainId;
   const addressToFetch = safeAddress ?? address;
 
+  const publicClient = usePublicClient({ chainId: chainIdToFetch });
+
   const { data: modulesWithGuardians } = useQuery({
-    queryKey: ["allGuardians", chainId, addressToFetch],
+    queryKey: ["allGuardians", chainIdToFetch, addressToFetch],
     queryFn: async () => {
       if (!publicClient) throw new Error("missing public client");
       if (!addressToFetch) throw new Error("missing address to fetch");
-      if (!chainId) throw new Error("missing chainId");
+      if (!chainIdToFetch) throw new Error("missing chainId");
 
       const guardianCounts = await publicClient.multicall({
         contracts: srmAddresses.map((addr) => ({
@@ -74,14 +76,14 @@ export function useSocialRecoveryModule(
 
   const srm = useMemo(() => {
     if (srmAddress) return new SocialRecoveryModule(srmAddress);
-    if (chainId && chainId === sepolia.id)
+    if (chainIdToFetch && chainIdToFetch === sepolia.id)
       return new SocialRecoveryModule(
         SocialRecoveryModuleGracePeriodSelector.After3Minutes
       );
     if (modulesWithGuardians && modulesWithGuardians.length > 0)
       return new SocialRecoveryModule(modulesWithGuardians[0]);
     return undefined;
-  }, [srmAddress, chainId, modulesWithGuardians]);
+  }, [srmAddress, chainIdToFetch, modulesWithGuardians]);
 
   const delayPeriod = useMemo(
     () => srm && delayPeriodMap[srm.moduleAddress as SrmAddress],

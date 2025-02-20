@@ -13,15 +13,20 @@ export interface RecoveryInfo {
   newOwners: readonly Address[];
 }
 
-export function useOngoingRecoveryInfo(safeAddress?: Address) {
-  const publicClient = usePublicClient();
+export function useOngoingRecoveryInfo(
+  safeAddress?: Address,
+  chainId?: number
+) {
   const account = useAccount();
-  const { srm } = useSocialRecoveryModule({ safeAddress });
+  const { srm } = useSocialRecoveryModule({ safeAddress, chainId });
 
+  const chainIdToFetch = chainId ?? account?.chainId;
   const addressToFetch = safeAddress ?? account?.address;
 
+  const publicClient = usePublicClient({ chainId: chainIdToFetch });
+
   return useQuery<RecoveryInfo>({
-    queryKey: ["recoveryInfo", addressToFetch, publicClient?.transport.url],
+    queryKey: ["recoveryInfo", chainIdToFetch, addressToFetch],
     queryFn: async () => {
       if (!addressToFetch || !publicClient?.transport.url || !srm) {
         throw new Error(

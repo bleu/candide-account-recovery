@@ -5,14 +5,16 @@ import { useAccount, useClient } from "wagmi";
 import { Address } from "viem";
 import { useQuery } from "@tanstack/react-query";
 
-export function useOwners(safeAddress?: Address) {
-  const client = useClient();
+export function useOwners(safeAddress?: Address, chainId?: number) {
   const account = useAccount();
 
   const addressToFetch = safeAddress ?? account?.address;
+  const chainIdToFetch = chainId ?? account?.chainId;
+
+  const client = useClient({ chainId: chainIdToFetch });
 
   return useQuery({
-    queryKey: ["owners", addressToFetch, client?.transport.url],
+    queryKey: ["owners", chainIdToFetch, addressToFetch],
     queryFn: async () => {
       if (!addressToFetch || !client?.transport.url) {
         throw new Error("Account or client transport URL not available");

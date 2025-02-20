@@ -17,10 +17,9 @@ import { useOngoingRecoveryInfo } from "@/hooks/useOngoingRecoveryInfo";
 import { useOwners } from "@/hooks/useOwners";
 import { cn } from "@/lib/utils";
 import { createFinalUrl } from "@/utils/recovery-link";
-import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import { Address } from "viem";
-import { useAccount } from "wagmi";
+import { useAccount, useSwitchChain } from "wagmi";
 
 const tabState = cn(
   "data-[state=active]:bg-secondary",
@@ -29,26 +28,34 @@ const tabState = cn(
 );
 
 export default function Dashboard() {
-  const router = useRouter();
   const params = useHashParams();
   const {
     safeAddress: safeAddressFromParams,
     newOwners: newOwnersFromParams,
     newThreshold: newThresholdFromParams,
+    chainId: chainIdFromParams,
     recoveryLink: recoveryLinkFromParams,
   } = params;
-  const { data: recoveryInfo } = useOngoingRecoveryInfo(safeAddressFromParams);
-  const { address, isConnecting } = useAccount();
+  const { data: recoveryInfo } = useOngoingRecoveryInfo(
+    safeAddressFromParams,
+    chainIdFromParams
+  );
+  const { chainId: chainIdFromWallet, address } = useAccount();
 
   const [threshold, setThreshold] = useState(1);
   const [delayPeriod, setDelayPeriod] = useState(3);
+  const { switchChain } = useSwitchChain();
 
   const recoveryLinkFromWallet =
-    address && recoveryInfo && recoveryInfo.newThreshold.toString() !== "0"
+    address &&
+    recoveryInfo &&
+    recoveryInfo.newThreshold.toString() !== "0" &&
+    chainIdFromWallet
       ? createFinalUrl({
           safeAddress: address,
           newOwners: recoveryInfo.newOwners as Address[],
           newThreshold: Number(recoveryInfo.newThreshold),
+          chainId: chainIdFromWallet.toString(),
         })
       : undefined;
 
@@ -68,22 +75,35 @@ export default function Dashboard() {
   const safeAddress = safeAddressFromParams ?? safeAddressFromWallet ?? address;
   const newOwners = newOwnersFromParams ?? newOwnersFromWallet;
   const newThreshold = newThresholdFromParams ?? newThresholdFromWallet;
+  const chainId = chainIdFromParams ?? chainIdFromWallet;
 
-  const { data: safeSigners } = useOwners(safeAddress);
+  const { data: safeSigners } = useOwners(safeAddress, chainId);
 
   const { data: approvalsInfo } = useApprovalsInfo({
     safeAddress,
     newOwners,
     newThreshold,
+    chainId,
   });
 
   const shouldRedirectToSettings =
     recoveryInfo && isLinkRequired && !recoveryInfo?.executeAfter;
 
+  // Atomatically switches to link chain
   useEffect(() => {
-    if (!address && !isConnecting && shouldRedirectToSettings === undefined)
-      router.push("/manage-recovery");
-  }, [address, shouldRedirectToSettings, isConnecting, router]);
+    if (
+      recoveryLinkFromParams &&
+      chainIdFromParams &&
+      chainIdFromWallet &&
+      chainIdFromWallet !== chainIdFromParams
+    )
+      switchChain({ chainId: chainIdFromParams });
+  }, [
+    switchChain,
+    recoveryLinkFromParams,
+    chainIdFromParams,
+    chainIdFromWallet,
+  ]);
 
   return (
     <>

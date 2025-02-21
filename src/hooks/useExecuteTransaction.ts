@@ -114,7 +114,8 @@ const getLoadingMessage = (
     return "Waiting for someone to accept the transaction...";
   if (isWaitingApproval && !isSafeAccount) return "Confirming transaction...";
   if (isWaitingTx && isSafeAccount)
-    return "Waiting for tx exectution on Safe Wallet manager...";
-  if (isWaitingTx && !isSafeAccount) return "Waiting for tx exectution...";
+    return "Waiting for transaction exectution on Safe Wallet manager...";
+  if (isWaitingTx && !isSafeAccount)
+    return "Waiting for transaction exectution...";
   return "Loading transaction...";
 };

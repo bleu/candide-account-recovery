@@ -2,7 +2,6 @@
 import { useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 
-import { Modal } from "@/components/modal";
 import GuardiansStep from "@/components/protect-account-steps/guardians";
 import ReviewStepSection from "@/components/protect-account-steps/review";
 import DelayPeriodStep from "@/components/protect-account-steps/delay-period";
@@ -15,6 +14,9 @@ import { storeGuardians } from "@/utils/storage";
 import { useToast } from "@/hooks/use-toast";
 import { NewAddress } from "@/components/guardian-list";
 import LoadingModal from "@/components/loading-modal";
+import { sepolia } from "wagmi/chains";
+import { BaseForm } from "@/components/base-form";
+import { useGuardians } from "@/hooks/useGuardians";
 
 const totalSteps = 4;
 
@@ -22,9 +24,7 @@ const isBrowser = typeof window !== "undefined";
 
 export default function ProtectAccount() {
   const [currentStep, setCurrentStep] = useState(1);
-  const [isOpen, setIsOpen] = useState(true);
   const [threshold, setThreshold] = useState(1);
-  const [delayPeriod, setDelayPeriod] = useState(3);
 
   const [guardians, setGuardians] = useState<NewAddress[]>([]);
 
@@ -35,8 +35,14 @@ export default function ProtectAccount() {
     isConnecting: isWalletConnecting,
   } = useAccount();
 
+  const [delayPeriod, setDelayPeriod] = useState(
+    chainId === sepolia.id ? 1 : 3
+  );
+
   const { toast } = useToast();
   const router = useRouter();
+
+  const { data: currentGuardians } = useGuardians();
 
   const onSuccess = () => {
     if (chainId && address) {
@@ -47,7 +53,6 @@ export default function ProtectAccount() {
       description:
         "Your new guardian will now be part of your account recovery setup.",
     });
-    setIsOpen(false);
     router.push("/manage-recovery/dashboard");
   };
 
@@ -55,6 +60,7 @@ export default function ProtectAccount() {
     trigger: postGuardians,
     isLoading: isLoadingPostGuardians,
     loadingMessage,
+    cancel,
   } = useAddGuardians({
     guardians: guardians.map((guardian) => guardian.address) as Address[],
     threshold,
@@ -115,6 +121,7 @@ export default function ProtectAccount() {
           <ThresholdStep
             totalGuardians={guardians.length}
             onThresholdChange={handleThresholdChange}
+            currentThreshold={threshold}
           />
         );
       case 3:
@@ -174,11 +181,18 @@ export default function ProtectAccount() {
       case 2:
         return "Threshold determines the minimum number of guardian approvals required to recover your account.";
       case 3:
-        return "Set the time period during which you can cancel a initiated recovery request. We recommend a period of at least 3 days.";
+        return "Set the time period during which you can cancel a initiated recovery request.";
       default:
         return "";
     }
   };
+
+  if (
+    currentGuardians &&
+    currentGuardians.length > 0 &&
+    !isLoadingPostGuardians
+  )
+    router.push("/manage-recovery/dashboard");
 
   if (isWalletConnecting) return <LoadingScreen />;
 
@@ -186,9 +200,7 @@ export default function ProtectAccount() {
     <div className="flex flex-1 items-center justify-center mx-8">
       {isWalletConnected ? (
         <>
-          <Modal
-            isOpen={isOpen}
-            onClose={() => setIsOpen(false)}
+          <BaseForm
             title={getStepTitle()}
             description={getStepDescription()}
             currentStep={currentStep}
@@ -211,10 +223,11 @@ export default function ProtectAccount() {
             isProgress
           >
             {getStepContent()}
-          </Modal>
+          </BaseForm>
           <LoadingModal
             loading={isLoadingPostGuardians}
             loadingText={loadingMessage}
+            onCancel={cancel}
           />
         </>
       ) : (

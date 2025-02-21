@@ -1,17 +1,20 @@
 "use client";
 
-import { SocialRecoveryModule } from "abstractionkit";
+import { useSocialRecoveryModule } from "./use-social-recovery-module";
 import { useCallback } from "react";
 import { useAccount, useWalletClient, usePublicClient } from "wagmi";
 import { Address, PublicClient } from "viem";
 import { getIsModuleEnabled } from "@/utils/getIsModuleEnabled";
 import { useExecuteTransaction } from "./useExecuteTransaction";
+import { SocialRecoveryModule } from "abstractionkit";
+import { useGuardians } from "./useGuardians";
 
 async function buildAddGuardiansTxs(
   srm: SocialRecoveryModule,
   publicClient: PublicClient,
   signer: Address,
   guardians: Address[],
+  currentGuardiansCount: number,
   threshold: number
 ) {
   const txs = [];
@@ -30,7 +33,11 @@ async function buildAddGuardiansTxs(
   for (const [idx, guardian] of guardians.entries()) {
     const addGuardianTx = srm.createAddGuardianWithThresholdMetaTransaction(
       guardian,
-      BigInt(idx + 1 > threshold ? threshold : idx + 1)
+      BigInt(
+        currentGuardiansCount + idx + 1 > threshold
+          ? threshold
+          : currentGuardiansCount + idx + 1
+      )
     );
     txs.push(addGuardianTx);
   }
@@ -56,23 +63,41 @@ export function useAddGuardians({
   const { address: signer } = useAccount();
   const { data: walletClient } = useWalletClient();
   const publicClient = usePublicClient();
+  const { srm } = useSocialRecoveryModule();
+  const { data: currentGuardians } = useGuardians();
 
   const buildTxFn = useCallback(async () => {
-    if (!signer || !walletClient || !publicClient || !guardians || !threshold) {
+    if (
+      !signer ||
+      !walletClient ||
+      !publicClient ||
+      !guardians ||
+      !threshold ||
+      !currentGuardians ||
+      !srm
+    ) {
       throw new Error("Missing params");
     }
 
-    const srm = new SocialRecoveryModule();
     const txs = await buildAddGuardiansTxs(
       srm,
       publicClient,
       signer,
       guardians,
+      currentGuardians.length,
       threshold
     );
 
     return txs;
-  }, [signer, publicClient, walletClient, guardians, threshold]);
+  }, [
+    signer,
+    publicClient,
+    walletClient,
+    guardians,
+    threshold,
+    srm,
+    currentGuardians,
+  ]);
 
   return useExecuteTransaction({
     buildTxFn,

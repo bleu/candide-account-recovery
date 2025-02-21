@@ -1,6 +1,6 @@
 "use client";
 
-import { SocialRecoveryModule } from "abstractionkit";
+import { useSocialRecoveryModule } from "./use-social-recovery-module";
 import { useAccount, useClient } from "wagmi";
 import { Address } from "viem";
 import { useQuery } from "@tanstack/react-query";
@@ -19,14 +19,19 @@ export function useApprovalsInfo({
   safeAddress,
   newOwners,
   newThreshold,
+  chainId,
 }: {
   safeAddress?: Address | undefined;
   newOwners: Address[] | undefined;
   newThreshold: number | undefined;
+  chainId?: number;
 }) {
-  const client = useClient();
-  const { chainId } = useAccount();
-  const { data: guardians } = useGuardians(safeAddress);
+  const { chainId: chainIdFromWallet } = useAccount();
+  const { data: guardians } = useGuardians(safeAddress, chainId);
+  const { srm } = useSocialRecoveryModule({ safeAddress, chainId });
+
+  const chainIdToFetch = chainId ?? chainIdFromWallet;
+  const client = useClient({ chainId: chainIdToFetch });
 
   return useQuery<ApprovalsInfo>({
     queryKey: ["approvalsInfo", safeAddress, newOwners, newThreshold],
@@ -37,12 +42,12 @@ export function useApprovalsInfo({
         !newThreshold ||
         !client?.transport.url ||
         !guardians ||
-        !chainId
+        !srm ||
+        !chainIdToFetch
       ) {
         throw new Error("A needed parameter is not available");
       }
 
-      const srm = new SocialRecoveryModule();
       const guardiansApprovalsList = await Promise.all(
         guardians.map((guardian) =>
           srm.hasGuardianApproved(
@@ -56,7 +61,7 @@ export function useApprovalsInfo({
       );
 
       const storedGuardians = getStoredGuardians(
-        chainId,
+        chainIdToFetch,
         safeAddress.toLowerCase() as Address
       );
 
@@ -93,6 +98,7 @@ export function useApprovalsInfo({
       Boolean(newThreshold) &&
       Boolean(client?.transport.url) &&
       Boolean(guardians) &&
-      Boolean(chainId),
+      Boolean(srm) &&
+      Boolean(chainIdToFetch),
   });
 }

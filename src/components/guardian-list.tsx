@@ -24,6 +24,7 @@ interface GuardianListProps {
   isNewGuardianList?: boolean;
   onRemoveGuardian?: (guardian: NewAddress) => void;
   onOpenGuardianModal?: () => void;
+  resetQueries: () => void;
 }
 
 const totalSteps = 3;
@@ -33,6 +34,7 @@ export function GuardianList({
   isNewGuardianList,
   onRemoveGuardian,
   onOpenGuardianModal,
+  resetQueries,
 }: GuardianListProps) {
   const [isRemoveModalOpen, setIsRemoveModalOpen] = useState(false);
   const [isLastGuardianModalOpen, setIsLastGuardianModalOpen] = useState(false);
@@ -44,19 +46,20 @@ export function GuardianList({
     trigger: revokeGuardians,
     isLoading,
     loadingMessage,
+    cancel,
   } = useRevokeGuardians({
     guardians: [guardianToRemove?.address as Address],
     threshold: isLastGuardianModalOpen ? 0 : threshold,
     onSuccess: () => {
       toast({
-        title: "Guardian added.",
-        description:
-          "Your new guardian will now be part of your account recovery setup.",
+        title: "Guardian removed.",
+        description: "This address will no longer be a guardian.",
       });
       setIsRemoveModalOpen(false);
       setIsLastGuardianModalOpen(false);
       setGuardianToRemove({ nickname: "", address: "" });
       setCurrentStep(1);
+      resetQueries();
     },
   });
 
@@ -240,7 +243,11 @@ export function GuardianList({
           />
         </div>
       </Modal>
-      <LoadingModal loading={isLoading} loadingText={loadingMessage} />
+      <LoadingModal
+        loading={isLoading}
+        loadingText={loadingMessage}
+        onCancel={cancel}
+      />
     </>
   );
 }

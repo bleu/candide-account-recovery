@@ -1,6 +1,6 @@
 "use client";
 
-import { SocialRecoveryModule } from "abstractionkit";
+import { useSocialRecoveryModule } from "./use-social-recovery-module";
 import { useAccount, usePublicClient } from "wagmi";
 import { Address } from "viem";
 import { useQuery } from "@tanstack/react-query";
@@ -13,20 +13,27 @@ export interface RecoveryInfo {
   newOwners: readonly Address[];
 }
 
-export function useOngoingRecoveryInfo(safeAddress?: Address) {
-  const publicClient = usePublicClient();
+export function useOngoingRecoveryInfo(
+  safeAddress?: Address,
+  chainId?: number
+) {
   const account = useAccount();
+  const { srm } = useSocialRecoveryModule({ safeAddress, chainId });
 
+  const chainIdToFetch = chainId ?? account?.chainId;
   const addressToFetch = safeAddress ?? account?.address;
 
+  const publicClient = usePublicClient({ chainId: chainIdToFetch });
+
   return useQuery<RecoveryInfo>({
-    queryKey: ["recoveryInfo", addressToFetch, publicClient?.transport.url],
+    queryKey: ["recoveryInfo", chainIdToFetch, addressToFetch],
     queryFn: async () => {
-      if (!addressToFetch || !publicClient?.transport.url) {
-        throw new Error("Account or publicClient transport URL not available");
+      if (!addressToFetch || !publicClient?.transport.url || !srm) {
+        throw new Error(
+          "Account, srm or publicClient transport URL not available"
+        );
       }
       try {
-        const srm = new SocialRecoveryModule();
         const data = await publicClient.readContract({
           address: srm.moduleAddress as Address,
           abi: socialRecoveryModuleAbi,
@@ -44,7 +51,10 @@ export function useOngoingRecoveryInfo(safeAddress?: Address) {
         throw e;
       }
     },
-    enabled: Boolean(addressToFetch) && Boolean(publicClient?.transport.url),
+    enabled:
+      Boolean(addressToFetch) &&
+      Boolean(publicClient?.transport.url) &&
+      Boolean(srm),
     staleTime: 120000, // 2 minutes
     refetchOnMount: false, // Don't refetch when component mounts
     refetchOnWindowFocus: false, // Don't refetch when window regains focus

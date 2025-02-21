@@ -37,7 +37,9 @@ export default function RecoveryStatus({
     <div className="flex items-center justify-between gap-2 flex-1 bg-terciary text-terciary-foreground text-xs font-roboto-mono rounded-lg py-2 px-4 mb-6">
       <div>
         <p className="font-bold mb-1">
-          {delayPeriodStarted ? "Recovery Ongoing" : "No Recovery Ongoing."}
+          {delayPeriodStarted || delayPeriodEnded
+            ? "Recovery Ongoing"
+            : "No Recovery Ongoing."}
         </p>
         <p className="font-medium">{getStatusMessage()}</p>
       </div>

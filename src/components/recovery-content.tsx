@@ -23,10 +23,11 @@ interface RecoveryContentProps {
   safeAddress: Address | undefined;
   newOwners: Address[] | undefined;
   newThreshold: number | undefined;
-  delayPeriod: number;
+  delayPeriod: string;
   isLinkRequired: boolean;
   approvalsInfo: ApprovalsInfo | undefined;
   recoveryInfo: RecoveryInfo | undefined;
+  resetQueries: () => void;
 }
 
 export default function RecoveryContent({
@@ -38,6 +39,7 @@ export default function RecoveryContent({
   isLinkRequired,
   approvalsInfo,
   recoveryInfo,
+  resetQueries,
 }: RecoveryContentProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [shouldExecute, setShouldExecute] = useState(false);
@@ -79,7 +81,7 @@ export default function RecoveryContent({
 
   const { guardiansApprovals } = approvalsInfo ?? {};
   const guardians =
-    guardiansApprovals && delayPeriodStarted
+    guardiansApprovals && (delayPeriodStarted || delayPeriodEnded)
       ? guardiansApprovals.map((guardian) => ({
           ...guardian,
           status: "Approved",
@@ -102,6 +104,7 @@ export default function RecoveryContent({
   };
 
   const onSuccessConfirm = () => {
+    resetQueries();
     if (!isLastGuardianToConfirm) {
       toast({
         title: "Recovery approved.",
@@ -119,39 +122,50 @@ export default function RecoveryContent({
     }
   };
 
-  const { trigger: confirmRecovery, isLoading: confirmIsLoading } =
-    useConfirmRecovery({
-      safeAddress,
-      newOwners,
-      newThreshold,
-      shouldExecute,
-      onSuccess: onSuccessConfirm,
-    });
+  const {
+    trigger: confirmRecovery,
+    isLoading: confirmIsLoading,
+    cancel: cancelConfrim,
+  } = useConfirmRecovery({
+    safeAddress,
+    newOwners,
+    newThreshold,
+    shouldExecute,
+    onSuccess: onSuccessConfirm,
+  });
 
   const onSuccessExecute = () => {
+    resetQueries();
     toast({
       title: "Recovery executed.",
       description: "Delay Period has started.",
     });
   };
 
-  const { trigger: executeRecovery, isLoading: executeIsLoading } =
-    useExecuteRecovery({
-      safeAddress,
-      newOwners,
-      newThreshold,
-      onSuccess: onSuccessExecute,
-    });
+  const {
+    trigger: executeRecovery,
+    isLoading: executeIsLoading,
+    cancel: cancelExecute,
+  } = useExecuteRecovery({
+    safeAddress,
+    newOwners,
+    newThreshold,
+    onSuccess: onSuccessExecute,
+  });
 
   const onSuccessFinalize = () => {
+    resetQueries();
     toast({
       title: "Recovery finalized.",
       description: "Signers to this Safe account has changed to: ",
     });
   };
 
-  const { trigger: finalizeRecovery, isLoading: finalizeIsLoading } =
-    useFinalizeRecovery({ safeAddress, onSuccess: onSuccessFinalize });
+  const {
+    trigger: finalizeRecovery,
+    isLoading: finalizeIsLoading,
+    cancel: cancelFinalize,
+  } = useFinalizeRecovery({ safeAddress, onSuccess: onSuccessFinalize });
 
   return (
     <div className="col-span-2">
@@ -168,7 +182,7 @@ export default function RecoveryContent({
                   style={STYLES.textWithBorderOpacity}
                   className={STYLES.textWithBorder}
                 >
-                  {delayPeriod}-day period.
+                  {delayPeriod} period.
                 </span>
               </div>
               <div className="flex flex-col gap-1">
@@ -206,9 +220,11 @@ export default function RecoveryContent({
             <h4 className="my-6 text-primary font-roboto-mono text-sm">
               GUARDIANS APPROVAL
             </h4>
-            {guardians && <GuardianList guardians={guardians} />}
+            {guardians && (
+              <GuardianList guardians={guardians} resetQueries={resetQueries} />
+            )}
             <div className="flex justify-end mt-4 mb-2 gap-2">
-              {!delayPeriodStarted && (
+              {!(delayPeriodStarted || delayPeriodEnded) && (
                 <Button
                   className="text-xs font-bold px-3 py-2 rounded-xl"
                   disabled={!thresholdAchieved}
@@ -218,7 +234,7 @@ export default function RecoveryContent({
                 </Button>
               )}
 
-              {delayPeriodStarted && (
+              {(delayPeriodStarted || delayPeriodEnded) && (
                 <Button
                   className="text-xs font-bold px-3 py-2 rounded-xl"
                   onClick={finalizeRecovery}
@@ -255,7 +271,7 @@ export default function RecoveryContent({
               {safeAddress && (
                 <ApproveRecoveryModalContent
                   handleCheckToggle={handleCheckToggle}
-                  delayPeriod={3}
+                  delayPeriod={delayPeriod}
                   isChecked={shouldExecute}
                   safeAccount={safeAddress}
                   safeSigners={safeSigners}
@@ -267,7 +283,12 @@ export default function RecoveryContent({
               loading={
                 confirmIsLoading || executeIsLoading || finalizeIsLoading
               }
-              loadingText={"Waiting for the transaction signature..."}
+              loadingText={"Waiting transaction..."}
+              onCancel={() => {
+                if (cancelConfrim) cancelConfrim();
+                if (cancelExecute) cancelExecute();
+                if (cancelFinalize) cancelFinalize();
+              }}
             />
           </>
         ) : (

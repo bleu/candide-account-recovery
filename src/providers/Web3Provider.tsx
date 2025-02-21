@@ -1,6 +1,7 @@
 "use client";
 
-import { WagmiProvider, createConfig, http } from "wagmi";
+import { WagmiProvider, createConfig, http, injected } from "wagmi";
+import { walletConnect } from "wagmi/connectors";
 import {
   arbitrum,
   base,
@@ -25,8 +26,17 @@ const config = createConfig(
       [arbitrum.id]: http(process.env.NEXT_PUBLIC_ARBITRUM_RPC_URL ?? ""),
       [base.id]: http(process.env.NEXT_PUBLIC_BASE_RPC_URL ?? ""),
       [polygon.id]: http(process.env.NEXT_PUBLIC_POLYGON_RPC_URL ?? ""),
-      [sepolia.id]: http(),
+      [sepolia.id]: process.env.NEXT_PUBLIC_SEPOLIA_RPC_URL
+        ? http(process.env.NEXT_PUBLIC_SEPOLIA_RPC_URL)
+        : http("https://sepolia.gateway.tenderly.co"),
     },
+    connectors: [
+      injected(),
+      walletConnect({
+        projectId: walletConnectProjectId,
+        showQrModal: false,
+      }),
+    ],
 
     // Required API Keys
     walletConnectProjectId,

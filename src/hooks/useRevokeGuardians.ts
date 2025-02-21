@@ -1,10 +1,11 @@
 "use client";
 
-import { SocialRecoveryModule } from "abstractionkit";
+import { useSocialRecoveryModule } from "./use-social-recovery-module";
 import { useAccount, useWalletClient, usePublicClient } from "wagmi";
 import { Address, PublicClient } from "viem";
 import { useExecuteTransaction } from "./useExecuteTransaction";
 import { useCallback } from "react";
+import { SocialRecoveryModule } from "abstractionkit";
 
 async function buildRevokeGuardiansTxs(
   srm: SocialRecoveryModule,
@@ -47,6 +48,7 @@ export function useRevokeGuardians({
   const { address: signer } = useAccount();
   const { data: walletClient } = useWalletClient();
   const publicClient = usePublicClient();
+  const { srm } = useSocialRecoveryModule();
 
   const buildTxFn = useCallback(async () => {
     if (!signer) throw new Error("Missing signer");
@@ -54,8 +56,7 @@ export function useRevokeGuardians({
     if (!publicClient) throw new Error("Missing public client");
     if (!guardians) throw new Error("Missing guardians");
     if (threshold === undefined) throw new Error("Missing threshold");
-
-    const srm = new SocialRecoveryModule();
+    if (!srm) throw new Error("Missing srm");
 
     const txs = await buildRevokeGuardiansTxs(
       srm,
@@ -65,7 +66,7 @@ export function useRevokeGuardians({
       threshold
     );
     return txs;
-  }, [signer, walletClient, publicClient, guardians, threshold]);
+  }, [signer, walletClient, publicClient, guardians, threshold, srm]);
 
   return useExecuteTransaction({
     buildTxFn,

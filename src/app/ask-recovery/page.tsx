@@ -5,37 +5,72 @@ import SafeAddress from "@/components/ask-recovery-steps/safe-address";
 import NewOwners from "@/components/ask-recovery-steps/new-owners";
 import NewThreshold from "@/components/ask-recovery-steps/new-threshold";
 import ShareLink from "@/components/ask-recovery-steps/share-link";
-import { Modal } from "@/components/modal";
 import { useRouter } from "next/navigation";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { isAddress } from "viem";
 import { createFinalUrl } from "@/utils/recovery-link";
 
 const isBrowser = typeof window !== "undefined";
 import { useGuardians } from "@/hooks/useGuardians";
+import { BaseForm } from "@/components/base-form";
+import { useSocialRecoveryModule } from "@/hooks/use-social-recovery-module";
+import { useOwners } from "@/hooks/useOwners";
+import { areAddressListsEqual } from "@/utils/are-address-lists-equal";
+import { useAccount, useChains } from "wagmi";
 
 const totalSteps = 4;
 
 export default function AskRecovery() {
   const router = useRouter();
-  const [isOpen, setIsOpen] = useState(true);
   const [currentStep, setCurrentStep] = useState(1);
   const [safeAddress, setSafeAddress] = useState("");
   const [newOwners, setOwners] = useState<NewAddress[]>([]);
   const [threshold, setThreshold] = useState(1);
   const [safeAddressError, setSafeAddressError] = useState<string>("");
 
+  const [chainId, setChainId] = useState<string>("1");
+  const { chainId: accountChainId } = useAccount();
+  const chains = useChains();
+
+  const { srm } = useSocialRecoveryModule({
+    safeAddress,
+    chainId: Number(chainId),
+  });
+
+  const link =
+    srm && chainId
+      ? createFinalUrl({
+          safeAddress,
+          newThreshold: threshold,
+          newOwners: newOwners.map((guardian) => guardian.address),
+          chainId,
+        })
+      : "";
+
+  const { data: guardians } = useGuardians(
+    safeAddress as `0x${string}`,
+    Number(chainId)
+  );
+
+  const { data: owners } = useOwners(
+    safeAddress as `0x${string}`,
+    Number(chainId)
+  );
+
+  // Automatically set default chain if user connects on wallet
+  useEffect(() => {
+    if (
+      accountChainId &&
+      chains.map((chain) => chain.id).includes(accountChainId) &&
+      currentStep == 1
+    ) {
+      setChainId(accountChainId.toString());
+    }
+  }, [accountChainId, chains, setChainId, currentStep]);
+
   const isNextDisabled =
     (currentStep === 1 && !safeAddress) ||
     (currentStep === 2 && newOwners.length === 0);
-
-  const link = createFinalUrl({
-    safeAddress,
-    newThreshold: threshold,
-    newOwners: newOwners.map((guardian) => guardian.address),
-  });
-
-  const { data: guardians } = useGuardians(safeAddress as `0x${string}`);
 
   const handleNext = () => {
     switch (currentStep) {
@@ -44,6 +79,13 @@ export default function AskRecovery() {
           setSafeAddressError("Insert a valid address.");
           break;
         }
+        if (!guardians) {
+          setSafeAddressError(
+            "Couldn't fetch guardians. Maybe this safe address has no guardians on the selected chain."
+          );
+          break;
+        }
+        setSafeAddressError("");
         setCurrentStep((prev) => prev + 1);
         break;
       }
@@ -109,9 +151,24 @@ export default function AskRecovery() {
           isValid: false,
           reason: "Guardians can't be new owners.",
         };
+      if (!owners)
+        return {
+          isValid: false,
+          reason: "Couldn't fetch owners.",
+        };
+      if (
+        areAddressListsEqual(
+          [...newOwners.map((newOwner) => newOwner.address), address],
+          owners
+        )
+      )
+        return {
+          isValid: false,
+          reason: "New owners exactly match old owners.",
+        };
       return { isValid: true, reason: "" };
     },
-    [safeAddress, guardians]
+    [safeAddress, guardians, owners, newOwners]
   );
 
   const getStepContent = () => {
@@ -123,6 +180,8 @@ export default function AskRecovery() {
             onSafeAddressChange={setSafeAddress}
             onExternalLink={handleExternalLink}
             error={safeAddressError}
+            chainId={chainId}
+            onChainIdChange={(value: string) => setChainId(value)}
           />
         );
       case 2:
@@ -190,13 +249,11 @@ export default function AskRecovery() {
 
   return (
     <div className="flex flex-1 items-center justify-center mx-8">
-      <Modal
+      <BaseForm
         title={getStepTitle()}
         description={getStepDescription()}
         currentStep={currentStep}
-        isOpen={isOpen}
         totalSteps={totalSteps}
-        onClose={() => setIsOpen(false)}
         onNext={handleNext}
         onBack={handleBack}
         backLabel={currentStep !== 4 ? "Back" : "Details"}
@@ -211,7 +268,7 @@ export default function AskRecovery() {
         isProgress={currentStep !== 4}
       >
         {getStepContent()}
-      </Modal>
+      </BaseForm>
     </div>
   );
 }

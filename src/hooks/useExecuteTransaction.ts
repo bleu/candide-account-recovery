@@ -8,6 +8,7 @@ import { getReadableError } from "@/utils/get-readable-error";
 import { useIsSafeAccount } from "./use-is-safe-account";
 import { useWaitNextSafeAccountTx } from "./use-wait-next-safe-account-tx";
 import { useState } from "react";
+import { eip5792Actions } from "viem/experimental";
 
 interface BaseTx {
   to: Address;
@@ -28,13 +29,15 @@ export function useExecuteTransaction({
   const [isWaitingTx, setIsWaitingTx] = useState<boolean>(false);
 
   const { address: signer } = useAccount();
-  const { data: walletClient } = useWalletClient();
+  const { data: rawWalletClient } = useWalletClient();
   const publicClient = usePublicClient();
   const { isSafeAccount } = useIsSafeAccount();
   const { waitNextSafeAccountTx, cancel: cancelWaitSafeTx } =
     useWaitNextSafeAccountTx({
       safeAddress: signer,
     });
+
+  const walletClient = rawWalletClient?.extend(eip5792Actions());
 
   const mutation = useMutation({
     mutationFn: async () => {
@@ -45,24 +48,23 @@ export function useExecuteTransaction({
 
       if (txs.length < 1) throw new Error("No transaction to call");
 
-      const newTxHashes = [] as `0x${string}`[];
-      for (const tx of txs) {
-        setIsWaitingApproval(true);
-        const txHash = await walletClient.sendTransaction(tx);
-        newTxHashes.push(txHash);
-
-        setIsWaitingApproval(false);
-        setIsWaitingTx(true);
-        if (isSafeAccount) {
-          const successfulTx = await waitNextSafeAccountTx();
-          if (!successfulTx)
-            throw new Error("Timeout waiting for tx execution.");
-        } else {
-          await publicClient?.waitForTransactionReceipt({ hash: txHash });
-        }
-        setIsWaitingTx(false);
+      setIsWaitingApproval(true);
+      const newTxHash =
+        txs.length > 1
+          ? await walletClient.sendCalls({ calls: txs })
+          : await walletClient.sendTransaction(txs[0]);
+      setIsWaitingApproval(false);
+      setIsWaitingTx(true);
+      if (isSafeAccount) {
+        const successfulTx = await waitNextSafeAccountTx();
+        if (!successfulTx) throw new Error("Timeout waiting for tx execution.");
+      } else {
+        await publicClient?.waitForTransactionReceipt({
+          hash: newTxHash as `0x${string}`,
+        });
       }
-      return newTxHashes;
+      setIsWaitingTx(false);
+      return [newTxHash];
     },
     onSuccess: () => {
       if (onSuccess) onSuccess();
@@ -114,7 +116,7 @@ const getLoadingMessage = (
     return "Waiting for someone to accept the transaction...";
   if (isWaitingApproval && !isSafeAccount) return "Confirming transaction...";
   if (isWaitingTx && isSafeAccount)
-    return "Waiting for transaction exectution on Safe Wallet manager...";
+    return "Waiting for transaction execution on safe wallet manager...";
   if (isWaitingTx && !isSafeAccount)
     return "Waiting for transaction exectution...";
   return "Loading transaction...";

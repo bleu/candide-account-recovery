@@ -187,7 +187,11 @@ export default function ProtectAccount() {
     }
   };
 
-  if (currentGuardians && currentGuardians.length > 0)
+  if (
+    currentGuardians &&
+    currentGuardians.length > 0 &&
+    !isLoadingPostGuardians
+  )
     router.push("/manage-recovery/dashboard");
 
   if (isWalletConnecting) return <LoadingScreen />;

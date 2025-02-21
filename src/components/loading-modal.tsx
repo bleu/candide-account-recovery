@@ -16,9 +16,9 @@ export default function LoadingModal({
 }: LoadingModalProps) {
   return (
     <Dialog open={loading} onOpenChange={onCancel}>
-      <DialogContent className="flex flex-col bg-content-background border-none rounded-3xl items-center py-16">
+      <DialogContent className="flex flex-col bg-content-background border-none rounded-3xl items-center py-8">
         <LoadingSpinner />
-        <DialogTitle className="font-roboto-mono font-normal text-base text-content-foreground opacity-60">
+        <DialogTitle className="font-roboto-mono font-normal text-center text-base text-content-foreground opacity-60">
           {loadingText || "Loading..."}
         </DialogTitle>
         <Button onClick={onCancel} className="px-6 py-2">

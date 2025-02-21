@@ -121,6 +121,7 @@ export default function ProtectAccount() {
           <ThresholdStep
             totalGuardians={guardians.length}
             onThresholdChange={handleThresholdChange}
+            currentThreshold={threshold}
           />
         );
       case 3:

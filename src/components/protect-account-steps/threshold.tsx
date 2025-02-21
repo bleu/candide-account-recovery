@@ -29,7 +29,9 @@ export default function ThresholdStep({
     <>
       <Select
         value={(currentThreshold || 1).toString()}
-        onValueChange={(value) => onThresholdChange(parseInt(value))}
+        onValueChange={(value) => {
+          onThresholdChange(parseInt(value));
+        }}
       >
         <SelectTrigger className="w-40 border-none focus:ring-primary text-foreground">
           <SelectValue />

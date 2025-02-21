@@ -51,6 +51,7 @@ export function useExecuteTransaction({
         const txHash = await walletClient.sendTransaction(tx);
         newTxHashes.push(txHash);
 
+        setIsWaitingApproval(false);
         setIsWaitingTx(true);
         if (isSafeAccount) {
           const successfulTx = await waitNextSafeAccountTx();
@@ -59,6 +60,7 @@ export function useExecuteTransaction({
         } else {
           await publicClient?.waitForTransactionReceipt({ hash: txHash });
         }
+        setIsWaitingTx(false);
       }
       return newTxHashes;
     },

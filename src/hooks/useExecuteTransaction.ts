@@ -56,8 +56,7 @@ export function useExecuteTransaction({
       setIsWaitingApproval(false);
       setIsWaitingTx(true);
       if (isSafeAccount) {
-        const successfulTx = await waitNextSafeAccountTx();
-        if (!successfulTx) throw new Error("Timeout waiting for tx execution.");
+        await waitNextSafeAccountTx(newTxHash as `0x${string}`);
       } else {
         await publicClient?.waitForTransactionReceipt({
           hash: newTxHash as `0x${string}`,
@@ -91,8 +90,8 @@ export function useExecuteTransaction({
   };
 
   const cancel = () => {
-    mutation.reset();
     if (isSafeAccount) cancelWaitSafeTx();
+    mutation.reset();
   };
 
   return {

@@ -1,8 +1,8 @@
 import { Address } from "viem";
-import { usePublicClient } from "wagmi";
+import { usePublicClient, useWalletClient } from "wagmi";
 import { useIsSafeAccount } from "./use-is-safe-account";
 import { useCallback, useMemo } from "react";
-import { safeWalletAbi } from "@/utils/abis/safeWalletAbi";
+import { eip5792Actions } from "viem/experimental";
 
 export function useWaitNextSafeAccountTx({
   safeAddress,
@@ -10,59 +10,53 @@ export function useWaitNextSafeAccountTx({
   safeAddress: Address | undefined;
 }) {
   const publicClient = usePublicClient();
+  const { data: rawWalletClient } = useWalletClient();
+  const walletClient = rawWalletClient?.extend(eip5792Actions());
   const { isSafeAccount } = useIsSafeAccount();
 
   const abortController = useMemo(() => new AbortController(), []);
 
-  const waitNextSafeAccountTx = useCallback(async () => {
-    if (!publicClient) throw new Error("Missing public client");
-    if (!safeAddress) throw new Error("Missing safe address");
-    if (!isSafeAccount) throw new Error("Not a safe address");
+  const waitNextSafeAccountTx = useCallback(
+    async (txHash: `0x${string}`) => {
+      if (!publicClient) throw new Error("Missing public client");
+      if (!walletClient) throw new Error("Missing wallet client");
+      if (!safeAddress) throw new Error("Missing safe address");
+      if (!isSafeAccount) throw new Error("Not a safe address");
 
-    const filter = await publicClient.createContractEventFilter({
-      address: safeAddress,
-      abi: safeWalletAbi,
-      eventName: "ExecutionSuccess",
-    });
+      const retryTimesMs = [
+        10000, 10000, 10000, 10000, 10000, 30000, 30000, 30000, 30000, 60000,
+        60000, 60000,
+      ];
 
-    const retryTimesMs = [
-      10000, 10000, 10000, 10000, 10000, 30000, 30000, 30000, 30000, 60000,
-      60000, 60000,
-    ];
+      while (true) {
+        if (abortController.signal.aborted) {
+          throw new Error("Aborted");
+        }
 
-    while (true) {
-      if (abortController.signal.aborted) {
-        return false;
-      }
+        const { receipts } = await walletClient.getCallsStatus({
+          id: txHash,
+        });
 
-      const logs = await publicClient.getFilterChanges({ filter });
+        console.log({ receipts });
 
-      if (logs.length > 0) {
-        publicClient.uninstallFilter({ filter });
-        return true;
-      }
+        if (receipts && receipts.length > 0) return true;
 
-      if (retryTimesMs.length === 0) {
-        publicClient.uninstallFilter({ filter });
-        return false;
-      }
+        if (retryTimesMs.length === 0) throw new Error("Transaction time out.");
 
-      const retryTime = retryTimesMs.shift();
+        const retryTime = retryTimesMs.shift();
 
-      try {
         await new Promise((resolve, reject) => {
           const timeout = setTimeout(resolve, retryTime);
           abortController.signal.addEventListener("abort", () => {
             clearTimeout(timeout);
             reject(new Error("Aborted"));
+            throw new Error("Aborted");
           });
         });
-      } catch (error: unknown) {
-        if (error instanceof Error && error.message === "Aborted") return false;
-        throw error;
       }
-    }
-  }, [publicClient, safeAddress, isSafeAccount, abortController]);
+    },
+    [publicClient, walletClient, safeAddress, isSafeAccount, abortController]
+  );
 
   const cancel = () => {
     abortController.abort();

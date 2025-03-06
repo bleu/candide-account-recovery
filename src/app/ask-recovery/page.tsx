@@ -17,6 +17,7 @@ import { useSocialRecoveryModule } from "@/hooks/use-social-recovery-module";
 import { useOwners } from "@/hooks/useOwners";
 import { areAddressListsEqual } from "@/utils/are-address-lists-equal";
 import { useAccount, useChains } from "wagmi";
+import { getEtherscanAddressLink } from "@/utils/get-etherscan-link";
 
 const totalSteps = 4;
 
@@ -123,8 +124,8 @@ export default function AskRecovery() {
   };
 
   const handleExternalLink = (address: string): void => {
-    if (isBrowser) {
-      window.open(`https://etherscan.io/address/${address}`);
+    if (isBrowser && chainId) {
+      window.open(getEtherscanAddressLink(Number(chainId), address));
     }
   };
 

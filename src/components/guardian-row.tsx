@@ -2,6 +2,9 @@ import { ExternalLink, Minus } from "lucide-react";
 import { NewAddress } from "./guardian-list";
 import PressableIcon from "./pressable-icon";
 import { Button } from "./ui/button";
+import Link from "next/link";
+import { getEtherscanAddressLink } from "@/utils/get-etherscan-link";
+import { useAccount } from "wagmi";
 
 interface GuardianRowProps {
   guardian: NewAddress;
@@ -14,6 +17,8 @@ export function GuardianRow({
   isNewGuardianList,
   onRemoveGuardian,
 }: GuardianRowProps) {
+  const { chainId } = useAccount();
+
   return (
     <div className="grid grid-cols-[1fr,3fr,1fr] items-center py-2 px-3 bg-background rounded-lg">
       <div className="text-xs text-foreground opacity-60 font-medium font-roboto-mono">
@@ -23,12 +28,17 @@ export function GuardianRow({
         <code className="text-xs text-foreground opacity-6g0 font-medium font-roboto-mono">
           {guardian.address}
         </code>
-        <PressableIcon
-          icon={ExternalLink}
-          onClick={() => console.log("link")}
-          size={14}
-          className="opacity-60 hover:opacity-100"
-        />
+        <Link
+          href={getEtherscanAddressLink(chainId ?? 1, guardian.address)}
+          target="_blank"
+        >
+          <PressableIcon
+            icon={ExternalLink}
+            onClick={() => {}}
+            size={14}
+            className="opacity-60 hover:opacity-100"
+          />
+        </Link>
       </div>
       <div className="flex justify-end">
         {isNewGuardianList ? (

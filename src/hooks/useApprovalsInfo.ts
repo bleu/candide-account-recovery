@@ -29,7 +29,6 @@ export function useApprovalsInfo({
   const { chainId: chainIdFromWallet } = useAccount();
   const { data: guardians } = useGuardians(safeAddress, chainId);
   const { srm } = useSocialRecoveryModule({ safeAddress, chainId });
-
   const chainIdToFetch = chainId ?? chainIdFromWallet;
   const client = useClient({ chainId: chainIdToFetch });
 

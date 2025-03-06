@@ -15,11 +15,13 @@ export function useGuardians(safeAddress?: Address, chainId?: number) {
   const client = useClient({ chainId: chainIdToFetch });
 
   return useQuery({
-    queryKey: ["guardians", chainIdToFetch, addressToFetch],
+    queryKey: ["guardians", chainIdToFetch, addressToFetch, srm?.moduleAddress],
     queryFn: async () => {
-      if (!addressToFetch || !client?.transport.url || !srm) {
+      if (!addressToFetch || !client?.transport.url) {
         throw new Error("Account, srm or client transport URL not available");
       }
+
+      if (!srm) return [];
 
       const guardians = (await srm.getGuardians(
         client.transport.url,
@@ -29,7 +31,6 @@ export function useGuardians(safeAddress?: Address, chainId?: number) {
       return guardians;
     },
     structuralSharing: false,
-    enabled:
-      Boolean(addressToFetch) && Boolean(client?.transport.url) && Boolean(srm),
+    enabled: Boolean(addressToFetch) && Boolean(client?.transport.url),
   });
 }

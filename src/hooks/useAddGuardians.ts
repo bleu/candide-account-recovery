@@ -1,6 +1,9 @@
 "use client";
 
-import { useSocialRecoveryModule } from "./use-social-recovery-module";
+import {
+  SrmAddress,
+  useSocialRecoveryModule,
+} from "./use-social-recovery-module";
 import { useCallback } from "react";
 import { useAccount, useWalletClient, usePublicClient } from "wagmi";
 import { Address, PublicClient } from "viem";
@@ -52,18 +55,20 @@ async function buildAddGuardiansTxs(
 export function useAddGuardians({
   guardians,
   threshold,
+  srmAddress,
   onSuccess,
   onError,
 }: {
   guardians: Address[] | undefined;
   threshold: number | undefined;
+  srmAddress?: SrmAddress;
   onSuccess?: () => void;
   onError?: (error: Error) => void;
 }) {
   const { address: signer } = useAccount();
   const { data: walletClient } = useWalletClient();
   const publicClient = usePublicClient();
-  const { srm } = useSocialRecoveryModule();
+  const { srm } = useSocialRecoveryModule({ srmAddress });
   const { data: currentGuardians } = useGuardians();
 
   const buildTxFn = useCallback(async () => {

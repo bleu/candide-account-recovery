@@ -17,10 +17,19 @@ import LoadingModal from "@/components/loading-modal";
 import { sepolia } from "wagmi/chains";
 import { BaseForm } from "@/components/base-form";
 import { useGuardians } from "@/hooks/useGuardians";
+import { SrmAddress } from "@/hooks/use-social-recovery-module";
+import { SocialRecoveryModuleGracePeriodSelector } from "abstractionkit";
 
 const totalSteps = 4;
 
 const isBrowser = typeof window !== "undefined";
+
+const delayPeriodMap: Record<string, SrmAddress> = {
+  [1]: SocialRecoveryModuleGracePeriodSelector.After3Minutes,
+  [3]: SocialRecoveryModuleGracePeriodSelector.After3Days,
+  [7]: SocialRecoveryModuleGracePeriodSelector.After7Days,
+  [14]: SocialRecoveryModuleGracePeriodSelector.After14Days,
+};
 
 export default function ProtectAccount() {
   const [currentStep, setCurrentStep] = useState(1);
@@ -64,6 +73,7 @@ export default function ProtectAccount() {
   } = useAddGuardians({
     guardians: guardians.map((guardian) => guardian.address) as Address[],
     threshold,
+    srmAddress: delayPeriodMap[delayPeriod],
     onSuccess,
   });
 

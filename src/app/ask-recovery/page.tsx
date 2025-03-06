@@ -79,7 +79,7 @@ export default function AskRecovery() {
           setSafeAddressError("Insert a valid address.");
           break;
         }
-        if (!guardians) {
+        if (!guardians || !guardians.length) {
           setSafeAddressError(
             "Couldn't fetch guardians. Maybe this safe address has no guardians on the selected chain."
           );

@@ -56,8 +56,6 @@ export default function ParametersSection({
     tempDelayPeriod !== currentDelayPeriod ||
     tempThreshold !== currentThreshold;
 
-  console.log({ parametersChanged });
-
   const { toast } = useToast();
 
   const onSuccess = () => {

@@ -23,9 +23,7 @@ async function buildUpdateDelayPeriodTxs(
   threshold: number
 ) {
   const removeGuardiansTxs = [];
-  console.log({ guardians });
   for (const [idx, guardian] of guardians.entries()) {
-    console.log([idx, guardian]);
     const prevGuardian = `${zeroAddress.slice(0, -1)}1` as Address;
     const revokeGuardianTx = {
       to: oldSrm.moduleAddress,
@@ -47,7 +45,6 @@ async function buildUpdateDelayPeriodTxs(
     0,
     threshold
   );
-  console.log(addGuardiansTxs);
 
   const txs = [...removeGuardiansTxs, ...addGuardiansTxs];
 

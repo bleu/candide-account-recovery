@@ -23,6 +23,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import React, { useEffect, useState } from "react";
 import { Address } from "viem";
 import { useAccount, useSwitchChain } from "wagmi";
+import { sepolia } from "wagmi/chains";
 
 const tabState = cn(
   "data-[state=active]:bg-secondary",
@@ -47,6 +48,9 @@ export default function Dashboard() {
 
   const [threshold, setThreshold] = useState(1);
   const [delayPeriod, setDelayPeriod] = useState(3);
+  useEffect(() => {
+    if (chainIdFromWallet === sepolia.id) setDelayPeriod(1);
+  }, [chainIdFromWallet]);
   const { switchChain } = useSwitchChain();
 
   const recoveryLinkFromWallet =

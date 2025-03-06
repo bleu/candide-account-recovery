@@ -11,8 +11,8 @@ import { useExecuteTransaction } from "./useExecuteTransaction";
 import { SocialRecoveryModule } from "abstractionkit";
 import { useGuardians } from "./useGuardians";
 import { buildAddGuardiansTxs } from "./useAddGuardians";
-import { delayPeriodMap } from "@/app/protect-account/page";
 import { socialRecoveryModuleAbi } from "@/utils/abis/socialRecoveryModuleAbi";
+import { delayPeriodMap } from "@/utils/delay-period";
 
 async function buildUpdateDelayPeriodTxs(
   oldSrm: SocialRecoveryModule,

@@ -1,5 +1,5 @@
 "use client";
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { useRouter } from "next/navigation";
 
 import GuardiansStep from "@/components/protect-account-steps/guardians";
@@ -37,9 +37,11 @@ export default function ProtectAccount() {
     isConnecting: isWalletConnecting,
   } = useAccount();
 
-  const [delayPeriod, setDelayPeriod] = useState(
-    chainId === sepolia.id ? 1 : 3
-  );
+  const [delayPeriod, setDelayPeriod] = useState(3);
+
+  useEffect(() => {
+    if (chainId === sepolia.id) setDelayPeriod(1);
+  }, [chainId]);
 
   const { toast } = useToast();
   const router = useRouter();

@@ -33,14 +33,6 @@ export function useWaitNextSafeAccountTx({
           throw new Error("Aborted");
         }
 
-        const { receipts } = await walletClient.getCallsStatus({
-          id: txHash,
-        });
-
-        console.log({ receipts });
-
-        if (receipts && receipts.length > 0) return true;
-
         if (retryTimesMs.length === 0) throw new Error("Transaction time out.");
 
         const retryTime = retryTimesMs.shift();
@@ -53,6 +45,18 @@ export function useWaitNextSafeAccountTx({
             throw new Error("Aborted");
           });
         });
+
+        try {
+          const { receipts } = await walletClient.getCallsStatus({
+            id: txHash,
+          });
+          if (receipts && receipts.length > 0) return true;
+        } catch (e) {
+          if ((e as Error)?.message.includes("Transaction not found"))
+            return true;
+          console.error(e);
+          throw e;
+        }
       }
     },
     [publicClient, walletClient, safeAddress, isSafeAccount, abortController]

@@ -12,7 +12,7 @@ import { useExecuteTransaction } from "./useExecuteTransaction";
 import { SocialRecoveryModule } from "abstractionkit";
 import { useGuardians } from "./useGuardians";
 
-async function buildAddGuardiansTxs(
+export async function buildAddGuardiansTxs(
   srm: SocialRecoveryModule,
   publicClient: PublicClient,
   signer: Address,

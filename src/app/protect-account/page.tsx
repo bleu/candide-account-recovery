@@ -25,7 +25,7 @@ const totalSteps = 4;
 
 const isBrowser = typeof window !== "undefined";
 
-const delayPeriodMap: Record<string, SrmAddress> = {
+export const delayPeriodMap: Record<string, SrmAddress> = {
   [1]: SocialRecoveryModuleGracePeriodSelector.After3Minutes,
   [3]: SocialRecoveryModuleGracePeriodSelector.After3Days,
   [7]: SocialRecoveryModuleGracePeriodSelector.After7Days,

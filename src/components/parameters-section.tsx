@@ -6,6 +6,22 @@ import ThresholdStep from "./protect-account-steps/threshold";
 import DelayPeriodStep from "./protect-account-steps/delay-period";
 import { NewAddress } from "./guardian-list";
 import { useToast } from "@/hooks/use-toast";
+import { cn } from "@/lib/utils";
+import { useUpdateParameters } from "@/hooks/use-update-parameters";
+import LoadingModal from "./loading-modal";
+import { useThreshold } from "@/hooks/useThreshold";
+import {
+  SrmAddress,
+  useSocialRecoveryModule,
+} from "@/hooks/use-social-recovery-module";
+import { SocialRecoveryModuleGracePeriodSelector } from "abstractionkit";
+
+export const delayPeriodMap: Record<SrmAddress, number> = {
+  [SocialRecoveryModuleGracePeriodSelector.After3Minutes]: 1,
+  [SocialRecoveryModuleGracePeriodSelector.After3Days]: 3,
+  [SocialRecoveryModuleGracePeriodSelector.After7Days]: 7,
+  [SocialRecoveryModuleGracePeriodSelector.After14Days]: 14,
+};
 
 const totalSteps = 2;
 
@@ -29,27 +45,55 @@ export default function ParametersSection({
 
   const [tempThreshold, setTempThreshold] = useState(threshold);
   const [tempDelayPeriod, setTempDelayPeriod] = useState(delayPeriod);
+  const [error, setError] = useState("");
+
+  const { data: currentThreshold } = useThreshold();
+  const { srm } = useSocialRecoveryModule();
+  const currentDelayPeriod =
+    srm && delayPeriodMap[srm.moduleAddress as SrmAddress];
+
+  const parametersChanged =
+    tempDelayPeriod !== currentDelayPeriod ||
+    tempThreshold !== currentThreshold;
+
+  console.log({ parametersChanged });
 
   const { toast } = useToast();
+
+  const onSuccess = () => {
+    onThresholdChange(tempThreshold);
+    onDelayPeriodChange(tempDelayPeriod);
+
+    toast({
+      title: "Parameters updated",
+      description: "Your recovery parameters have been successfully updated.",
+    });
+
+    setIsOpen(false);
+    setCurrentStep(1);
+    setError("");
+  };
+
+  const { trigger, isLoading, loadingMessage, cancel } = useUpdateParameters({
+    threshold: tempThreshold,
+    delayPeriod: tempDelayPeriod,
+    onSuccess,
+  });
 
   const handleNext = () => {
     if (currentStep < totalSteps) {
       setCurrentStep((prev) => prev + 1);
-    } else {
-      onThresholdChange(tempThreshold);
-      onDelayPeriodChange(tempDelayPeriod);
-
-      toast({
-        title: "Parameters updated",
-        description: "Your recovery parameters have been successfully updated.",
-      });
-
-      setIsOpen(false);
-      setCurrentStep(1);
+      return;
     }
+    if (!parametersChanged) {
+      setError("Please, change at least one of the parameters to continue.");
+      return;
+    }
+    trigger();
   };
 
   const handleBack = () => {
+    setError("");
     if (currentStep > 1) {
       setCurrentStep((prev) => prev - 1);
     }
@@ -70,15 +114,19 @@ export default function ParametersSection({
             totalGuardians={guardians.length}
             currentThreshold={tempThreshold}
             onThresholdChange={setTempThreshold}
-            isNewThreshold
           />
         );
       case 2:
         return (
-          <DelayPeriodStep
-            delayPeriod={tempDelayPeriod}
-            onDelayPeriodChange={setTempDelayPeriod}
-          />
+          <>
+            <DelayPeriodStep
+              delayPeriod={tempDelayPeriod}
+              onDelayPeriodChange={setTempDelayPeriod}
+            />
+            {error && (
+              <p className={cn(STYLES.textError, "text-sm mt-5")}>{error}</p>
+            )}
+          </>
         );
 
       default:
@@ -141,6 +189,11 @@ export default function ParametersSection({
       >
         {getStepContent()}
       </Modal>
+      <LoadingModal
+        loading={isLoading}
+        loadingText={loadingMessage}
+        onCancel={cancel}
+      />
     </>
   );
 }

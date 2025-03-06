@@ -12,6 +12,8 @@ import { useRevokeGuardians } from "@/hooks/useRevokeGuardians";
 import { Address } from "viem";
 import LoadingModal from "./loading-modal";
 import { toast } from "@/hooks/use-toast";
+import { useAccount } from "wagmi";
+import { getEtherscanAddressLink } from "@/utils/get-etherscan-link";
 
 export interface NewAddress {
   nickname: string;
@@ -41,6 +43,8 @@ export function GuardianList({
   const [guardianToRemove, setGuardianToRemove] = useState<NewAddress>();
   const [currentStep, setCurrentStep] = useState(1);
   const [threshold, setThreshold] = useState(1);
+
+  const { chainId } = useAccount();
 
   const {
     trigger: revokeGuardians,
@@ -98,7 +102,9 @@ export function GuardianList({
   };
 
   const handleExternalLink = (address: string): void => {
-    window.open(`https://etherscan.io/address/${address}`);
+    if (window && chainId) {
+      window.open(getEtherscanAddressLink(Number(chainId), address));
+    }
   };
 
   const getStepContent = () => {

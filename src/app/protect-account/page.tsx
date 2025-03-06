@@ -19,6 +19,7 @@ import { BaseForm } from "@/components/base-form";
 import { useGuardians } from "@/hooks/useGuardians";
 import { SrmAddress } from "@/hooks/use-social-recovery-module";
 import { SocialRecoveryModuleGracePeriodSelector } from "abstractionkit";
+import { getEtherscanAddressLink } from "@/utils/get-etherscan-link";
 
 const totalSteps = 4;
 
@@ -85,11 +86,14 @@ export default function ProtectAccount() {
     setGuardians((prev) => prev.filter((_, i) => i !== index));
   };
 
-  const handleExternalLink = useCallback((address: string): void => {
-    if (isBrowser) {
-      window.open(`https://etherscan.io/address/${address}`);
-    }
-  }, []);
+  const handleExternalLink = useCallback(
+    (address: string): void => {
+      if (isBrowser && chainId) {
+        window.open(getEtherscanAddressLink(chainId, address));
+      }
+    },
+    [chainId]
+  );
 
   const handleNext = () => {
     if (currentStep < totalSteps) {

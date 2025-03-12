@@ -17,6 +17,8 @@ import LoadingModal from "@/components/loading-modal";
 import { sepolia } from "wagmi/chains";
 import { BaseForm } from "@/components/base-form";
 import { useGuardians } from "@/hooks/useGuardians";
+import { getEtherscanAddressLink } from "@/utils/get-etherscan-link";
+import { delayPeriodMap } from "@/utils/delay-period";
 
 const totalSteps = 4;
 
@@ -66,6 +68,7 @@ export default function ProtectAccount() {
   } = useAddGuardians({
     guardians: guardians.map((guardian) => guardian.address) as Address[],
     threshold,
+    srmAddress: delayPeriodMap[delayPeriod],
     onSuccess,
   });
 
@@ -77,11 +80,14 @@ export default function ProtectAccount() {
     setGuardians((prev) => prev.filter((_, i) => i !== index));
   };
 
-  const handleExternalLink = useCallback((address: string): void => {
-    if (isBrowser) {
-      window.open(`https://etherscan.io/address/${address}`);
-    }
-  }, []);
+  const handleExternalLink = useCallback(
+    (address: string): void => {
+      if (isBrowser && chainId) {
+        window.open(getEtherscanAddressLink(chainId, address));
+      }
+    },
+    [chainId]
+  );
 
   const handleNext = () => {
     if (currentStep < totalSteps) {

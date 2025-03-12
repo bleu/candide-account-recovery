@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { STYLES } from "@/constants/styles";
 import { GuardianList } from "./guardian-list";
 import PressableIcon from "./pressable-icon";
+import Link from "next/link";
 import { ExternalLink } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "./ui/button";
@@ -17,6 +18,7 @@ import { useExecuteRecovery } from "@/hooks/useExecuteRecovery";
 import { ApprovalsInfo } from "@/hooks/useApprovalsInfo";
 import { RecoveryInfo } from "@/hooks/useOngoingRecoveryInfo";
 import { useFinalizeRecovery } from "@/hooks/useFinalizeRecovery";
+import { getEtherscanAddressLink } from "@/utils/get-etherscan-link";
 
 interface RecoveryContentProps {
   safeSigners: string[] | undefined;
@@ -48,7 +50,7 @@ export default function RecoveryContent({
 
   const { toast } = useToast();
 
-  const { address } = useAccount();
+  const { address, chainId } = useAccount();
 
   const thresholdAchieved =
     Boolean(recoveryInfo?.guardiansApprovalCount) ||
@@ -209,11 +211,16 @@ export default function RecoveryContent({
                     style={STYLES.textWithBorderOpacity}
                   >
                     <span>{address}</span>
-                    <PressableIcon
-                      icon={ExternalLink}
-                      onClick={() => {}}
-                      size={12}
-                    />
+                    <Link
+                      href={getEtherscanAddressLink(chainId ?? 1, address)}
+                      target="_blank"
+                    >
+                      <PressableIcon
+                        icon={ExternalLink}
+                        onClick={() => {}}
+                        size={12}
+                      />
+                    </Link>
                   </div>
                 ))}
             </div>

@@ -19,6 +19,7 @@ import LoadingModal from "./loading-modal";
 import { useGuardians } from "@/hooks/useGuardians";
 import { useThreshold } from "@/hooks/useThreshold";
 import Link from "next/link";
+import { getEtherscanAddressLink } from "@/utils/get-etherscan-link";
 
 const buttonStyles = "rounded-xl font-roboto-mono h-7 font-bold text-xs";
 const totalSteps = 3;
@@ -104,7 +105,9 @@ export default function GuardiansContent({
   };
 
   const handleExternalLink = (address: string): void => {
-    window.open(`https://etherscan.io/address/${address}`);
+    if (window && chainId) {
+      window.open(getEtherscanAddressLink(Number(chainId), address));
+    }
   };
 
   const handleNext = () => {

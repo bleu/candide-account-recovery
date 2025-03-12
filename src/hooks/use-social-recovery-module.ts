@@ -8,7 +8,7 @@ import { sepolia } from "wagmi/chains";
 import { useQuery } from "@tanstack/react-query";
 import { socialRecoveryModuleAbi } from "@/utils/abis/socialRecoveryModuleAbi";
 
-type SrmAddress =
+export type SrmAddress =
   | SocialRecoveryModuleGracePeriodSelector.After3Minutes
   | SocialRecoveryModuleGracePeriodSelector.After3Days
   | SocialRecoveryModuleGracePeriodSelector.After7Days

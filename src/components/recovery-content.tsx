@@ -49,7 +49,7 @@ export default function RecoveryContent({
   const [linkError, setLinkError] = useState<string>("");
   const [linkValue, setLinkValue] = useState<string>("");
   const [isSuccessfulRecoveryModalOpen, setIsSuccessfulRecoveryModalOpen] =
-    useState(true);
+    useState(false);
 
   const { toast } = useToast();
 

@@ -19,6 +19,7 @@ import { ApprovalsInfo } from "@/hooks/useApprovalsInfo";
 import { RecoveryInfo } from "@/hooks/useOngoingRecoveryInfo";
 import { useFinalizeRecovery } from "@/hooks/useFinalizeRecovery";
 import { getEtherscanAddressLink } from "@/utils/get-etherscan-link";
+import SuccessfulRecoveryModal from "./successful-recovery-modal";
 
 interface RecoveryContentProps {
   safeSigners: string[] | undefined;
@@ -47,6 +48,8 @@ export default function RecoveryContent({
   const [shouldExecute, setShouldExecute] = useState(false);
   const [linkError, setLinkError] = useState<string>("");
   const [linkValue, setLinkValue] = useState<string>("");
+  const [isSuccessfulRecoveryModalOpen, setIsSuccessfulRecoveryModalOpen] =
+    useState(true);
 
   const { toast } = useToast();
 
@@ -157,10 +160,7 @@ export default function RecoveryContent({
 
   const onSuccessFinalize = () => {
     resetQueries();
-    toast({
-      title: "Recovery finalized.",
-      description: "Signers to this Safe account has changed to: ",
-    });
+    setIsSuccessfulRecoveryModalOpen(true);
   };
 
   const {
@@ -286,6 +286,15 @@ export default function RecoveryContent({
                 />
               )}
             </Modal>
+            {safeAddress && newOwners && newThreshold ? (
+              <SuccessfulRecoveryModal
+                isOpen={isSuccessfulRecoveryModalOpen}
+                setIsOpen={setIsSuccessfulRecoveryModalOpen}
+                safeAddress={safeAddress}
+                newOwners={newOwners}
+                newThreshold={newThreshold}
+              />
+            ) : undefined}
             <LoadingModal
               loading={
                 confirmIsLoading || executeIsLoading || finalizeIsLoading

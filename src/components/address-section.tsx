@@ -5,7 +5,7 @@ import React from "react";
 
 interface AddressSectionProps {
   title: string;
-  description: string;
+  description?: string;
   addresses: string[];
 }
 
@@ -17,7 +17,9 @@ export default function AddressSection({
   return (
     <div className="space-y-3">
       <p className={STYLES.modalSectionTitle}>{title}</p>
-      <p className={STYLES.modalSectionDescription}>{description}</p>
+      {description && (
+        <p className={STYLES.modalSectionDescription}>{description}</p>
+      )}
       <div className="inline-flex flex-col space-y-2">
         {addresses.map((address) => (
           <div

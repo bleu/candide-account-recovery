@@ -159,7 +159,7 @@ export default function ParametersSection({
             style={STYLES.textWithBorderOpacity}
             className={STYLES.textWithBorder}
           >
-            {delayPeriodValueMap[delayPeriod]}-day period.
+            {delayPeriodValueMap[delayPeriod]} period.
           </span>
         </div>
         <div className="flex flex-col gap-1">

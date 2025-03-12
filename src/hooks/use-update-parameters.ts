@@ -9,7 +9,7 @@ import { useAccount, useWalletClient, usePublicClient } from "wagmi";
 import { Address, encodeFunctionData, PublicClient, zeroAddress } from "viem";
 import { useExecuteTransaction } from "./useExecuteTransaction";
 import { SocialRecoveryModule } from "abstractionkit";
-import { useGuardians } from "./useGuardians";
+import { useSrmData } from "./useSrmData";
 import { buildAddGuardiansTxs } from "./useAddGuardians";
 import { socialRecoveryModuleAbi } from "@/utils/abis/socialRecoveryModuleAbi";
 import { delayPeriodMap } from "@/utils/delay-period";
@@ -89,8 +89,7 @@ export function useUpdateParameters({
   const { srm: newSrm } = useSocialRecoveryModule({
     srmAddress: newSrmAddress,
   });
-  const { data: currentGuardians } = useGuardians();
-  const { data: guardians } = useGuardians();
+  const { guardians } = useSrmData();
 
   const buildTxFn = useCallback(async () => {
     if (
@@ -99,7 +98,6 @@ export function useUpdateParameters({
       !publicClient ||
       !threshold ||
       !delayPeriod ||
-      !currentGuardians ||
       !oldSrm ||
       !newSrm ||
       !guardians ||
@@ -130,7 +128,6 @@ export function useUpdateParameters({
     oldSrm,
     newSrm,
     delayPeriod,
-    currentGuardians,
   ]);
 
   return useExecuteTransaction({

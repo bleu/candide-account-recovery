@@ -16,7 +16,7 @@ import { NewAddress } from "@/components/guardian-list";
 import LoadingModal from "@/components/loading-modal";
 import { sepolia } from "wagmi/chains";
 import { BaseForm } from "@/components/base-form";
-import { useGuardians } from "@/hooks/useGuardians";
+import { useSrmData } from "@/hooks/useSrmData";
 import { getEtherscanAddressLink } from "@/utils/get-etherscan-link";
 import { delayPeriodMap } from "@/utils/delay-period";
 
@@ -46,7 +46,7 @@ export default function ProtectAccount() {
   const { toast } = useToast();
   const router = useRouter();
 
-  const { data: currentGuardians } = useGuardians();
+  const { guardians: currentGuardians } = useSrmData();
 
   const onSuccess = () => {
     if (chainId && address) {

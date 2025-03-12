@@ -15,8 +15,7 @@ import { STYLES } from "@/constants/styles";
 import { useSocialRecoveryModule } from "@/hooks/use-social-recovery-module";
 import { useApprovalsInfo } from "@/hooks/useApprovalsInfo";
 import useHashParams from "@/hooks/useHashParams";
-import { useOngoingRecoveryInfo } from "@/hooks/useOngoingRecoveryInfo";
-import { useOwners } from "@/hooks/useOwners";
+import { useSrmData } from "@/hooks/useSrmData";
 import { cn } from "@/lib/utils";
 import { createFinalUrl } from "@/utils/recovery-link";
 import { useQueryClient } from "@tanstack/react-query";
@@ -40,10 +39,7 @@ export default function Dashboard() {
     chainId: chainIdFromParams,
     recoveryLink: recoveryLinkFromParams,
   } = params;
-  const { data: recoveryInfo } = useOngoingRecoveryInfo(
-    safeAddressFromParams,
-    chainIdFromParams
-  );
+  const { recoveryInfo } = useSrmData(safeAddressFromParams, chainIdFromParams);
   const { chainId: chainIdFromWallet, address, isConnecting } = useAccount();
 
   const [threshold, setThreshold] = useState(1);
@@ -84,7 +80,7 @@ export default function Dashboard() {
   const newThreshold = newThresholdFromParams ?? newThresholdFromWallet;
   const chainId = chainIdFromParams ?? chainIdFromWallet;
 
-  const { data: safeSigners } = useOwners(safeAddress, chainId);
+  const { owners: safeSigners } = useSrmData(safeAddress, chainId);
 
   const { delayPeriod: delayPeriodStr } = useSocialRecoveryModule({
     safeAddress,

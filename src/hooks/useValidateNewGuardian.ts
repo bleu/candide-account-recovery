@@ -2,12 +2,10 @@
 
 import { useCallback } from "react";
 import { isAddress } from "viem";
-import { useGuardians } from "./useGuardians";
-import { useOwners } from "./useOwners";
+import { useSrmData } from "./useSrmData";
 
 export function useValidateNewGuardian() {
-  const { data: guardians } = useGuardians();
-  const { data: owners } = useOwners();
+  const { guardians, owners } = useSrmData();
 
   const validateNewGuardian = useCallback(
     (newGuardian: string, currentGuardians: string[]) => {

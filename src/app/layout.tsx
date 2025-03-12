@@ -5,7 +5,7 @@ import { cn } from "@/lib/utils";
 import Header from "@/components/header";
 import { Web3Provider } from "@/providers/Web3Provider";
 import { Toaster } from "@/components/ui/toaster";
-import Loading from "@/components/loading";
+import { LoadingContextProvider } from "@/providers/loading";
 
 const roboto = Roboto({
   weight: ["300", "400", "500", "700"],
@@ -39,10 +39,11 @@ export default function RootLayout({
         )}
       >
         <Web3Provider>
-          <Loading />
-          <Header />
-          {children}
-          <Toaster />
+          <LoadingContextProvider>
+            <Header />
+            {children}
+            <Toaster />
+          </LoadingContextProvider>
         </Web3Provider>
       </body>
     </html>

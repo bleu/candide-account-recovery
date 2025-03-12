@@ -10,7 +10,7 @@ import { Address, PublicClient } from "viem";
 import { getIsModuleEnabled } from "@/utils/getIsModuleEnabled";
 import { useExecuteTransaction } from "./useExecuteTransaction";
 import { SocialRecoveryModule } from "abstractionkit";
-import { useGuardians } from "./useGuardians";
+import { useSrmData } from "./useSrmData";
 
 export async function buildAddGuardiansTxs(
   srm: SocialRecoveryModule,
@@ -69,7 +69,7 @@ export function useAddGuardians({
   const { data: walletClient } = useWalletClient();
   const publicClient = usePublicClient();
   const { srm } = useSocialRecoveryModule({ srmAddress });
-  const { data: currentGuardians } = useGuardians();
+  const { guardians: currentGuardians } = useSrmData();
 
   const buildTxFn = useCallback(async () => {
     if (

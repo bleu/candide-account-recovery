@@ -9,7 +9,7 @@ import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 import { useUpdateParameters } from "@/hooks/use-update-parameters";
 import LoadingModal from "./loading-modal";
-import { useThreshold } from "@/hooks/useThreshold";
+import { useSrmData } from "@/hooks/useSrmData";
 import {
   SrmAddress,
   useSocialRecoveryModule,
@@ -21,6 +21,13 @@ export const delayPeriodMap: Record<SrmAddress, number> = {
   [SocialRecoveryModuleGracePeriodSelector.After3Days]: 3,
   [SocialRecoveryModuleGracePeriodSelector.After7Days]: 7,
   [SocialRecoveryModuleGracePeriodSelector.After14Days]: 14,
+};
+
+export const delayPeriodValueMap: Record<number, string> = {
+  [1]: "3-minute",
+  [3]: "3-day",
+  [7]: "7-day",
+  [14]: "14-day",
 };
 
 const totalSteps = 2;
@@ -47,7 +54,7 @@ export default function ParametersSection({
   const [tempDelayPeriod, setTempDelayPeriod] = useState(delayPeriod);
   const [error, setError] = useState("");
 
-  const { data: currentThreshold } = useThreshold();
+  const { threshold: currentThreshold } = useSrmData();
   const { srm } = useSocialRecoveryModule();
   const currentDelayPeriod =
     srm && delayPeriodMap[srm.moduleAddress as SrmAddress];
@@ -145,14 +152,14 @@ export default function ParametersSection({
           Update Parameters
         </Button>
       </div>
-      <div className="flex gap-2 my-6">
+      <div className="flex gap-4 my-6">
         <div className="flex flex-col gap-1">
           <p className={STYLES.label}>DELAY PERIOD</p>
           <span
             style={STYLES.textWithBorderOpacity}
             className={STYLES.textWithBorder}
           >
-            {delayPeriod}-day period.
+            {delayPeriodValueMap[delayPeriod]} period.
           </span>
         </div>
         <div className="flex flex-col gap-1">

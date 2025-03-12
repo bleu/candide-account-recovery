@@ -15,6 +15,8 @@ import { RecoveryInfo } from "@/hooks/useOngoingRecoveryInfo";
 import { formatRemainingTime } from "@/utils/format-remaining-time";
 import { useAccount } from "wagmi";
 import { useCancelRecovery } from "@/hooks/useCancelRecovery";
+import Link from "next/link";
+import { getEtherscanAddressLink } from "@/utils/get-etherscan-link";
 
 interface RecoverySideBarProps {
   recoveryLink: string;
@@ -33,7 +35,7 @@ export default function RecoverySidebar({
 }: RecoverySideBarProps) {
   const [isOpen, setIsOpen] = useState(false);
 
-  const { address } = useAccount();
+  const { address, chainId } = useAccount();
 
   const { toast } = useToast();
 
@@ -87,7 +89,16 @@ export default function RecoverySidebar({
         <p className="text-2xl font-roboto-mono">
           {truncateAddress(safeAddress)}
         </p>
-        <PressableIcon icon={ExternalLink} onClick={() => {}} size={18} />
+        <Link
+          href={
+            safeAddress
+              ? getEtherscanAddressLink(chainId ?? 1, safeAddress)
+              : ""
+          }
+          target="_blank"
+        >
+          <PressableIcon icon={ExternalLink} onClick={() => {}} size={18} />
+        </Link>
       </div>
 
       <>

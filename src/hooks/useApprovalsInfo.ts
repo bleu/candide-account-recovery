@@ -1,17 +1,18 @@
 "use client";
 
 import { useSocialRecoveryModule } from "./use-social-recovery-module";
-import { useAccount, useClient } from "wagmi";
+import { useAccount, usePublicClient } from "wagmi";
 import { Address } from "viem";
 import { useQuery } from "@tanstack/react-query";
 import { getGuardianNickname, getStoredGuardians } from "@/utils/storage";
 import { useSrmData } from "./useSrmData";
 import { NewAddress } from "@/components/guardian-list";
+import { socialRecoveryModuleAbi } from "@/utils/abis/socialRecoveryModuleAbi";
 
 export interface ApprovalsInfo {
   guardiansApprovals: NewAddress[];
   totalGuardianApprovals: number;
-  guardiansThreshold: number;
+  guardiansThreshold: number | undefined;
   pendingGuardians: Address[];
 }
 
@@ -27,10 +28,10 @@ export function useApprovalsInfo({
   chainId?: number;
 }) {
   const { chainId: chainIdFromWallet } = useAccount();
-  const { guardians } = useSrmData(safeAddress, chainId);
+  const { guardians, threshold } = useSrmData(safeAddress, chainId);
   const { srm } = useSocialRecoveryModule({ safeAddress, chainId });
   const chainIdToFetch = chainId ?? chainIdFromWallet;
-  const client = useClient({ chainId: chainIdToFetch });
+  const client = usePublicClient({ chainId: chainIdToFetch });
 
   return useQuery<ApprovalsInfo>({
     queryKey: ["approvalsInfo", safeAddress, newOwners, newThreshold],
@@ -39,24 +40,27 @@ export function useApprovalsInfo({
         !safeAddress ||
         !newOwners ||
         !newThreshold ||
-        !client?.transport.url ||
         !guardians ||
         !srm ||
-        !chainIdToFetch
+        !chainIdToFetch ||
+        !client
       ) {
         throw new Error("A needed parameter is not available");
       }
 
-      const guardiansApprovalsList = await Promise.all(
-        guardians.map((guardian) =>
-          srm.hasGuardianApproved(
-            client.transport.url,
-            safeAddress,
-            guardian,
-            newOwners,
-            newThreshold
-          )
-        )
+      const guardiansApprovalsListResults = await client.multicall({
+        contracts: guardians.map((guardian) => {
+          return {
+            address: srm.moduleAddress as Address,
+            abi: socialRecoveryModuleAbi,
+            functionName: "hasGuardianApproved",
+            args: [safeAddress, guardian, newOwners, BigInt(newThreshold)],
+          };
+        }),
+      });
+
+      const guardiansApprovalsList = guardiansApprovalsListResults.map(
+        (result) => result.status === "success" && result.result
       );
 
       const storedGuardians = getStoredGuardians(
@@ -80,14 +84,10 @@ export function useApprovalsInfo({
         .filter((guardian) => guardian.status === "Pending")
         .map((guardian) => guardian.address);
 
-      const guardiansThreshold = Number(
-        await srm.threshold(client.transport.url, safeAddress)
-      );
-
       return {
         guardiansApprovals,
         totalGuardianApprovals,
-        guardiansThreshold,
+        guardiansThreshold: threshold,
         pendingGuardians,
       };
     },
@@ -95,7 +95,6 @@ export function useApprovalsInfo({
       Boolean(safeAddress) &&
       Boolean(newOwners) &&
       Boolean(newThreshold) &&
-      Boolean(client?.transport.url) &&
       Boolean(guardians) &&
       Boolean(srm) &&
       Boolean(chainIdToFetch),

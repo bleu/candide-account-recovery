@@ -33,7 +33,7 @@ export function useSrmData(safeAddress?: Address, chainId?: number) {
   const query = useQuery<SrmData>({
     queryKey: ["guardians", chainIdToFetch, addressToFetch, srm?.moduleAddress],
     queryFn: async () => {
-      if (!addressToFetch || !publicClient?.transport.url) {
+      if (!addressToFetch || !publicClient) {
         throw new Error("Account, srm or client not available");
       }
 

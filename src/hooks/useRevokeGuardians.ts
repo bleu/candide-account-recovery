@@ -1,29 +1,31 @@
 "use client";
 
 import { useSocialRecoveryModule } from "./use-social-recovery-module";
-import { useAccount, useWalletClient, usePublicClient } from "wagmi";
-import { Address, PublicClient } from "viem";
+import { Address, encodeFunctionData, zeroAddress } from "viem";
 import { useExecuteTransaction } from "./useExecuteTransaction";
 import { useCallback } from "react";
 import { SocialRecoveryModule } from "abstractionkit";
+import { socialRecoveryModuleAbi } from "@/utils/abis/socialRecoveryModuleAbi";
+import { useSrmData } from "./useSrmData";
 
 async function buildRevokeGuardiansTxs(
   srm: SocialRecoveryModule,
-  publicClient: PublicClient,
-  signer: Address,
+  prevGuardian: Address,
   guardians: Address[],
   threshold: number
 ) {
   const txs = [];
 
   for (const guardian of guardians) {
-    const revokeGuardianTx =
-      await srm.createRevokeGuardianWithThresholdMetaTransaction(
-        publicClient.transport.url,
-        signer,
-        guardian,
-        BigInt(threshold)
-      );
+    const revokeGuardianTx = {
+      to: srm.moduleAddress,
+      data: encodeFunctionData({
+        abi: socialRecoveryModuleAbi,
+        functionName: "revokeGuardianWithThreshold",
+        args: [prevGuardian, guardian, BigInt(threshold)],
+      }),
+      value: BigInt(0),
+    };
     txs.push(revokeGuardianTx);
   }
 
@@ -45,28 +47,30 @@ export function useRevokeGuardians({
   onSuccess?: () => void;
   onError?: (error: Error) => void;
 }) {
-  const { address: signer } = useAccount();
-  const { data: walletClient } = useWalletClient();
-  const publicClient = usePublicClient();
   const { srm } = useSocialRecoveryModule();
+  const { guardians: currentGuardians } = useSrmData();
 
   const buildTxFn = useCallback(async () => {
-    if (!signer) throw new Error("Missing signer");
-    if (!walletClient) throw new Error("Missing wallet client");
-    if (!publicClient) throw new Error("Missing public client");
     if (!guardians) throw new Error("Missing guardians");
     if (threshold === undefined) throw new Error("Missing threshold");
     if (!srm) throw new Error("Missing srm");
+    if (!currentGuardians) throw new Error("Missing currentGuardians");
+
+    const prevGuardian =
+      currentGuardians.length > guardians.length
+        ? (currentGuardians.find(
+            (guardian) => !guardians.includes(guardian)
+          ) as Address)
+        : (`${zeroAddress.slice(0, -1)}1` as Address);
 
     const txs = await buildRevokeGuardiansTxs(
       srm,
-      publicClient,
-      signer,
+      prevGuardian,
       guardians,
       threshold
     );
     return txs;
-  }, [signer, walletClient, publicClient, guardians, threshold, srm]);
+  }, [guardians, threshold, srm, currentGuardians]);
 
   return useExecuteTransaction({
     buildTxFn,

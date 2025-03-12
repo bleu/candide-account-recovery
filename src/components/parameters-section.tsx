@@ -23,6 +23,13 @@ export const delayPeriodMap: Record<SrmAddress, number> = {
   [SocialRecoveryModuleGracePeriodSelector.After14Days]: 14,
 };
 
+export const delayPeriodValueMap: Record<number, string> = {
+  [1]: "3-minute",
+  [3]: "3-day",
+  [7]: "7-day",
+  [14]: "14-day",
+};
+
 const totalSteps = 2;
 
 interface ParametersSectionProps {
@@ -145,14 +152,14 @@ export default function ParametersSection({
           Update Parameters
         </Button>
       </div>
-      <div className="flex gap-2 my-6">
+      <div className="flex gap-4 my-6">
         <div className="flex flex-col gap-1">
           <p className={STYLES.label}>DELAY PERIOD</p>
           <span
             style={STYLES.textWithBorderOpacity}
             className={STYLES.textWithBorder}
           >
-            {delayPeriod}-day period.
+            {delayPeriodValueMap[delayPeriod]}-day period.
           </span>
         </div>
         <div className="flex flex-col gap-1">

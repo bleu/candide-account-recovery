@@ -71,6 +71,7 @@ export default function RecoveryContent({
 
   const isLastGuardianToConfirm =
     isUserPendingGuardian &&
+    approvalsInfo.guardiansThreshold &&
     approvalsInfo.totalGuardianApprovals ===
       approvalsInfo.guardiansThreshold - 1;
 

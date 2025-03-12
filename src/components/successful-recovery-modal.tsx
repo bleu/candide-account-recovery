@@ -21,21 +21,13 @@ export default function SuccessfulRecoveryModal({
     setIsOpen(false);
   };
 
-  const getStepTitle = () => {
-    return "Successful recovery!";
-  };
-
-  const getStepDescription = () => {
-    return "The recovery process has finished successfully!";
-  };
-
   return (
     <div className="flex flex-1 items-center justify-center mx-8">
       <Modal
         isOpen={isOpen}
         onClose={() => setIsOpen(false)}
-        title={getStepTitle()}
-        description={getStepDescription()}
+        title="Successful recovery!"
+        description="The recovery process was approved and it's being executed. The signers will be updated in a few seconds."
         currentStep={1}
         totalSteps={1}
         onNext={handleNext}
@@ -56,14 +48,6 @@ export default function SuccessfulRecoveryModal({
                 </p>
               </div>
             </div>
-          </div>
-          <div className="pt-3">
-            <p className="mb-3 text-lg font-bold font-roboto-mono text-primary">
-              Wrapping up...
-            </p>
-            <p className="font-bold font-roboto-mono opacity-60">
-              The signers will be updated in a few seconds
-            </p>
           </div>
         </div>
       </Modal>

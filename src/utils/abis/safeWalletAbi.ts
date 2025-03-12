@@ -647,4 +647,4 @@ export const safeWalletAbi = [
     type: "function",
   },
   { stateMutability: "payable", type: "receive" },
-];
+] as const;

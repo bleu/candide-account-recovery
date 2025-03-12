@@ -16,7 +16,7 @@ import { useAccount } from "wagmi";
 import { useConfirmRecovery } from "@/hooks/useConfirmRecovery";
 import { useExecuteRecovery } from "@/hooks/useExecuteRecovery";
 import { ApprovalsInfo } from "@/hooks/useApprovalsInfo";
-import { RecoveryInfo } from "@/hooks/useOngoingRecoveryInfo";
+import { RecoveryInfo } from "@/hooks/useSrmData";
 import { useFinalizeRecovery } from "@/hooks/useFinalizeRecovery";
 import { getEtherscanAddressLink } from "@/utils/get-etherscan-link";
 import SuccessfulRecoveryModal from "./successful-recovery-modal";

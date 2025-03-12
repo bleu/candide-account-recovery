@@ -9,7 +9,7 @@ import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 import { useUpdateParameters } from "@/hooks/use-update-parameters";
 import LoadingModal from "./loading-modal";
-import { useThreshold } from "@/hooks/useThreshold";
+import { useSrmData } from "@/hooks/useSrmData";
 import {
   SrmAddress,
   useSocialRecoveryModule,
@@ -47,7 +47,7 @@ export default function ParametersSection({
   const [tempDelayPeriod, setTempDelayPeriod] = useState(delayPeriod);
   const [error, setError] = useState("");
 
-  const { data: currentThreshold } = useThreshold();
+  const { threshold: currentThreshold } = useSrmData();
   const { srm } = useSocialRecoveryModule();
   const currentDelayPeriod =
     srm && delayPeriodMap[srm.moduleAddress as SrmAddress];

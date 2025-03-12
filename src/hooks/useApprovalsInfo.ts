@@ -5,7 +5,7 @@ import { useAccount, useClient } from "wagmi";
 import { Address } from "viem";
 import { useQuery } from "@tanstack/react-query";
 import { getGuardianNickname, getStoredGuardians } from "@/utils/storage";
-import { useGuardians } from "./useGuardians";
+import { useSrmData } from "./useSrmData";
 import { NewAddress } from "@/components/guardian-list";
 
 export interface ApprovalsInfo {
@@ -27,7 +27,7 @@ export function useApprovalsInfo({
   chainId?: number;
 }) {
   const { chainId: chainIdFromWallet } = useAccount();
-  const { data: guardians } = useGuardians(safeAddress, chainId);
+  const { guardians } = useSrmData(safeAddress, chainId);
   const { srm } = useSocialRecoveryModule({ safeAddress, chainId });
   const chainIdToFetch = chainId ?? chainIdFromWallet;
   const client = useClient({ chainId: chainIdToFetch });

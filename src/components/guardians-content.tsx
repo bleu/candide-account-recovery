@@ -16,8 +16,7 @@ import {
 } from "@/utils/storage";
 import { useAccount } from "wagmi";
 import LoadingModal from "./loading-modal";
-import { useGuardians } from "@/hooks/useGuardians";
-import { useThreshold } from "@/hooks/useThreshold";
+import { useSrmData } from "@/hooks/useSrmData";
 import Link from "next/link";
 import { getEtherscanAddressLink } from "@/utils/get-etherscan-link";
 
@@ -43,7 +42,10 @@ export default function GuardiansContent({
   const [guardians, setGuardians] = useState<NewAddress[]>([]);
   const [currentStep, setCurrentStep] = useState(1);
 
-  const { data: guardiansWithoutNicknames } = useGuardians();
+  const {
+    guardians: guardiansWithoutNicknames,
+    threshold: guardiansThreshold,
+  } = useSrmData();
 
   const { address, chainId } = useAccount();
 
@@ -60,8 +62,6 @@ export default function GuardiansContent({
         `Guardian ${idx + 1}`,
       address: guardian,
     }));
-
-  const { data: guardiansThreshold } = useThreshold();
 
   const { toast } = useToast();
 

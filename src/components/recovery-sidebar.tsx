@@ -11,7 +11,7 @@ import LoadingModal from "./loading-modal";
 import { Address } from "viem";
 import { truncateAddress } from "@/utils/truncate-address";
 import { ApprovalsInfo } from "@/hooks/useApprovalsInfo";
-import { RecoveryInfo } from "@/hooks/useOngoingRecoveryInfo";
+import { RecoveryInfo } from "@/hooks/useSrmData";
 import { formatRemainingTime } from "@/utils/format-remaining-time";
 import { useAccount } from "wagmi";
 import { useCancelRecovery } from "@/hooks/useCancelRecovery";

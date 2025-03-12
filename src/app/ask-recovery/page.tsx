@@ -11,10 +11,9 @@ import { isAddress } from "viem";
 import { createFinalUrl } from "@/utils/recovery-link";
 
 const isBrowser = typeof window !== "undefined";
-import { useGuardians } from "@/hooks/useGuardians";
+import { useSrmData } from "@/hooks/useSrmData";
 import { BaseForm } from "@/components/base-form";
 import { useSocialRecoveryModule } from "@/hooks/use-social-recovery-module";
-import { useOwners } from "@/hooks/useOwners";
 import { areAddressListsEqual } from "@/utils/are-address-lists-equal";
 import { useAccount, useChains } from "wagmi";
 import { getEtherscanAddressLink } from "@/utils/get-etherscan-link";
@@ -48,12 +47,7 @@ export default function AskRecovery() {
         })
       : "";
 
-  const { data: guardians } = useGuardians(
-    safeAddress as `0x${string}`,
-    Number(chainId)
-  );
-
-  const { data: owners } = useOwners(
+  const { guardians, owners } = useSrmData(
     safeAddress as `0x${string}`,
     Number(chainId)
   );

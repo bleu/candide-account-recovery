@@ -4,7 +4,7 @@ import { useSocialRecoveryModule } from "./use-social-recovery-module";
 import { useCallback } from "react";
 import { Address } from "viem";
 import { useAccount, usePublicClient, useWalletClient } from "wagmi";
-import { useGuardians } from "./useGuardians";
+import { useSrmData } from "./useSrmData";
 import { useExecuteTransaction } from "./useExecuteTransaction";
 
 interface ConfirmRecoveryParams {
@@ -29,7 +29,7 @@ export function useConfirmRecovery({
   const publicClient = usePublicClient();
   const { srm } = useSocialRecoveryModule({ safeAddress });
 
-  const { data: guardians } = useGuardians(safeAddress);
+  const { guardians } = useSrmData(safeAddress);
 
   const buildTxFn = useCallback(async () => {
     if (!safeAddress) {

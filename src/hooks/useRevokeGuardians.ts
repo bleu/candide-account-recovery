@@ -56,12 +56,7 @@ export function useRevokeGuardians({
     if (!srm) throw new Error("Missing srm");
     if (!currentGuardians) throw new Error("Missing currentGuardians");
 
-    const prevGuardian =
-      currentGuardians.length > guardians.length
-        ? (currentGuardians.find(
-            (guardian) => !guardians.includes(guardian)
-          ) as Address)
-        : (`${zeroAddress.slice(0, -1)}1` as Address);
+    const prevGuardian = `${zeroAddress.slice(0, -1)}1` as Address;
 
     const txs = await buildRevokeGuardiansTxs(
       srm,

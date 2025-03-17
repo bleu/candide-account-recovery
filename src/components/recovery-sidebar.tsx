@@ -102,7 +102,7 @@ export default function RecoverySidebar({
       </div>
 
       <>
-        <RecoveryLinkSection link={recoveryLink} />
+        {recoveryLink && <RecoveryLinkSection link={recoveryLink} />}
         {(delayPeriodStarted || delayPeriodEnded) && (
           <>
             <h4 className="text-xs font-medium font-roboto-mono">

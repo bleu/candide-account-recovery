@@ -4,21 +4,20 @@ import PressableIcon from "./pressable-icon";
 import { Button } from "./ui/button";
 import Link from "next/link";
 import { getEtherscanAddressLink } from "@/utils/get-etherscan-link";
-import { useAccount } from "wagmi";
 
 interface GuardianRowProps {
   guardian: NewAddress;
   isNewGuardianList?: boolean;
   onRemoveGuardian: (guardian: NewAddress) => void;
+  chainId?: number;
 }
 
 export function GuardianRow({
   guardian,
   isNewGuardianList,
   onRemoveGuardian,
+  chainId,
 }: GuardianRowProps) {
-  const { chainId } = useAccount();
-
   return (
     <div className="grid grid-cols-[1fr,3fr,1fr] items-center py-2 px-3 bg-background rounded-lg">
       <div className="text-xs text-foreground opacity-60 font-medium font-roboto-mono">

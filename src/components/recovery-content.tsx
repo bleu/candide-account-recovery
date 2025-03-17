@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { STYLES } from "@/constants/styles";
 import { GuardianList } from "./guardian-list";
-import PressableIcon from "./pressable-icon";
 import Link from "next/link";
 import { ExternalLink } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -23,6 +22,7 @@ import SuccessfulRecoveryModal from "./successful-recovery-modal";
 
 interface RecoveryContentProps {
   safeSigners: string[] | undefined;
+  safeThreshold: number | undefined;
   safeAddress: Address | undefined;
   newOwners: Address[] | undefined;
   newThreshold: number | undefined;
@@ -31,10 +31,12 @@ interface RecoveryContentProps {
   approvalsInfo: ApprovalsInfo | undefined;
   recoveryInfo: RecoveryInfo | undefined;
   resetQueries: () => void;
+  chainId: number;
 }
 
 export default function RecoveryContent({
   safeSigners,
+  safeThreshold,
   safeAddress,
   newOwners,
   newThreshold,
@@ -43,6 +45,7 @@ export default function RecoveryContent({
   approvalsInfo,
   recoveryInfo,
   resetQueries,
+  chainId,
 }: RecoveryContentProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [shouldExecute, setShouldExecute] = useState(false);
@@ -53,7 +56,7 @@ export default function RecoveryContent({
 
   const { toast } = useToast();
 
-  const { address, chainId } = useAccount();
+  const { address } = useAccount();
 
   const thresholdAchieved =
     Boolean(recoveryInfo?.guardiansApprovalCount) ||
@@ -178,7 +181,7 @@ export default function RecoveryContent({
             <h3 className="text-lg font-bold font-roboto-mono text-primary">
               Account Recovery
             </h3>
-            <div className="flex gap-2 my-6">
+            <div className="flex gap-4 my-6">
               <div className="flex flex-col gap-1">
                 <p className={STYLES.label}>DELAY PERIOD</p>
                 <span
@@ -199,37 +202,30 @@ export default function RecoveryContent({
                 </span>
               </div>
             </div>
-            <div className="flex-col gap-1 inline-flex">
-              <p className={STYLES.label}>SAFE SIGNERS</p>
-              {safeSigners &&
-                safeSigners.map((address) => (
-                  <div
-                    key={address}
-                    className={cn(
-                      STYLES.textWithBorder,
-                      "inline-flex items-center gap-2"
-                    )}
-                    style={STYLES.textWithBorderOpacity}
-                  >
-                    <span>{address}</span>
-                    <Link
-                      href={getEtherscanAddressLink(chainId ?? 1, address)}
-                      target="_blank"
-                    >
-                      <PressableIcon
-                        icon={ExternalLink}
-                        onClick={() => {}}
-                        size={12}
-                      />
-                    </Link>
-                  </div>
-                ))}
-            </div>
+            {safeSigners && safeThreshold && (
+              <SafeInfo
+                signers={safeSigners}
+                threshold={safeThreshold}
+                chainId={chainId}
+                isCurrent={true}
+              />
+            )}
+            {newOwners && newThreshold && (
+              <SafeInfo
+                signers={newOwners}
+                threshold={newThreshold}
+                chainId={chainId}
+              />
+            )}
             <h4 className="my-6 text-primary font-roboto-mono text-sm">
               GUARDIANS APPROVAL
             </h4>
             {guardians && (
-              <GuardianList guardians={guardians} resetQueries={resetQueries} />
+              <GuardianList
+                guardians={guardians}
+                resetQueries={resetQueries}
+                linkChainId={chainId}
+              />
             )}
             <div className="flex justify-end mt-4 mb-2 gap-2">
               {!(delayPeriodStarted || delayPeriodEnded) && (
@@ -319,3 +315,57 @@ export default function RecoveryContent({
     </div>
   );
 }
+
+const SafeInfo = ({
+  signers,
+  threshold,
+  chainId,
+  isCurrent,
+}: {
+  signers: string[];
+  threshold: number;
+  chainId: number;
+  isCurrent?: boolean;
+}) => {
+  return (
+    <div className="flex gap-4 my-6">
+      <div className="flex-col gap-1 inline-flex">
+        <p className={STYLES.label}>
+          {isCurrent ? "CURRENT" : "NEW"} SAFE SIGNERS
+        </p>
+        {signers.map((address) => (
+          <div
+            key={address}
+            className={cn(
+              STYLES.textWithBorder,
+              "inline-flex items-center gap-1"
+            )}
+            style={STYLES.textWithBorderOpacity}
+          >
+            <span>{address}</span>
+            <Link
+              href={getEtherscanAddressLink(chainId ?? 1, address)}
+              target="_blank"
+            >
+              <ExternalLink
+                size={20}
+                className="p-1 hover:bg-gray-100/10 rounded-md"
+              />
+            </Link>
+          </div>
+        ))}
+      </div>
+      <div className="flex flex-col gap-1">
+        <p className={STYLES.label}>
+          {isCurrent ? "CURRENT" : "NEW"} THRESHOLD
+        </p>
+        <span
+          style={STYLES.textWithBorderOpacity}
+          className={STYLES.textWithBorder}
+        >
+          {threshold} of {signers.length} Signers
+        </span>
+      </div>
+    </div>
+  );
+};

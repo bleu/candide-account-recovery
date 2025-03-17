@@ -1,17 +1,23 @@
 "use client";
 
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
 import { Search, Loader2 } from "lucide-react";
 import { Input } from "./ui/input";
 import { useSearchStore } from "@/stores/useSearchStore";
+import { ChainSelector } from "./chain-selector";
 
 const SearchInput = () => {
+  const [chainId, setChainId] = useState<string>("1");
   const inputRef = useRef<HTMLInputElement>(null);
   const [isFocused, setIsFocused] = useState(false);
 
+  useEffect(() => {
+    console.log({ chainId });
+  }, [chainId]);
+
   const { isLoading, searchValue, setSearchValue, handleSearch } =
-    useSearchStore();
+    useSearchStore({ chainId: Number(chainId) });
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -53,6 +59,7 @@ const SearchInput = () => {
           }
           disabled={isLoading}
         />
+        <ChainSelector chainId={chainId} setChainId={setChainId} />
       </div>
     </form>
   );

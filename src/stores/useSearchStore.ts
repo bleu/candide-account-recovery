@@ -2,19 +2,19 @@ import { useToast } from "@/hooks/use-toast";
 import { useLoadingContext } from "@/providers/loading";
 import { createFinalUrl, isValidLink } from "@/utils/recovery-link";
 import { useState } from "react";
-import { useAccount, usePublicClient } from "wagmi";
+import { usePublicClient } from "wagmi";
 import { Address, isAddress } from "viem";
 import { useSocialRecoveryModule } from "@/hooks/use-social-recovery-module";
 import { socialRecoveryModuleAbi } from "@/utils/abis/socialRecoveryModuleAbi";
 
-export const useSearchStore = () => {
+export const useSearchStore = ({ chainId }: { chainId: number }) => {
   const [searchValue, setSearchValue] = useState("");
   const { isLoading, setIsLoading } = useLoadingContext();
   const { toast } = useToast();
 
-  const publicClient = usePublicClient();
-  const { chainId } = useAccount();
+  const publicClient = usePublicClient({ chainId });
   const { srm } = useSocialRecoveryModule({
+    chainId,
     safeAddress: isAddress(searchValue) ? searchValue : undefined,
   });
 

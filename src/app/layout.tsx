@@ -22,6 +22,7 @@ const robotoMono = Roboto_Mono({
 export const metadata: Metadata = {
   title: "Candide Account Recovery",
   description: "Recover your Safe Accounts",
+  icons: ["https://github.com/candidelabs.png"],
 };
 
 export default function RootLayout({

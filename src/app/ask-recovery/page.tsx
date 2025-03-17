@@ -17,6 +17,7 @@ import { useSocialRecoveryModule } from "@/hooks/use-social-recovery-module";
 import { areAddressListsEqual } from "@/utils/are-address-lists-equal";
 import { useAccount, useChains } from "wagmi";
 import { getEtherscanAddressLink } from "@/utils/get-etherscan-link";
+import { useToast } from "@/hooks/use-toast";
 
 const totalSteps = 4;
 
@@ -27,6 +28,8 @@ export default function AskRecovery() {
   const [newOwners, setOwners] = useState<NewAddress[]>([]);
   const [threshold, setThreshold] = useState(1);
   const [safeAddressError, setSafeAddressError] = useState<string>("");
+
+  const { toast } = useToast();
 
   const [chainId, setChainId] = useState<string>("1");
   const { chainId: accountChainId } = useAccount();
@@ -93,6 +96,13 @@ export default function AskRecovery() {
       case 4:
         if (isBrowser) {
           navigator.clipboard.writeText(link);
+          toast({
+            title: "Copeid to clipboard!",
+            description:
+              link.length > 40
+                ? `${link.slice(0, 20)}...${link.slice(-20)}`
+                : link,
+          });
         }
       default:
         break;

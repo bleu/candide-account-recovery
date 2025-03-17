@@ -80,7 +80,10 @@ export default function Dashboard() {
   const newThreshold = newThresholdFromParams ?? newThresholdFromWallet;
   const chainId = chainIdFromParams ?? chainIdFromWallet;
 
-  const { owners: safeSigners } = useSrmData(safeAddress, chainId);
+  const { owners: safeSigners, safeThreshold } = useSrmData(
+    safeAddress,
+    chainId
+  );
 
   const { delayPeriod: delayPeriodStr } = useSocialRecoveryModule({
     safeAddress,
@@ -183,6 +186,7 @@ export default function Dashboard() {
                   />
                   <RecoveryContent
                     safeSigners={safeSigners}
+                    safeThreshold={safeThreshold}
                     safeAddress={safeAddress}
                     newOwners={newOwners}
                     newThreshold={newThreshold}
@@ -191,6 +195,7 @@ export default function Dashboard() {
                     approvalsInfo={approvalsInfo}
                     recoveryInfo={recoveryInfo}
                     resetQueries={resetQueries}
+                    chainId={chainId ?? 1}
                   />
                 </div>
               </TabsContent>

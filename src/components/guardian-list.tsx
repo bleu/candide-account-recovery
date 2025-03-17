@@ -27,6 +27,7 @@ interface GuardianListProps {
   onRemoveGuardian?: (guardian: NewAddress) => void;
   onOpenGuardianModal?: () => void;
   resetQueries: () => void;
+  linkChainId?: number;
 }
 
 const totalSteps = 3;
@@ -37,6 +38,7 @@ export function GuardianList({
   onRemoveGuardian,
   onOpenGuardianModal,
   resetQueries,
+  linkChainId,
 }: GuardianListProps) {
   const [isRemoveModalOpen, setIsRemoveModalOpen] = useState(false);
   const [isLastGuardianModalOpen, setIsLastGuardianModalOpen] = useState(false);
@@ -44,7 +46,8 @@ export function GuardianList({
   const [currentStep, setCurrentStep] = useState(1);
   const [threshold, setThreshold] = useState(1);
 
-  const { chainId } = useAccount();
+  const { chainId: connectedChainId } = useAccount();
+  const chainId = linkChainId ?? connectedChainId;
 
   const {
     trigger: revokeGuardians,
@@ -197,6 +200,7 @@ export function GuardianList({
               guardian={guardian}
               isNewGuardianList={isNewGuardianList}
               onRemoveGuardian={() => handleRemoveClick(guardian)}
+              chainId={chainId}
             />
           ))}
         </div>

@@ -37,7 +37,15 @@ export function useSrmData(safeAddress?: Address, chainId?: number) {
         throw new Error("Account, srm or client not available");
       }
 
-      if (!srm) return { guardians: [] };
+      if (!srm)
+        return {
+          guardians: [],
+          owners: (await publicClient.readContract({
+            address: addressToFetch,
+            abi: safeWalletAbi,
+            functionName: "getOwners",
+          })) as Address[],
+        };
 
       const results = await publicClient.multicall({
         contracts: [

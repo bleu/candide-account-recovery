@@ -44,9 +44,9 @@ const config = createConfig(
     // Required App Info
     appName: "Candide Account Recovery",
     // Optional App Info
-    appDescription: "App to recover Safe Wallets",
-    appUrl: "http://localhost:3000",
-    appIcon: "https://cdn-icons-png.flaticon.com/128/4064/4064205.png",
+    appDescription: "Recover Safe Wallets",
+    appUrl: "https://candide-account-recovey.vercel.app",
+    appIcon: "https://github.com/candidelabs.png",
   })
 );
 

@@ -10,11 +10,11 @@ import { useToast } from "@/hooks/use-toast";
 import LoadingModal from "./loading-modal";
 import { Address } from "viem";
 import { truncateAddress } from "@/utils/truncate-address";
-import { ApprovalsInfo } from "@/hooks/useApprovalsInfo";
-import { RecoveryInfo } from "@/hooks/useSrmData";
+import { ApprovalsInfo } from "@/hooks/use-approvals-info";
+import { RecoveryInfo } from "@/hooks/use-srm-data";
 import { formatRemainingTime } from "@/utils/format-remaining-time";
 import { useAccount } from "wagmi";
-import { useCancelRecovery } from "@/hooks/useCancelRecovery";
+import { useCancelRecovery } from "@/hooks/use-cancel-recovery";
 import Link from "next/link";
 import { getEtherscanAddressLink } from "@/utils/get-etherscan-link";
 

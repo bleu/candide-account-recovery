@@ -2,7 +2,7 @@
 
 import { useCallback } from "react";
 import { isAddress } from "viem";
-import { useSrmData } from "./useSrmData";
+import { useSrmData } from "./use-srm-data";
 
 export function useValidateNewGuardian() {
   const { guardians, owners } = useSrmData();

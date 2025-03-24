@@ -7,10 +7,10 @@ import {
 import { useCallback } from "react";
 import { useAccount, useWalletClient, usePublicClient } from "wagmi";
 import { Address, encodeFunctionData, PublicClient, zeroAddress } from "viem";
-import { useExecuteTransaction } from "./useExecuteTransaction";
+import { useExecuteTransaction } from "./use-execute-transaction";
 import { SocialRecoveryModule } from "abstractionkit";
-import { useSrmData } from "./useSrmData";
-import { buildAddGuardiansTxs } from "./useAddGuardians";
+import { useSrmData } from "./use-srm-data";
+import { buildAddGuardiansTxs } from "./use-add-guardians";
 import { socialRecoveryModuleAbi } from "@/utils/abis/socialRecoveryModuleAbi";
 import { delayPeriodMap } from "@/utils/delay-period";
 

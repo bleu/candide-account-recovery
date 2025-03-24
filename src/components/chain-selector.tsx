@@ -5,7 +5,7 @@ import {
   SelectItem,
   SelectTrigger,
 } from "@/components/ui/select";
-import useHashParams from "@/hooks/useHashParams";
+import useHashParams from "@/hooks/use-hash-params";
 import { ChainIcon } from "connectkit";
 import { useEffect } from "react";
 import { useAccount, useChains } from "wagmi";

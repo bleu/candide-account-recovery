@@ -5,7 +5,7 @@ import { useAccount, usePublicClient } from "wagmi";
 import { Address } from "viem";
 import { useQuery } from "@tanstack/react-query";
 import { getGuardianNickname, getStoredGuardians } from "@/utils/storage";
-import { useSrmData } from "./useSrmData";
+import { useSrmData } from "./use-srm-data";
 import { NewAddress } from "@/components/guardian-list";
 import { socialRecoveryModuleAbi } from "@/utils/abis/socialRecoveryModuleAbi";
 

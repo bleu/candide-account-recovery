@@ -13,9 +13,9 @@ import {
 } from "@/components/ui/tabs";
 import { STYLES } from "@/constants/styles";
 import { useSocialRecoveryModule } from "@/hooks/use-social-recovery-module";
-import { useApprovalsInfo } from "@/hooks/useApprovalsInfo";
-import useHashParams from "@/hooks/useHashParams";
-import { useSrmData } from "@/hooks/useSrmData";
+import { useApprovalsInfo } from "@/hooks/use-approvals-info";
+import useHashParams from "@/hooks/use-hash-params";
+import { useSrmData } from "@/hooks/use-srm-data";
 import { cn } from "@/lib/utils";
 import { createFinalUrl } from "@/utils/recovery-link";
 import { useQueryClient } from "@tanstack/react-query";

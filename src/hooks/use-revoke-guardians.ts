@@ -2,11 +2,11 @@
 
 import { useSocialRecoveryModule } from "./use-social-recovery-module";
 import { Address, encodeFunctionData, zeroAddress } from "viem";
-import { useExecuteTransaction } from "./useExecuteTransaction";
+import { useExecuteTransaction } from "./use-execute-transaction";
 import { useCallback } from "react";
 import { SocialRecoveryModule } from "abstractionkit";
 import { socialRecoveryModuleAbi } from "@/utils/abis/socialRecoveryModuleAbi";
-import { useSrmData } from "./useSrmData";
+import { useSrmData } from "./use-srm-data";
 
 async function buildRevokeGuardiansTxs(
   srm: SocialRecoveryModule,

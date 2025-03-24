@@ -8,9 +8,9 @@ import { useCallback } from "react";
 import { useAccount, useWalletClient, usePublicClient } from "wagmi";
 import { Address, PublicClient } from "viem";
 import { getIsModuleEnabled } from "@/utils/getIsModuleEnabled";
-import { useExecuteTransaction } from "./useExecuteTransaction";
+import { useExecuteTransaction } from "./use-execute-transaction";
 import { SocialRecoveryModule } from "abstractionkit";
-import { useSrmData } from "./useSrmData";
+import { useSrmData } from "./use-srm-data";
 
 export async function buildAddGuardiansTxs(
   srm: SocialRecoveryModule,

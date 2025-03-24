@@ -7,7 +7,7 @@ import {
 import { Info } from "lucide-react";
 import NewAddressList from "../new-address-list";
 import { NewAddress } from "../guardian-list";
-import { useValidateNewGuardian } from "@/hooks/useValidateNewGuardian";
+import { useValidateNewGuardian } from "@/hooks/use-validate-new-guardian";
 import { useCallback } from "react";
 
 interface GuardiansStepProps {

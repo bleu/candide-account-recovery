@@ -7,7 +7,7 @@ import ThresholdStep from "./protect-account-steps/threshold";
 import ReviewStepSection from "./protect-account-steps/review";
 import { useToast } from "@/hooks/use-toast";
 import ParametersSection from "./parameters-section";
-import { useAddGuardians } from "@/hooks/useAddGuardians";
+import { useAddGuardians } from "@/hooks/use-add-guardians";
 import { Address } from "viem";
 import {
   getGuardianNickname,
@@ -16,7 +16,7 @@ import {
 } from "@/utils/storage";
 import { useAccount } from "wagmi";
 import LoadingModal from "./loading-modal";
-import { useSrmData } from "@/hooks/useSrmData";
+import { useSrmData } from "@/hooks/use-srm-data";
 import Link from "next/link";
 import { getEtherscanAddressLink } from "@/utils/get-etherscan-link";
 

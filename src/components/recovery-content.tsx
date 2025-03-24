@@ -12,11 +12,11 @@ import { useToast } from "@/hooks/use-toast";
 import RecoveryLinkInput from "./recovery-link-input";
 import { Address } from "viem";
 import { useAccount } from "wagmi";
-import { useConfirmRecovery } from "@/hooks/useConfirmRecovery";
-import { useExecuteRecovery } from "@/hooks/useExecuteRecovery";
-import { ApprovalsInfo } from "@/hooks/useApprovalsInfo";
-import { RecoveryInfo } from "@/hooks/useSrmData";
-import { useFinalizeRecovery } from "@/hooks/useFinalizeRecovery";
+import { useConfirmRecovery } from "@/hooks/use-confirm-recovery";
+import { useExecuteRecovery } from "@/hooks/use-execute-recovery";
+import { ApprovalsInfo } from "@/hooks/use-approvals-info";
+import { RecoveryInfo } from "@/hooks/use-srm-data";
+import { useFinalizeRecovery } from "@/hooks/use-finalize-recovery";
 import { getEtherscanAddressLink } from "@/utils/get-etherscan-link";
 import SuccessfulRecoveryModal from "./successful-recovery-modal";
 

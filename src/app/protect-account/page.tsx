@@ -8,7 +8,7 @@ import DelayPeriodStep from "@/components/protect-account-steps/delay-period";
 import ThresholdStep from "@/components/protect-account-steps/threshold";
 import { ConnectWalletButton } from "@/components/connect-wallet-button";
 import { useAccount } from "wagmi";
-import { useAddGuardians } from "@/hooks/useAddGuardians";
+import { useAddGuardians } from "@/hooks/use-add-guardians";
 import { Address } from "viem";
 import { storeGuardians } from "@/utils/storage";
 import { useToast } from "@/hooks/use-toast";
@@ -16,7 +16,7 @@ import { NewAddress } from "@/components/guardian-list";
 import LoadingModal from "@/components/loading-modal";
 import { sepolia } from "wagmi/chains";
 import { BaseForm } from "@/components/base-form";
-import { useSrmData } from "@/hooks/useSrmData";
+import { useSrmData } from "@/hooks/use-srm-data";
 import { getEtherscanAddressLink } from "@/utils/get-etherscan-link";
 import { delayPeriodMap } from "@/utils/delay-period";
 

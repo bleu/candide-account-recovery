@@ -11,7 +11,7 @@ import { isAddress } from "viem";
 import { createFinalUrl } from "@/utils/recovery-link";
 
 const isBrowser = typeof window !== "undefined";
-import { useSrmData } from "@/hooks/useSrmData";
+import { useSrmData } from "@/hooks/use-srm-data";
 import { BaseForm } from "@/components/base-form";
 import { useSocialRecoveryModule } from "@/hooks/use-social-recovery-module";
 import { areAddressListsEqual } from "@/utils/are-address-lists-equal";

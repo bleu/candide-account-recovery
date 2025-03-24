@@ -9,7 +9,7 @@ import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 import { useUpdateParameters } from "@/hooks/use-update-parameters";
 import LoadingModal from "./loading-modal";
-import { useSrmData } from "@/hooks/useSrmData";
+import { useSrmData } from "@/hooks/use-srm-data";
 import {
   SrmAddress,
   useSocialRecoveryModule,

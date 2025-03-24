@@ -8,7 +8,7 @@ import { Input } from "./ui/input";
 import { Button } from "./ui/button";
 import { ExternalLink } from "lucide-react";
 import ReviewStepSection from "./protect-account-steps/review";
-import { useRevokeGuardians } from "@/hooks/useRevokeGuardians";
+import { useRevokeGuardians } from "@/hooks/use-revoke-guardians";
 import { Address } from "viem";
 import LoadingModal from "./loading-modal";
 import { toast } from "@/hooks/use-toast";

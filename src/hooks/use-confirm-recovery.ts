@@ -4,8 +4,8 @@ import { useSocialRecoveryModule } from "./use-social-recovery-module";
 import { useCallback } from "react";
 import { Address } from "viem";
 import { useAccount, usePublicClient, useWalletClient } from "wagmi";
-import { useSrmData } from "./useSrmData";
-import { useExecuteTransaction } from "./useExecuteTransaction";
+import { useSrmData } from "./use-srm-data";
+import { useExecuteTransaction } from "./use-execute-transaction";
 
 interface ConfirmRecoveryParams {
   safeAddress: Address | undefined;

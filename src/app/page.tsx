@@ -25,7 +25,7 @@ export default function Home() {
               onClick={() => console.log("Protect account")}
             />
             <HomeButton
-              label="ANYYONE"
+              label="ANYONE"
               title="RECOVER AN ACCOUNT"
               description="Ask for recovery if you lost access to your account."
               onClick={() => console.log("Protect account")}

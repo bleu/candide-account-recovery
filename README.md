@@ -1,6 +1,37 @@
+# Safe Cover
+
+Safe Cover leverages Safe's Social Recovery Module contracts, developed by Candide, evaluated by the Safe Protocol Team, and has passed formal verification and audits.
+
+Social Recovery provides users with an effective method to regain control of their accounts by transferring access to a new owner through trusted contacts, or their own backup accounts. The account recovery module allows owners to add recovery addresses, known as Guardians, to facilitate this process in case their signer key is lost or compromised. Candide's Social Recovery Module is flexible and accepts various types of Ethereum accounts as Guardians, including:
+
+- Family and friends
+- Hardware wallets
+- Institutions
+- Email/SMS (through companies offering auth-based safe recovery services)
+
+Safe Cover frontend is built with censorship resistance in mind:
+
+- No analytics or tracking
+- No backend services needed, only an RPC URL
+- Easily runs on IPFS or locally
+
+## Audits
+
+Contracts, formal verification, and audits can be found in the GitHub repository: [candide-contracts](https://github.com/candidelabs/candide-contracts).
+
+## Resources
+
+- [Safe Recovery Explainer](https://docs.candide.dev/blog/making-accounts-recoverable/)
+- [Formal Verification and Audits Announcements by Safe](https://safe.global/blog/introducing-candides-social-recovery)
+
+## External Contributions
+
+The development of this frontend is led by the Bleu team. The Candide team maintains a version of the repository, `bleu/candide-account-recovery`, at `candidelabs/safecover` for publishing new releases. For any issues or pull requests, please direct them to the `bleu/candide-account-recovery` repository.
+
+## Running Locally
+
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
-## Getting Started
 
 First, run the development server:
 
@@ -19,18 +50,3 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.

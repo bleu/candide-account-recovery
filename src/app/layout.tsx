@@ -20,8 +20,8 @@ const robotoMono = Roboto_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Candide Account Recovery",
-  description: "Recover your Safe Accounts",
+  title: "Safe Cover | Safe Account Recovery",
+  description: "Ensure you never lose access to your Safe Account. Designate trusted contacts or use your own hardware wallets as recovery methods.",
   icons: ["https://github.com/candidelabs.png"],
 };
 

@@ -10,7 +10,7 @@ const Header = () => {
       <div className="flex flex-1 justify-center">
         <Link href="/">
           <h1 className="text-primary font-bold text-lg font-roboto-mono text-center">
-            Safe Account Recovery
+            Safe Cover
           </h1>
         </Link>
       </div>

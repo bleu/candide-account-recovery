@@ -10,10 +10,11 @@ export default function Home() {
         <div className="flex mx-12">
           <div className="flex flex-col justify-center  gap-3 flex-1 ">
             <h2 className="text-3xl font-bold text-primary font-roboto-mono">
-              Welcome to Safe <br /> Account Recovery
+              Welcome to Safe Cover
             </h2>
-            <p className="font-light text-2xl font-roboto-mono">
-              Choose how you want to proceed.
+            <p className="font-light font-roboto-mono">
+              Secure your Safe Account using trusted contacts
+              <br/>or your own backup accounts, like hardware wallets.
             </p>
           </div>
           <div className="flex-1 grid grid-cols-2 gap-12">

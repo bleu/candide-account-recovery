@@ -9,7 +9,7 @@ const Footer = () => {
         title="Frontend by"
         imageUrl="/bleu-logo.png"
         altText="Bleu Logo"
-        url="https://github.com/bleu/candide-account-recovery"
+        url="https://github.com/candidelabs/safecover"
       />
       <CreditsCard
         title="Smart Contracts by"

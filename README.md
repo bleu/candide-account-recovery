@@ -24,6 +24,10 @@ Contracts, formal verification, and audits can be found in the GitHub repository
 - [Safe Recovery Explainer](https://docs.candide.dev/blog/making-accounts-recoverable/)
 - [Formal Verification and Audits Announcements by Safe](https://safe.global/blog/introducing-candides-social-recovery)
 
+## External Contributions
+
+The development of this frontend is led by the Bleu team. The Candide team maintains a version of the repository, `bleu/candide-account-recovery`, at `candidelabs/safecover` for publishing new releases. For any issues or pull requests, please direct them to the `bleu/candide-account-recovery` repository.
+
 ## Running Locally
 
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
